@@ -439,9 +439,23 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
     setIsMonitoring(true);
     if (isBackendConnected) {
       try {
-        await fetch(`${apiBaseUrl}/monitor`, { method: 'POST' });
+        const res = await fetch(`${apiBaseUrl}/monitor`, { method: 'POST' });
+        const data = await res.json();
         await fetchBackendData();
         setIsMonitoring(false);
+        const count = data.exceptions_created ?? (data.new_exceptions ? data.new_exceptions.length : 0);
+        if (count > 0) {
+          setFormFeedback({
+            type: 'success',
+            message: `✅ Monitoring complete: ${count} new exception case${count > 1 ? 's' : ''} detected!`,
+          });
+        } else {
+          setFormFeedback({
+            type: 'success',
+            message: '✅ Monitoring complete: No new exception cases detected (all records within threshold).',
+          });
+        }
+        setTimeout(() => setFormFeedback(null), 6000);
         return;
       } catch (err) {
         console.warn('Backend monitor failed, running local detector', err);
@@ -498,7 +512,17 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
 
       if (newFoundCases.length > 0) {
         setExceptions((prev) => [...newFoundCases, ...prev]);
+        setFormFeedback({
+          type: 'success',
+          message: `✅ Monitoring complete: ${newFoundCases.length} new exception case${newFoundCases.length > 1 ? 's' : ''} detected!`,
+        });
+      } else {
+        setFormFeedback({
+          type: 'success',
+          message: '✅ Monitoring complete: No new exception cases detected (all records within threshold).',
+        });
       }
+      setTimeout(() => setFormFeedback(null), 6000);
       setIsMonitoring(false);
     }, 600);
   };
@@ -1496,10 +1520,19 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
               {formFeedback && (
                 <div
                   style={{
-                    ...styles.feedbackNotice,
-                    backgroundColor: formFeedback.type === 'success' ? '#022c22' : '#450a0a',
-                    borderColor: formFeedback.type === 'success' ? '#10b981' : '#ef4444',
-                    color: formFeedback.type === 'success' ? '#34d399' : '#f87171',
+                    marginTop: '18px',
+                    padding: '14px 20px',
+                    borderRadius: '8px',
+                    border: formFeedback.type === 'success' ? '1px solid #10b981' : '1px solid #ef4444',
+                    backgroundColor: formFeedback.type === 'success' ? '#064e3b' : '#7f1d1d',
+                    color: formFeedback.type === 'success' ? '#6ee7b7' : '#fca5a5',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    boxShadow: formFeedback.type === 'success' ? '0 0 15px rgba(16, 185, 129, 0.25)' : 'none',
+                    animation: 'fadeIn 0.2s ease-in-out',
                   }}
                 >
                   {formFeedback.message}
