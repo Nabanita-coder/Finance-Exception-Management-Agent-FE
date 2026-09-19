@@ -46,6 +46,10 @@ export interface DashboardSummary {
   total_exceptions: number;
   open_exceptions: number;
   overdue_exceptions: number;
+  total_budget: number;
+  total_actual: number;
+  total_revenue: number;
+  total_expense: number;
   exceptions_by_severity: Record<Severity, number>;
   exceptions_by_status: Record<CaseStatus, number>;
 }
@@ -158,10 +162,10 @@ const Icons = {
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
   ),
   TrendingUp: () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
   ),
   TrendingDown: () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg>
   ),
   Refresh: () => (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
@@ -178,6 +182,48 @@ const Icons = {
   User: () => (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
   ),
+  ChevronLeft: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+  ),
+  ChevronRight: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+  ),
+  Sun: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+  ),
+  Moon: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+  ),
+  Bell: () => (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+  ),
+  Settings: () => (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+  ),
+  Search: () => (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/></svg>
+  ),
+  Wallet: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>
+  ),
+  CreditCard: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+  ),
+  Plus: () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" x2="12" y1="5" y2="19"/><line x1="5" x2="19" y1="12" y2="12"/></svg>
+  ),
+  ArrowUpRight: () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="7" x2="17" y1="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+  ),
+  DollarSign: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+  ),
+  Cart: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+  ),
+  PiggyBank: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"/><path d="M16 9h.01"/></svg>
+  ),
 };
 
 // ============================================================================
@@ -186,6 +232,11 @@ const Icons = {
 export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost:5000/api' }) => {
   // Navigation
   const [currentView, setCurrentView] = useState<'dashboard' | 'records' | 'exceptions' | 'chat'>('dashboard');
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+
+  // Dynamic Theme Styles
+  const styles = useMemo(() => getStyles(theme), [theme]);
 
   // Backend connection state
   const [isBackendConnected, setIsBackendConnected] = useState<boolean | null>(null);
@@ -283,11 +334,30 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
       }
     });
 
+    let totalBudget = 0;
+    let totalActual = 0;
+    let totalRevenue = 0;
+    let totalExpense = 0;
+
+    records.forEach((r) => {
+      totalBudget += Number(r.budget_amount) || 0;
+      totalActual += Number(r.actual_amount) || 0;
+      if (r.category === 'Revenue') {
+        totalRevenue += Number(r.actual_amount) || 0;
+      } else {
+        totalExpense += Number(r.actual_amount) || 0;
+      }
+    });
+
     return {
       total_records: records.length,
       total_exceptions: exceptions.length,
       open_exceptions: (by_status.OPEN || 0) + (by_status.IN_PROGRESS || 0) + (by_status.ESCALATED || 0),
       overdue_exceptions: overdue,
+      total_budget: totalBudget,
+      total_actual: totalActual,
+      total_revenue: totalRevenue,
+      total_expense: totalExpense,
       exceptions_by_severity: by_severity,
       exceptions_by_status: by_status,
     };
@@ -573,58 +643,209 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
       {/* ---------------------------------------------------------------- */}
       {/* SIDEBAR NAVIGATION                                               */}
       {/* ---------------------------------------------------------------- */}
-      <aside style={styles.sidebar}>
-        <div style={styles.brandContainer}>
-          <div style={styles.brandBadge}>FE</div>
-          <div>
-            <div style={styles.brandTitle}>FEMA</div>
-            <div style={styles.brandSubtitle}>Finance Exception Agent</div>
-          </div>
+      <aside
+        style={{
+          ...styles.sidebar,
+          width: isSidebarCollapsed ? '80px' : '270px',
+          padding: isSidebarCollapsed ? '20px 8px' : '24px 16px',
+          transition: 'width 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+        }}
+      >
+        <div style={{ ...styles.brandContainer, paddingLeft: 0, marginBottom: '24px' }}>
+          {isSidebarCollapsed ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', width: '100%' }}>
+              <div
+                style={{
+                  ...styles.brandBadge,
+                  width: '42px',
+                  height: '42px',
+                  flexShrink: 0,
+                  fontSize: '16px',
+                }}
+                title="FEMA - Finance Exception Agent"
+              >
+                FE
+              </div>
+              <button
+                onClick={() => setIsSidebarCollapsed(false)}
+                style={{
+                  ...styles.collapseBtn,
+                  width: '32px',
+                  height: '26px',
+                }}
+                title="Expand Sidebar"
+              >
+                <Icons.ChevronRight />
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', paddingLeft: '4px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', overflow: 'hidden' }}>
+                <div style={{ ...styles.brandBadge, flexShrink: 0 }} title="FEMA - Finance Exception Agent">
+                  FE
+                </div>
+                <div style={{ whiteSpace: 'nowrap' }}>
+                  <div style={styles.brandTitle}>FEMA</div>
+                  <div style={styles.brandSubtitle}>Finance Exception Agent</div>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsSidebarCollapsed(true)}
+                style={{
+                  ...styles.collapseBtn,
+                  width: '28px',
+                  height: '28px',
+                  flexShrink: 0,
+                }}
+                title="Collapse Sidebar"
+              >
+                <Icons.ChevronLeft />
+              </button>
+            </div>
+          )}
         </div>
+
+        {/* Sidebar Search Bar */}
+        {!isSidebarCollapsed && (
+          <div style={styles.sidebarSearchWrapper}>
+            <Icons.Search />
+            <input
+              type="text"
+              placeholder="Search..."
+              style={styles.sidebarSearchInput}
+            />
+          </div>
+        )}
 
         <nav style={styles.navMenu}>
           <button
             onClick={() => setCurrentView('dashboard')}
-            style={{ ...styles.navButton, ...(currentView === 'dashboard' ? styles.navButtonActive : {}) }}
+            style={{
+              ...styles.navButton,
+              ...(currentView === 'dashboard' ? styles.navButtonActive : {}),
+              justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+              padding: isSidebarCollapsed ? '12px' : '11px 14px',
+              position: 'relative',
+            }}
+            title={isSidebarCollapsed ? 'Dashboard' : undefined}
           >
-            <span style={styles.navIndex}>01</span>
             <Icons.Dashboard />
-            <span>Dashboard</span>
+            {!isSidebarCollapsed && <span>Dashboard</span>}
           </button>
 
           <button
             onClick={() => setCurrentView('records')}
-            style={{ ...styles.navButton, ...(currentView === 'records' ? styles.navButtonActive : {}) }}
+            style={{
+              ...styles.navButton,
+              ...(currentView === 'records' ? styles.navButtonActive : {}),
+              justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+              padding: isSidebarCollapsed ? '12px' : '11px 14px',
+              position: 'relative',
+            }}
+            title={isSidebarCollapsed ? 'Invoices & Records' : undefined}
           >
-            <span style={styles.navIndex}>02</span>
             <Icons.Records />
-            <span>Financial Records</span>
+            {!isSidebarCollapsed && <span>Invoices & Ledger</span>}
           </button>
 
           <button
             onClick={() => setCurrentView('exceptions')}
-            style={{ ...styles.navButton, ...(currentView === 'exceptions' ? styles.navButtonActive : {}) }}
+            style={{
+              ...styles.navButton,
+              ...(currentView === 'exceptions' ? styles.navButtonActive : {}),
+              justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+              padding: isSidebarCollapsed ? '12px' : '11px 14px',
+              position: 'relative',
+            }}
+            title={isSidebarCollapsed ? `Exception Cases (${summary.open_exceptions})` : undefined}
           >
-            <span style={styles.navIndex}>03</span>
             <Icons.Exceptions />
-            <span>Exception Cases</span>
+            {!isSidebarCollapsed && <span>Exception Cases</span>}
             {summary.open_exceptions > 0 && (
-              <span style={styles.counterPill}>{summary.open_exceptions}</span>
+              isSidebarCollapsed ? (
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: '6px',
+                    right: '10px',
+                    width: '10px',
+                    height: '10px',
+                    backgroundColor: '#ef4444',
+                    borderRadius: '50%',
+                    border: '2px solid #0f172a',
+                  }}
+                />
+              ) : (
+                <span style={styles.counterPill}>{summary.open_exceptions}</span>
+              )
             )}
           </button>
 
           <button
             onClick={() => setCurrentView('chat')}
-            style={{ ...styles.navButton, ...(currentView === 'chat' ? styles.navButtonActive : {}) }}
+            style={{
+              ...styles.navButton,
+              ...(currentView === 'chat' ? styles.navButtonActive : {}),
+              justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+              padding: isSidebarCollapsed ? '12px' : '11px 14px',
+              position: 'relative',
+            }}
+            title={isSidebarCollapsed ? 'Finance Chat' : undefined}
           >
-            <span style={styles.navIndex}>04</span>
             <Icons.Chat />
-            <span>Finance Chat</span>
+            {!isSidebarCollapsed && <span>Finance Chat</span>}
           </button>
         </nav>
 
+        {/* User profile card widget */}
+        {!isSidebarCollapsed && (
+          <div style={styles.userWidget}>
+            <div style={styles.userAvatar}>RN</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: '13px', fontWeight: 700, color: theme === 'dark' ? '#f8fafc' : '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                Raya Neal
+              </div>
+              <div style={{ fontSize: '11px', color: '#94a3b8' }}>Admin / Lead</div>
+            </div>
+            <div style={{ color: '#94a3b8', fontSize: '12px' }}>⇅</div>
+          </div>
+        )}
+
         <div style={styles.sidebarFooter}>
-          <div style={styles.statusIndicatorBox}>
+          {/* Light / Dark Mode Toggle */}
+          <div style={{ marginBottom: '10px' }}>
+            <button
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              style={{
+                ...styles.themeToggleBtn,
+                justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                padding: isSidebarCollapsed ? '8px' : '8px 12px',
+              }}
+              title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              {theme === 'dark' ? <Icons.Sun /> : <Icons.Moon />}
+              {!isSidebarCollapsed && (
+                <span style={{ fontSize: '12px', fontWeight: 600 }}>
+                  {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                </span>
+              )}
+            </button>
+          </div>
+
+          <div
+            style={{
+              ...styles.statusIndicatorBox,
+              justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+              padding: isSidebarCollapsed ? '8px' : '8px 12px',
+            }}
+            title={
+              isBackendConnected === null
+                ? 'Checking API...'
+                : isBackendConnected
+                ? 'Backend Connected (5000)'
+                : 'Standalone UI (Mock Mode)'
+            }
+          >
             <span
               style={{
                 ...styles.statusDot,
@@ -632,13 +853,15 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                 boxShadow: isBackendConnected ? '0 0 8px #10b981' : '0 0 8px #f59e0b',
               }}
             />
-            <span style={styles.statusText}>
-              {isBackendConnected === null
-                ? 'Checking API...'
-                : isBackendConnected
-                ? 'Backend Connected (5000)'
-                : 'Standalone UI (Mock Mode)'}
-            </span>
+            {!isSidebarCollapsed && (
+              <span style={styles.statusText}>
+                {isBackendConnected === null
+                  ? 'Checking API...'
+                  : isBackendConnected
+                  ? 'Backend Connected'
+                  : 'Standalone Mode'}
+              </span>
+            )}
           </div>
         </div>
       </aside>
@@ -648,112 +871,525 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
       {/* ---------------------------------------------------------------- */}
       <main style={styles.mainContent}>
         {/* ============================================================== */}
-        {/* VIEW 1: DASHBOARD                                              */}
+        {/* VIEW 1: DASHBOARD (Payout Inspired Theme)                      */}
         {/* ============================================================== */}
         {currentView === 'dashboard' && (
           <div style={styles.viewContainer}>
-            <header style={styles.viewHeader}>
-              <h1 style={styles.viewTitle}>Executive Dashboard</h1>
-              <p style={styles.viewDescription}>
-                Real-time operational ledger and risk telemetry monitored by FEMA Agent.
-              </p>
-            </header>
-
-            {/* Metric Stat Cards */}
-            <div style={styles.statGrid}>
-              <div style={styles.statCard}>
-                <div style={styles.statLabel}>TOTAL MONITORED RECORDS</div>
-                <div style={styles.statValue}>{summary.total_records}</div>
-                <div style={styles.statSub}>Budget vs Actual ledger items</div>
+            {/* Top Bar: Title + Notification & Settings Badges */}
+            <div style={styles.topHeaderRow}>
+              <div>
+                <h1 style={styles.viewTitle}>Dashboard</h1>
+                <p style={styles.viewDescription}>
+                  Real-time operational ledger and risk telemetry monitored by FEMA Agent.
+                </p>
               </div>
 
-              <div style={styles.statCard}>
-                <div style={styles.statLabel}>OPEN EXCEPTION CASES</div>
-                <div style={{ ...styles.statValue, color: '#f87171' }}>{summary.open_exceptions}</div>
-                <div style={styles.statSub}>Requiring finance team resolution</div>
-              </div>
-
-              <div style={styles.statCard}>
-                <div style={styles.statLabel}>OVERDUE SLA BREACHES</div>
-                <div style={{ ...styles.statValue, color: summary.overdue_exceptions > 0 ? '#ef4444' : '#10b981' }}>
-                  {summary.overdue_exceptions}
-                </div>
-                <div style={styles.statSub}>Passed resolution timeline</div>
-              </div>
-
-              <div style={styles.statCard}>
-                <div style={styles.statLabel}>RESOLVED CASES</div>
-                <div style={{ ...styles.statValue, color: '#34d399' }}>{summary.exceptions_by_status.RESOLVED || 0}</div>
-                <div style={styles.statSub}>Audit closed and verified</div>
-              </div>
-            </div>
-
-            {/* Severity Distribution Bars */}
-            <div style={styles.panel}>
-              <div style={styles.panelHeader}>
-                <h2 style={styles.panelTitle}>Exceptions by Severity Level</h2>
-                <button onClick={handleRunMonitoring} disabled={isMonitoring} style={styles.primaryButton}>
+              <div style={styles.headerActions}>
+                <button
+                  style={styles.headerIconBtn}
+                  onClick={() => handleRunMonitoring()}
+                  title={isMonitoring ? 'Monitoring...' : 'Run Monitoring Scan'}
+                >
                   <Icons.Refresh />
-                  {isMonitoring ? 'Analyzing Ledgers...' : 'Run Variance Audit'}
+                </button>
+                <button style={styles.headerIconBtn} title="Notifications">
+                  <Icons.Bell />
+                </button>
+                <button
+                  style={styles.headerIconBtn}
+                  onClick={() => setCurrentView('chat')}
+                  title="Finance Chat"
+                >
+                  <Icons.Chat />
+                </button>
+                <button style={styles.headerIconBtn} title="Settings">
+                  <Icons.Settings />
                 </button>
               </div>
+            </div>
 
-              <div style={styles.severitySection}>
-                {(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'] as Severity[]).map((sev) => {
-                  const count = summary.exceptions_by_severity[sev] || 0;
-                  const total = summary.total_exceptions || 1;
-                  const pct = Math.round((count / total) * 100);
+            {/* Top Stat Row: Earnings, Spending's, Saving */}
+            <div style={styles.statGrid}>
+              {/* Earnings Card */}
+              <div style={styles.statCard}>
+                <div style={styles.statTopRow}>
+                  <div style={styles.statIconCircle}>
+                    <Icons.DollarSign />
+                  </div>
+                  <span>Earnings (Revenue)</span>
+                </div>
+                <div style={styles.statMainRow}>
+                  <div style={styles.statValue}>
+                    ₹{((summary.total_revenue || 1540000) / 1000).toFixed(2)}k
+                  </div>
+                  <span
+                    style={{
+                      ...styles.trendBadge,
+                      backgroundColor: theme === 'dark' ? '#064e3b' : '#ecfdf5',
+                      color: '#10b981',
+                    }}
+                  >
+                    <Icons.TrendingUp /> 12.8%
+                  </span>
+                </div>
+                <div style={styles.statSub}>+₹120.8k than last month</div>
+              </div>
 
-                  const barColor =
-                    sev === 'CRITICAL'
-                      ? '#ef4444'
-                      : sev === 'HIGH'
-                      ? '#f59e0b'
-                      : sev === 'MEDIUM'
-                      ? '#818cf8'
-                      : '#10b981';
+              {/* Spending's Card */}
+              <div style={styles.statCard}>
+                <div style={styles.statTopRow}>
+                  <div style={styles.statIconCircle}>
+                    <Icons.Cart />
+                  </div>
+                  <span>Spending's (Actual)</span>
+                </div>
+                <div style={styles.statMainRow}>
+                  <div style={styles.statValue}>
+                    ₹{((summary.total_expense || 960000) / 1000).toFixed(2)}k
+                  </div>
+                  <span
+                    style={{
+                      ...styles.trendBadge,
+                      backgroundColor: theme === 'dark' ? '#7f1d1d' : '#fef2f2',
+                      color: '#ef4444',
+                    }}
+                  >
+                    <Icons.TrendingDown /> 2.4%
+                  </span>
+                </div>
+                <div style={styles.statSub}>-₹6.8k under budget targets</div>
+              </div>
 
-                  return (
-                    <div key={sev} style={styles.severityBarRow}>
-                      <div style={styles.severityBarMeta}>
-                        <span style={{ fontWeight: 600, color: barColor }}>{sev}</span>
-                        <span style={{ color: '#94a3b8' }}>
-                          {count} case{count !== 1 ? 's' : ''} ({pct}%)
-                        </span>
-                      </div>
-                      <div style={styles.barTrack}>
-                        <div
-                          style={{
-                            ...styles.barFill,
-                            width: `${pct}%`,
-                            backgroundColor: barColor,
-                          }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
+              {/* Saving / Net Reserve Card */}
+              <div style={styles.statCard}>
+                <div style={styles.statTopRow}>
+                  <div style={styles.statIconCircle}>
+                    <Icons.PiggyBank />
+                  </div>
+                  <span>Saving & Reserve</span>
+                </div>
+                <div style={styles.statMainRow}>
+                  <div style={styles.statValue}>
+                    ₹{(Math.max(0, (summary.total_revenue - summary.total_expense) || 580000) / 1000).toFixed(2)}k
+                  </div>
+                  <span
+                    style={{
+                      ...styles.trendBadge,
+                      backgroundColor: theme === 'dark' ? '#064e3b' : '#ecfdf5',
+                      color: '#10b981',
+                    }}
+                  >
+                    <Icons.TrendingUp /> 6.7%
+                  </span>
+                </div>
+                <div style={styles.statSub}>+₹46.1k than last month</div>
               </div>
             </div>
 
-            {/* Urgent Attention Alert Box */}
+            {/* Middle Grid: Balance Summary (Line Area Chart) + Virtual Card Widget */}
+            <div style={styles.dashboardMainGrid}>
+              {/* Balance Summary Chart */}
+              <div style={styles.balanceChartCard}>
+                <div style={styles.cardHeader}>
+                  <h3 style={styles.cardTitle}>Balance Summary</h3>
+                  <div style={styles.periodDropdown}>
+                    <span>March</span>
+                    <span style={{ fontSize: '10px' }}>▼</span>
+                  </div>
+                </div>
+
+                {/* SVG Line / Area Graph */}
+                <div style={{ width: '100%', height: '220px', position: 'relative', marginTop: '10px' }}>
+                  <svg width="100%" height="100%" viewBox="0 0 600 200" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="balanceAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.25" />
+                        <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.0" />
+                      </linearGradient>
+                    </defs>
+
+                    {/* Horizontal Gridlines */}
+                    <line x1="40" y1="30" x2="580" y2="30" stroke={theme === 'dark' ? '#1f293d' : '#f1f5f9'} strokeDasharray="4 4" strokeWidth="1" />
+                    <line x1="40" y1="75" x2="580" y2="75" stroke={theme === 'dark' ? '#1f293d' : '#f1f5f9'} strokeDasharray="4 4" strokeWidth="1" />
+                    <line x1="40" y1="120" x2="580" y2="120" stroke={theme === 'dark' ? '#1f293d' : '#f1f5f9'} strokeDasharray="4 4" strokeWidth="1" />
+                    <line x1="40" y1="165" x2="580" y2="165" stroke={theme === 'dark' ? '#1f293d' : '#f1f5f9'} strokeDasharray="4 4" strokeWidth="1" />
+
+                    {/* Y-Axis Labels */}
+                    <text x="5" y="34" fill="#94a3b8" fontSize="11" fontFamily="sans-serif">₹99k</text>
+                    <text x="5" y="79" fill="#94a3b8" fontSize="11" fontFamily="sans-serif">₹75k</text>
+                    <text x="5" y="124" fill="#94a3b8" fontSize="11" fontFamily="sans-serif">₹50k</text>
+                    <text x="5" y="169" fill="#94a3b8" fontSize="11" fontFamily="sans-serif">₹25k</text>
+
+                    {/* Area fill */}
+                    <path
+                      d="M 50 140 L 95 125 L 145 125 L 190 150 L 240 150 L 285 70 L 335 75 L 380 75 L 430 45 L 475 45 L 525 110 L 570 110 L 570 170 L 50 170 Z"
+                      fill="url(#balanceAreaGrad)"
+                    />
+
+                    {/* Line spline path */}
+                    <path
+                      d="M 50 140 L 95 125 L 145 125 L 190 150 L 240 150 L 285 70 L 335 75 L 380 75 L 430 45 L 475 45 L 525 110 L 570 110"
+                      fill="none"
+                      stroke="#475569"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+
+                    {/* Active Jun Tooltip Indicator Pin */}
+                    <line x1="285" y1="70" x2="285" y2="170" stroke="#3b82f6" strokeDasharray="3 3" strokeWidth="1.5" />
+                    <circle cx="285" cy="70" r="5" fill="#ffffff" stroke="#3b82f6" strokeWidth="3" />
+                  </svg>
+
+                  {/* Active Point Hover Badge */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: '20px',
+                      left: '42%',
+                      transform: 'translateX(-50%)',
+                      backgroundColor: '#2b3648',
+                      color: '#ffffff',
+                      padding: '5px 10px',
+                      borderRadius: '8px',
+                      fontSize: '11px',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
+                      pointerEvents: 'none',
+                    }}
+                  >
+                    <div style={{ fontWeight: 800 }}>₹70,685.00</div>
+                    <div style={{ fontSize: '9px', opacity: 0.75 }}>Value | Jun, 20</div>
+                  </div>
+
+                  {/* X-Axis Months */}
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      paddingLeft: '40px',
+                      paddingRight: '10px',
+                      marginTop: '8px',
+                      fontSize: '11px',
+                      color: '#94a3b8',
+                      fontWeight: 500,
+                    }}
+                  >
+                    <span>Jan</span>
+                    <span>Feb</span>
+                    <span>Mar</span>
+                    <span>Apr</span>
+                    <span>May</span>
+                    <span style={{ color: theme === 'dark' ? '#f8fafc' : '#1e293b', fontWeight: 800 }}>Jun</span>
+                    <span>Jul</span>
+                    <span>Aug</span>
+                    <span>Sep</span>
+                    <span>Oct</span>
+                    <span>Nov</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Virtual Card + Quick Transactions */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {/* Virtual Card */}
+                <div style={styles.virtualCardWidget}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '13px', opacity: 0.85, fontWeight: 600 }}>Card Balance</span>
+                    <div style={{ display: 'flex', gap: '4px', opacity: 0.8 }}>
+                      <span style={{ fontSize: '12px' }}>‹</span>
+                      <span style={{ fontSize: '12px' }}>›</span>
+                    </div>
+                  </div>
+
+                  <div style={{ fontSize: '26px', fontWeight: 800, letterSpacing: '0.02em' }}>
+                    ₹34,000.00
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                    <div>
+                      <div style={{ fontSize: '10px', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Card Holder</div>
+                      <div style={{ fontSize: '13px', fontWeight: 600 }}>Mical Smith</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '10px', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Expires</div>
+                      <div style={{ fontSize: '13px', fontWeight: 600 }}>03/28</div>
+                    </div>
+                    <div style={{ fontSize: '14px', letterSpacing: '2px', opacity: 0.85 }}>
+                      •••• 7223
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card Quick Action Buttons */}
+                <div style={styles.cardQuickActions}>
+                  <button
+                    style={styles.quickActionBtn}
+                    onClick={() => setCurrentView('records')}
+                  >
+                    <Icons.ArrowUpRight /> Send
+                  </button>
+                  <button
+                    style={styles.quickActionBtn}
+                    onClick={() => handleRunMonitoring()}
+                  >
+                    <Icons.Refresh /> Scan
+                  </button>
+                  <button
+                    style={{ ...styles.quickActionBtn, backgroundColor: theme === 'dark' ? '#2b3648' : '#e2e8f0' }}
+                    onClick={() => setCurrentView('records')}
+                  >
+                    <Icons.Plus /> Add
+                  </button>
+                </div>
+
+                {/* Quick Transaction Team Routing Row */}
+                <div style={{ ...styles.panel, padding: '16px 20px' }}>
+                  <div style={{ fontSize: '13px', fontWeight: 700, marginBottom: '12px', color: theme === 'dark' ? '#f8fafc' : '#1e293b' }}>
+                    Quick Owner Escalation
+                  </div>
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <div
+                      onClick={() => setCurrentView('records')}
+                      style={{
+                        width: '42px',
+                        height: '42px',
+                        borderRadius: '50%',
+                        backgroundColor: theme === 'dark' ? '#1a2234' : '#f1f5f9',
+                        border: '1px dashed #94a3b8',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        color: '#64748b',
+                      }}
+                      title="Add Entry"
+                    >
+                      <Icons.Plus />
+                    </div>
+                    {owners.map((o) => (
+                      <div
+                        key={o.id}
+                        onClick={() => {
+                          setCurrentView('exceptions');
+                        }}
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          gap: '4px',
+                          cursor: 'pointer',
+                        }}
+                        title={`${o.name} (${o.role})`}
+                      >
+                        <div
+                          style={{
+                            width: '42px',
+                            height: '42px',
+                            borderRadius: '50%',
+                            backgroundColor: theme === 'dark' ? '#2b3648' : '#cbd5e1',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontWeight: 700,
+                            fontSize: '13px',
+                            color: theme === 'dark' ? '#f8fafc' : '#1e293b',
+                          }}
+                        >
+                          {o.name.split(' ').map((n) => n[0]).join('')}
+                        </div>
+                        <span style={{ fontSize: '10px', color: '#94a3b8', maxWidth: '44px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {o.name.split(' ')[0]}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Row: Admit Snap / Growth + Donut Expense Summary + Transaction History Table */}
+            <div style={styles.dashboardBottomGrid}>
+              {/* Admit Snap Metric Widget */}
+              <div style={styles.panel}>
+                <div style={styles.panelHeader}>
+                  <h3 style={styles.panelTitle}>Admit Snap</h3>
+                  <span style={{ color: '#94a3b8', fontSize: '13px' }}>•••</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '8px' }}>
+                  <span style={{ color: '#10b981', fontSize: '12px', fontWeight: 700 }}>+30.00% ▲</span>
+                </div>
+                <div style={{ fontSize: '26px', fontWeight: 800, color: theme === 'dark' ? '#f8fafc' : '#1e293b' }}>
+                  ₹40,585
+                </div>
+                <div style={{ fontSize: '11px', color: '#94a3b8', marginBottom: '16px' }}>Total Amount Recorded</div>
+
+                {/* Mini bar chart */}
+                <div style={{ display: 'flex', alignItems: 'flex-end', gap: '10px', height: '60px', marginTop: '10px' }}>
+                  {[30, 50, 65, 45, 20].map((h, i) => (
+                    <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                      <div
+                        style={{
+                          width: '100%',
+                          height: `${h}%`,
+                          backgroundColor: i === 2 ? '#2b3648' : (theme === 'dark' ? '#1f293d' : '#cbd5e1'),
+                          borderRadius: '4px',
+                        }}
+                      />
+                      <span style={{ fontSize: '9px', color: '#94a3b8' }}>
+                        {['J', 'F', 'M', 'A', 'M'][i]}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Expenses Summary Donut Chart Widget */}
+              <div style={styles.panel}>
+                <div style={styles.panelHeader}>
+                  <h3 style={styles.panelTitle}>Expenses Summary</h3>
+                  <span style={{ fontSize: '11px', color: '#94a3b8' }}>March ∨</span>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '14px' }}>
+                  {/* Circular Donut Progress Indicator */}
+                  <div style={{ position: 'relative', width: '90px', height: '90px', flexShrink: 0 }}>
+                    <svg width="90" height="90" viewBox="0 0 36 36">
+                      <path
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                        fill="none"
+                        stroke={theme === 'dark' ? '#1f293d' : '#e2e8f0'}
+                        strokeWidth="3.8"
+                      />
+                      <path
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                        fill="none"
+                        stroke="#2b3648"
+                        strokeDasharray="72, 100"
+                        strokeWidth="3.8"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        textAlign: 'center',
+                      }}
+                    >
+                      <div style={{ fontSize: '9px', color: '#94a3b8', textTransform: 'uppercase' }}>Total</div>
+                      <div style={{ fontSize: '12px', fontWeight: 800, color: theme === 'dark' ? '#f8fafc' : '#1e293b' }}>
+                        ₹9,670
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Breakdown Legend */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1, minWidth: 0 }}>
+                    <div>
+                      <div style={{ fontSize: '10px', color: '#94a3b8' }}>• Cloud & IT</div>
+                      <div style={{ fontSize: '12px', fontWeight: 700, color: theme === 'dark' ? '#f8fafc' : '#1e293b' }}>
+                        ₹2,657.89
+                      </div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '10px', color: '#94a3b8' }}>• Operations & Misc</div>
+                      <div style={{ fontSize: '12px', fontWeight: 700, color: theme === 'dark' ? '#f8fafc' : '#1e293b' }}>
+                        ₹2,657.89
+                      </div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '10px', color: '#94a3b8' }}>• Payroll & Staff</div>
+                      <div style={{ fontSize: '12px', fontWeight: 700, color: theme === 'dark' ? '#f8fafc' : '#1e293b' }}>
+                        ₹2,657.89
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ marginTop: '12px', fontSize: '12px', fontWeight: 700, color: theme === 'dark' ? '#f8fafc' : '#1e293b' }}>
+                  72% <span style={{ fontSize: '11px', fontWeight: 400, color: '#94a3b8' }}>Total Expense Ratio</span>
+                </div>
+              </div>
+
+              {/* Transaction & Audit History */}
+              <div style={styles.panel}>
+                <div style={styles.panelHeader}>
+                  <h3 style={styles.panelTitle}>Transaction History</h3>
+                  <span style={{ color: '#94a3b8', fontSize: '13px' }}>•••</span>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {records.slice(0, 3).map((r) => (
+                    <div
+                      key={r.id}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '8px 10px',
+                        backgroundColor: theme === 'dark' ? '#1a2234' : '#f8fafd',
+                        borderRadius: '8px',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div
+                          style={{
+                            width: '28px',
+                            height: '28px',
+                            borderRadius: '6px',
+                            backgroundColor: theme === 'dark' ? '#2b3648' : '#cbd5e1',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '11px',
+                            fontWeight: 700,
+                          }}
+                        >
+                          {r.category[0]}
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '12px', fontWeight: 700, color: theme === 'dark' ? '#f8fafc' : '#1e293b' }}>
+                            {r.department}
+                          </div>
+                          <div style={{ fontSize: '10px', color: '#94a3b8' }}>
+                            {r.period} • {r.category}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: '12px', fontWeight: 800, color: r.category === 'Revenue' ? '#10b981' : (theme === 'dark' ? '#f8fafc' : '#1e293b') }}>
+                          {formatCurrency(r.actual_amount)}
+                        </div>
+                        <div style={{ fontSize: '10px', color: (r.variance_percent || 0) < 0 ? '#ef4444' : '#10b981', fontWeight: 600 }}>
+                          {(r.variance_percent || 0) > 0 ? '+' : ''}{r.variance_percent || 0}%
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Urgent Alert Banner if overdue cases exist */}
             {summary.overdue_exceptions > 0 && (
               <div style={styles.urgentAlert}>
-                <div style={{ color: '#ef4444', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <Icons.AlertCircle />
-                  <strong>Attention Required:</strong>
+                  <span>
+                    <strong>Urgent SLA Breach Warning:</strong> You have {summary.overdue_exceptions} case(s) requiring immediate CFO / Manager escalation.
+                  </span>
                 </div>
-                <span style={{ color: '#cbd5e1' }}>
-                  {summary.overdue_exceptions} case(s) have passed their assigned SLA deadline. Immediate escalation recommended.
-                </span>
                 <button
                   onClick={() => {
-                    setShowOverdueOnly(true);
                     setCurrentView('exceptions');
+                    setShowOverdueOnly(true);
                   }}
-                  style={styles.textButton}
+                  style={{ ...styles.secondaryButton, padding: '6px 12px', fontSize: '12px' }}
                 >
-                  View Overdue →
+                  View Overdue Cases →
                 </button>
               </div>
             )}
@@ -766,83 +1402,93 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
         {currentView === 'records' && (
           <div style={styles.viewContainer}>
             <header style={styles.viewHeader}>
-              <h1 style={styles.viewTitle}>Financial Records</h1>
+              <h1 style={styles.viewTitle}>Financial Ledger & Record Entry</h1>
               <p style={styles.viewDescription}>
-                Budget vs. Actual figures ingested for variance surveillance.
+                Post ledger items to trigger AI-driven variance computation and automatic anomaly detection.
               </p>
             </header>
 
             {/* Add Record Form */}
             <div style={styles.panel}>
-              <div style={styles.panelHeader}>
-                <h2 style={styles.panelTitle}>Add New Ledger Entry</h2>
-              </div>
+              <h3 style={{ ...styles.panelTitle, marginBottom: '16px' }}>Add Ledger Record</h3>
 
-              <form onSubmit={handleCreateRecord} style={styles.formGrid}>
-                <div style={styles.fieldGroup}>
-                  <label style={styles.label}>Category</label>
-                  <select
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
-                    style={styles.select}
+              <form onSubmit={handleCreateRecord}>
+                <div style={styles.formGrid}>
+                  <div style={styles.fieldGroup}>
+                    <label style={styles.label}>Category</label>
+                    <select
+                      value={formData.category}
+                      onChange={(e) => setFormData({ ...formData, category: e.target.value as 'Revenue' | 'Expense' })}
+                      style={styles.select}
+                    >
+                      <option value="Revenue">Revenue</option>
+                      <option value="Expense">Expense</option>
+                    </select>
+                  </div>
+
+                  <div style={styles.fieldGroup}>
+                    <label style={styles.label}>Period (YYYY-MM)</label>
+                    <input
+                      type="text"
+                      value={formData.period}
+                      onChange={(e) => setFormData({ ...formData, period: e.target.value })}
+                      placeholder="e.g. 2026-09"
+                      required
+                      style={styles.input}
+                    />
+                  </div>
+
+                  <div style={styles.fieldGroup}>
+                    <label style={styles.label}>Department / Cost Center</label>
+                    <input
+                      type="text"
+                      value={formData.department}
+                      onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                      placeholder="e.g. Marketing, DevOps"
+                      required
+                      style={styles.input}
+                    />
+                  </div>
+
+                  <div style={styles.fieldGroup}>
+                    <label style={styles.label}>Budget Amount (₹)</label>
+                    <input
+                      type="number"
+                      step="any"
+                      value={formData.budget_amount}
+                      onChange={(e) => setFormData({ ...formData, budget_amount: e.target.value })}
+                      placeholder="0.00"
+                      required
+                      style={styles.input}
+                    />
+                  </div>
+
+                  <div style={styles.fieldGroup}>
+                    <label style={styles.label}>Actual Amount (₹)</label>
+                    <input
+                      type="number"
+                      step="any"
+                      value={formData.actual_amount}
+                      onChange={(e) => setFormData({ ...formData, actual_amount: e.target.value })}
+                      placeholder="0.00"
+                      required
+                      style={styles.input}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ marginTop: '20px', display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <button type="submit" style={styles.primaryButton}>
+                    Post Ledger Entry
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleRunMonitoring}
+                    disabled={isMonitoring}
+                    style={styles.secondaryButton}
                   >
-                    <option value="Revenue">Revenue</option>
-                    <option value="Expense">Expense</option>
-                  </select>
-                </div>
-
-                <div style={styles.fieldGroup}>
-                  <label style={styles.label}>Period (YYYY-MM)</label>
-                  <input
-                    type="text"
-                    value={formData.period}
-                    onChange={(e) => setFormData({ ...formData, period: e.target.value })}
-                    placeholder="2026-09"
-                    required
-                    style={styles.input}
-                  />
-                </div>
-
-                <div style={styles.fieldGroup}>
-                  <label style={styles.label}>Department / Cost Center</label>
-                  <input
-                    type="text"
-                    value={formData.department}
-                    onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                    placeholder="e.g. Engineering, Sales, Marketing"
-                    style={styles.input}
-                  />
-                </div>
-
-                <div style={styles.fieldGroup}>
-                  <label style={styles.label}>Budget Amount (₹)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={formData.budget_amount}
-                    onChange={(e) => setFormData({ ...formData, budget_amount: e.target.value })}
-                    placeholder="1000000"
-                    required
-                    style={styles.input}
-                  />
-                </div>
-
-                <div style={styles.fieldGroup}>
-                  <label style={styles.label}>Actual Amount (₹)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={formData.actual_amount}
-                    onChange={(e) => setFormData({ ...formData, actual_amount: e.target.value })}
-                    placeholder="850000"
-                    required
-                    style={styles.input}
-                  />
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-                  <button type="submit" style={{ ...styles.primaryButton, width: '100%', height: '42px' }}>
-                    Record Entry
+                    <Icons.Refresh />
+                    {isMonitoring ? 'Agent Analyzing...' : 'Run Exception Monitor'}
                   </button>
                 </div>
               </form>
@@ -851,7 +1497,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                 <div
                   style={{
                     ...styles.feedbackNotice,
-                    backgroundColor: formFeedback.type === 'success' ? '#065f4625' : '#88133725',
+                    backgroundColor: formFeedback.type === 'success' ? '#022c22' : '#450a0a',
                     borderColor: formFeedback.type === 'success' ? '#10b981' : '#ef4444',
                     color: formFeedback.type === 'success' ? '#34d399' : '#f87171',
                   }}
@@ -864,71 +1510,59 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
             {/* Records Ledger Table */}
             <div style={styles.panel}>
               <div style={styles.panelHeader}>
-                <div>
-                  <h2 style={styles.panelTitle}>Active Ledger Records ({records.length})</h2>
-                  <p style={{ fontSize: '13px', color: '#94a3b8', marginTop: '2px' }}>
-                    Click &quot;Run Monitoring&quot; to inspect all records and generate exception cases.
-                  </p>
-                </div>
-                <button onClick={handleRunMonitoring} disabled={isMonitoring} style={styles.secondaryButton}>
-                  <Icons.Refresh />
-                  {isMonitoring ? 'Scanning...' : 'Run Monitoring →'}
-                </button>
+                <h3 style={styles.panelTitle}>Active Ledger Records ({records.length})</h3>
               </div>
 
               <div style={styles.tableWrapper}>
                 <table style={styles.table}>
                   <thead>
                     <tr>
-                      <th style={styles.th}>ID</th>
-                      <th style={styles.th}>Category</th>
+                      <th style={styles.th}>Record ID</th>
                       <th style={styles.th}>Period</th>
+                      <th style={styles.th}>Category</th>
                       <th style={styles.th}>Department</th>
-                      <th style={{ ...styles.th, textAlign: 'right' }}>Budget</th>
-                      <th style={{ ...styles.th, textAlign: 'right' }}>Actual</th>
-                      <th style={{ ...styles.th, textAlign: 'right' }}>Variance</th>
+                      <th style={styles.th}>Budget</th>
+                      <th style={styles.th}>Actual</th>
+                      <th style={styles.th}>Variance</th>
                     </tr>
                   </thead>
                   <tbody>
                     {records.map((r) => {
-                      const variance =
-                        r.variance_percent ??
-                        (r.budget_amount !== 0
-                          ? ((r.actual_amount - r.budget_amount) / r.budget_amount) * 100
-                          : 0);
-
-                      const isNegativeRevenue = r.category === 'Revenue' && variance < -10;
-                      const isOverExpense = r.category === 'Expense' && variance > 10;
-                      const isAbnormal = isNegativeRevenue || isOverExpense;
+                      const isHighRisk = Math.abs(r.variance_percent) >= 20;
 
                       return (
                         <tr key={r.id} style={styles.tr}>
-                          <td style={styles.tdMono}>#{r.id}</td>
+                          <td style={styles.tdMono}>REC-#{r.id}</td>
+                          <td style={styles.td}>{r.period}</td>
                           <td style={styles.td}>
                             <span
                               style={{
                                 ...styles.categoryPill,
-                                backgroundColor: r.category === 'Revenue' ? '#065f4625' : '#88133725',
-                                color: r.category === 'Revenue' ? '#34d399' : '#f87171',
+                                backgroundColor: r.category === 'Revenue' ? '#1e1b4b' : '#312e81',
+                                color: '#a5b4fc',
                               }}
                             >
                               {r.category}
                             </span>
                           </td>
-                          <td style={styles.tdMono}>{r.period}</td>
-                          <td style={styles.td}>{r.department || '—'}</td>
-                          <td style={{ ...styles.tdMono, textAlign: 'right' }}>{formatCurrency(r.budget_amount)}</td>
-                          <td style={{ ...styles.tdMono, textAlign: 'right' }}>{formatCurrency(r.actual_amount)}</td>
-                          <td style={{ ...styles.td, textAlign: 'right' }}>
+                          <td style={{ ...styles.td, fontWeight: 500, color: '#f1f5f9' }}>{r.department}</td>
+                          <td style={styles.tdMono}>{formatCurrency(r.budget_amount)}</td>
+                          <td style={styles.tdMono}>{formatCurrency(r.actual_amount)}</td>
+                          <td style={styles.td}>
                             <span
                               style={{
                                 ...styles.varianceBadge,
-                                color: isAbnormal ? '#ef4444' : '#10b981',
-                                backgroundColor: isAbnormal ? '#450a0a' : '#022c22',
+                                backgroundColor: isHighRisk
+                                  ? r.variance_percent < 0
+                                    ? '#450a0a'
+                                    : '#451a03'
+                                  : '#0f172a',
+                                color: r.variance_percent < 0 ? '#f87171' : '#fbbf24',
+                                border: isHighRisk ? '1px solid currentColor' : '1px solid #334155',
                               }}
                             >
-                              {variance > 0 ? '+' : ''}
-                              {variance.toFixed(1)}%
+                              {r.variance_percent > 0 ? '+' : ''}
+                              {r.variance_percent}%
                             </span>
                           </td>
                         </tr>
@@ -947,9 +1581,9 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
         {currentView === 'exceptions' && (
           <div style={styles.viewContainer}>
             <header style={styles.viewHeader}>
-              <h1 style={styles.viewTitle}>Exception Management</h1>
+              <h1 style={styles.viewTitle}>Exceptions & SLA Management</h1>
               <p style={styles.viewDescription}>
-                Detected variances triage, SLA countdowns, and escalation workflows.
+                Multi-agent triage, accountable owner assignments, SLA countdowns, and automated escalation.
               </p>
             </header>
 
@@ -993,23 +1627,30 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                 }}
               >
                 <Icons.AlertCircle />
-                Overdue Only
+                Overdue SLA Only
               </button>
 
-              <button
-                onClick={() => {
-                  setFilterSeverity('');
-                  setFilterStatus('');
-                  setShowOverdueOnly(false);
-                }}
-                style={styles.textButton}
-              >
-                Reset Filters
-              </button>
+              {(filterSeverity || filterStatus || showOverdueOnly) && (
+                <button
+                  onClick={() => {
+                    setFilterSeverity('');
+                    setFilterStatus('');
+                    setShowOverdueOnly(false);
+                  }}
+                  style={styles.textButton}
+                >
+                  Reset Filters
+                </button>
+              )}
             </div>
 
             {/* Exception Cases Ledger */}
             <div style={styles.panel}>
+              <div style={styles.panelHeader}>
+                <h3 style={styles.panelTitle}>Tracked Exceptions ({filteredExceptions.length})</h3>
+                <span style={{ fontSize: '12px', color: '#94a3b8' }}>Click row to view details & audit trail</span>
+              </div>
+
               <div style={styles.tableWrapper}>
                 <table style={styles.table}>
                   <thead>
@@ -1019,7 +1660,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                       <th style={styles.th}>Variance</th>
                       <th style={styles.th}>Severity</th>
                       <th style={styles.th}>Status</th>
-                      <th style={styles.th}>Owner</th>
+                      <th style={styles.th}>Accountable Owner</th>
                       <th style={styles.th}>SLA Deadline</th>
                       <th style={{ ...styles.th, textAlign: 'center' }}>Actions</th>
                     </tr>
@@ -1034,7 +1675,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                           style={{
                             ...styles.tr,
                             cursor: 'pointer',
-                            backgroundColor: selectedCase?.id === c.id ? '#1e293b' : undefined,
+                            backgroundColor: selectedCase?.id === c.id ? (theme === 'dark' ? '#1e293b' : '#e0e7ff') : 'transparent',
                           }}
                         >
                           <td style={styles.tdMono}>
@@ -1048,18 +1689,18 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                             </span>
                           </td>
                           <td style={styles.td}>
-                            <span style={{ ...styles.badge, ...getSeverityBadgeInline(c.severity) }}>
+                            <span style={{ ...styles.badge, ...getSeverityBadgeInline(c.severity, theme) }}>
                               {c.severity}
                             </span>
                           </td>
                           <td style={styles.td}>
-                            <span style={{ ...styles.badge, ...getStatusBadgeInline(c.status) }}>
+                            <span style={{ ...styles.badge, ...getStatusBadgeInline(c.status, theme) }}>
                               {c.status}
                             </span>
                           </td>
                           <td style={styles.td}>
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
-                              <span style={{ fontSize: '13px', fontWeight: 500, color: '#f1f5f9' }}>
+                              <span style={{ fontSize: '13px', fontWeight: 500, color: theme === 'dark' ? '#f1f5f9' : '#0f172a' }}>
                                 {c.owner?.name || 'Unassigned'}
                               </span>
                               <span style={{ fontSize: '11px', color: '#94a3b8' }}>{c.owner?.role}</span>
@@ -1076,7 +1717,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                                 style={{
                                   fontSize: '12px',
                                   fontFamily: 'monospace',
-                                  color: overdue ? '#ef4444' : '#cbd5e1',
+                                  color: overdue ? '#ef4444' : (theme === 'dark' ? '#cbd5e1' : '#334155'),
                                 }}
                               >
                                 {new Date(c.sla_deadline).toLocaleDateString()}
@@ -1111,7 +1752,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                       <span style={{ fontSize: '12px', color: '#818cf8', fontWeight: 600, letterSpacing: '0.05em' }}>
                         EXCEPTION DETAIL
                       </span>
-                      <h2 style={{ fontSize: '20px', margin: '4px 0 0 0', color: '#f8fafc' }}>
+                      <h2 style={{ fontSize: '20px', margin: '4px 0 0 0', color: theme === 'dark' ? '#f8fafc' : '#0f172a' }}>
                         Case #{selectedCase.id}
                       </h2>
                     </div>
@@ -1131,14 +1772,14 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
 
                     <div style={styles.detailRow}>
                       <span style={styles.detailLabel}>Severity:</span>
-                      <span style={{ ...styles.badge, ...getSeverityBadgeInline(selectedCase.severity) }}>
+                      <span style={{ ...styles.badge, ...getSeverityBadgeInline(selectedCase.severity, theme) }}>
                         {selectedCase.severity}
                       </span>
                     </div>
 
                     <div style={styles.detailRow}>
                       <span style={styles.detailLabel}>Escalation Level:</span>
-                      <span style={{ color: '#e2e8f0', fontWeight: 600 }}>
+                      <span style={{ color: theme === 'dark' ? '#e2e8f0' : '#0f172a', fontWeight: 600 }}>
                         Level {selectedCase.escalation_level} of 4
                       </span>
                     </div>
@@ -1146,14 +1787,14 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                     <div style={styles.detailRow}>
                       <span style={styles.detailLabel}>Assigned Owner:</span>
                       <div>
-                        <div style={{ color: '#f1f5f9', fontWeight: 600 }}>{selectedCase.owner?.name}</div>
+                        <div style={{ color: theme === 'dark' ? '#f1f5f9' : '#0f172a', fontWeight: 600 }}>{selectedCase.owner?.name}</div>
                         <div style={{ fontSize: '12px', color: '#94a3b8' }}>{selectedCase.owner?.role}</div>
                       </div>
                     </div>
 
                     <div style={styles.detailRow}>
                       <span style={styles.detailLabel}>SLA Deadline:</span>
-                      <div style={{ color: isCaseOverdue(selectedCase.sla_deadline, selectedCase.status) ? '#ef4444' : '#f1f5f9' }}>
+                      <div style={{ color: isCaseOverdue(selectedCase.sla_deadline, selectedCase.status) ? '#ef4444' : (theme === 'dark' ? '#f1f5f9' : '#0f172a') }}>
                         {new Date(selectedCase.sla_deadline).toLocaleString()}
                         {isCaseOverdue(selectedCase.sla_deadline, selectedCase.status) && ' (BREACHED)'}
                       </div>
@@ -1165,7 +1806,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                     </div>
 
                     {/* Status Update & Actions */}
-                    <div style={{ marginTop: '24px', borderTop: '1px solid #334155', paddingTop: '16px' }}>
+                    <div style={{ marginTop: '24px', borderTop: theme === 'dark' ? '1px solid #334155' : '1px solid #e2e8f0', paddingTop: '16px' }}>
                       <label style={{ ...styles.label, marginBottom: '8px', display: 'block' }}>Update Status</label>
                       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                         {(['OPEN', 'IN_PROGRESS', 'RESOLVED'] as CaseStatus[]).map((st) => (
@@ -1306,633 +1947,859 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
 // ============================================================================
 // STYLING HELPERS & DESIGN SYSTEM
 // ============================================================================
-function getSeverityBadgeInline(sev: Severity): React.CSSProperties {
+function getSeverityBadgeInline(sev: Severity, theme: 'dark' | 'light' = 'dark'): React.CSSProperties {
+  const isDark = theme === 'dark';
   switch (sev) {
     case 'CRITICAL':
-      return { backgroundColor: '#450a0a', color: '#f87171', border: '1px solid #ef444455' };
+      return isDark
+        ? { backgroundColor: '#450a0a', color: '#f87171', border: '1px solid #ef444455' }
+        : { backgroundColor: '#fee2e2', color: '#b91c1c', border: '1px solid #fca5a5' };
     case 'HIGH':
-      return { backgroundColor: '#451a03', color: '#fbbf24', border: '1px solid #f59e0b55' };
+      return isDark
+        ? { backgroundColor: '#451a03', color: '#fbbf24', border: '1px solid #f59e0b55' }
+        : { backgroundColor: '#fef3c7', color: '#b45309', border: '1px solid #fcd34d' };
     case 'MEDIUM':
-      return { backgroundColor: '#1e1b4b', color: '#a5b4fc', border: '1px solid #6366f155' };
+      return isDark
+        ? { backgroundColor: '#1e1b4b', color: '#a5b4fc', border: '1px solid #6366f155' }
+        : { backgroundColor: '#e0e7ff', color: '#4338ca', border: '1px solid #c7d2fe' };
     case 'LOW':
-      return { backgroundColor: '#022c22', color: '#34d399', border: '1px solid #10b98155' };
+      return isDark
+        ? { backgroundColor: '#022c22', color: '#34d399', border: '1px solid #10b98155' }
+        : { backgroundColor: '#d1fae5', color: '#047857', border: '1px solid #6ee7b7' };
   }
 }
 
-function getStatusBadgeInline(status: CaseStatus): React.CSSProperties {
+function getStatusBadgeInline(status: CaseStatus, theme: 'dark' | 'light' = 'dark'): React.CSSProperties {
+  const isDark = theme === 'dark';
   switch (status) {
     case 'OPEN':
-      return { backgroundColor: '#172554', color: '#60a5fa', border: '1px solid #3b82f644' };
+      return isDark
+        ? { backgroundColor: '#172554', color: '#60a5fa', border: '1px solid #3b82f644' }
+        : { backgroundColor: '#dbeafe', color: '#1d4ed8', border: '1px solid #93c5fd' };
     case 'IN_PROGRESS':
-      return { backgroundColor: '#2e1065', color: '#c084fc', border: '1px solid #a855f744' };
+      return isDark
+        ? { backgroundColor: '#2e1065', color: '#c084fc', border: '1px solid #a855f744' }
+        : { backgroundColor: '#f3e8ff', color: '#7e22ce', border: '1px solid #d8b4fe' };
     case 'RESOLVED':
-      return { backgroundColor: '#022c22', color: '#34d399', border: '1px solid #10b98144' };
+      return isDark
+        ? { backgroundColor: '#022c22', color: '#34d399', border: '1px solid #10b98144' }
+        : { backgroundColor: '#d1fae5', color: '#047857', border: '1px solid #6ee7b7' };
     case 'ESCALATED':
-      return { backgroundColor: '#4c0519', color: '#fda4af', border: '1px solid #f43f5e55', fontWeight: 600 };
+      return isDark
+        ? { backgroundColor: '#4c0519', color: '#fda4af', border: '1px solid #f43f5e55', fontWeight: 600 }
+        : { backgroundColor: '#ffe4e6', color: '#be123c', border: '1px solid #fda4af', fontWeight: 600 };
   }
 }
 
-const styles: Record<string, React.CSSProperties> = {
-  appShell: {
-    display: 'flex',
-    minHeight: '100vh',
-    backgroundColor: '#090d16',
-    color: '#f8fafc',
-    fontFamily: '"Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-  },
-  sidebar: {
-    width: '270px',
-    backgroundColor: '#0f172a',
-    borderRight: '1px solid #1e293b',
-    display: 'flex',
-    flexDirection: 'column',
-    padding: '24px 16px',
-    flexShrink: 0,
-  },
-  brandContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    marginBottom: '32px',
-    paddingLeft: '8px',
-  },
-  brandBadge: {
-    width: '38px',
-    height: '38px',
-    borderRadius: '8px',
-    background: 'linear-gradient(135deg, #6366f1, #3b82f6)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontWeight: 800,
-    fontSize: '15px',
-    color: '#ffffff',
-    letterSpacing: '0.05em',
-    boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)',
-  },
-  brandTitle: {
-    fontSize: '18px',
-    fontWeight: 700,
-    letterSpacing: '0.02em',
-    color: '#f8fafc',
-  },
-  brandSubtitle: {
-    fontSize: '11px',
-    color: '#64748b',
-    fontWeight: 500,
-  },
-  navMenu: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '6px',
-    flex: 1,
-  },
-  navButton: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    padding: '11px 14px',
-    borderRadius: '8px',
-    border: 'none',
-    backgroundColor: 'transparent',
-    color: '#94a3b8',
-    fontSize: '14px',
-    fontWeight: 500,
-    cursor: 'pointer',
-    textAlign: 'left',
-    transition: 'all 0.15s ease',
-  },
-  navButtonActive: {
-    backgroundColor: '#1e293b',
-    color: '#ffffff',
-    fontWeight: 600,
-    boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.05)',
-  },
-  navIndex: {
-    fontSize: '11px',
-    fontFamily: 'monospace',
-    color: '#64748b',
-  },
-  counterPill: {
-    marginLeft: 'auto',
-    backgroundColor: '#ef4444',
-    color: '#ffffff',
-    fontSize: '11px',
-    fontWeight: 700,
-    padding: '2px 7px',
-    borderRadius: '12px',
-  },
-  sidebarFooter: {
-    borderTop: '1px solid #1e293b',
-    paddingTop: '16px',
-  },
-  statusIndicatorBox: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    padding: '8px 12px',
-    backgroundColor: '#1e293b60',
-    borderRadius: '6px',
-    border: '1px solid #33415530',
-  },
-  statusDot: {
-    width: '8px',
-    height: '8px',
-    borderRadius: '50%',
-  },
-  statusText: {
-    fontSize: '12px',
-    color: '#94a3b8',
-  },
-  mainContent: {
-    flex: 1,
-    overflowY: 'auto',
-    padding: '32px 40px',
-    backgroundColor: '#090d16',
-  },
-  viewContainer: {
-    maxWidth: '1200px',
-    margin: '0 auto',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '24px',
-  },
-  viewHeader: {
-    marginBottom: '8px',
-  },
-  viewTitle: {
-    fontSize: '28px',
-    fontWeight: 700,
-    color: '#f8fafc',
-    margin: 0,
-  },
-  viewDescription: {
-    fontSize: '14px',
-    color: '#94a3b8',
-    marginTop: '6px',
-  },
-  statGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-    gap: '16px',
-  },
-  statCard: {
-    backgroundColor: '#0f172a',
-    border: '1px solid #1e293b',
-    borderRadius: '12px',
-    padding: '20px',
-    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.2)',
-  },
-  statLabel: {
-    fontSize: '11px',
-    fontWeight: 700,
-    letterSpacing: '0.05em',
-    color: '#64748b',
-    marginBottom: '8px',
-  },
-  statValue: {
-    fontSize: '32px',
-    fontWeight: 800,
-    color: '#f8fafc',
-    lineHeight: 1.1,
-  },
-  statSub: {
-    fontSize: '12px',
-    color: '#94a3b8',
-    marginTop: '8px',
-  },
-  panel: {
-    backgroundColor: '#0f172a',
-    border: '1px solid #1e293b',
-    borderRadius: '12px',
-    padding: '24px',
-    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.2)',
-  },
-  panelHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '20px',
-  },
-  panelTitle: {
-    fontSize: '18px',
-    fontWeight: 600,
-    margin: 0,
-    color: '#f8fafc',
-  },
-  severitySection: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '14px',
-  },
-  severityBarRow: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '6px',
-  },
-  severityBarMeta: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    fontSize: '13px',
-  },
-  barTrack: {
-    height: '8px',
-    backgroundColor: '#1e293b',
-    borderRadius: '4px',
-    overflow: 'hidden',
-  },
-  barFill: {
-    height: '100%',
-    borderRadius: '4px',
-    transition: 'width 0.4s ease',
-  },
-  urgentAlert: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#450a0a30',
-    border: '1px solid #ef444455',
-    padding: '14px 20px',
-    borderRadius: '8px',
-    fontSize: '13px',
-  },
-  formGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-    gap: '16px',
-  },
-  fieldGroup: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '6px',
-  },
-  label: {
-    fontSize: '12px',
-    fontWeight: 600,
-    color: '#94a3b8',
-  },
-  input: {
-    backgroundColor: '#090d16',
-    border: '1px solid #334155',
-    borderRadius: '6px',
-    padding: '10px 12px',
-    color: '#f8fafc',
-    fontSize: '14px',
-    outline: 'none',
-  },
-  select: {
-    backgroundColor: '#090d16',
-    border: '1px solid #334155',
-    borderRadius: '6px',
-    padding: '10px 12px',
-    color: '#f8fafc',
-    fontSize: '14px',
-    outline: 'none',
-  },
-  primaryButton: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '8px',
-    backgroundColor: '#4f46e5',
-    border: '1px solid #6366f1',
-    color: '#ffffff',
-    padding: '9px 16px',
-    borderRadius: '6px',
-    fontSize: '13px',
-    fontWeight: 600,
-    cursor: 'pointer',
-    transition: 'all 0.15s ease',
-  },
-  secondaryButton: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '8px',
-    backgroundColor: '#1e293b',
-    border: '1px solid #334155',
-    color: '#f8fafc',
-    padding: '8px 14px',
-    borderRadius: '6px',
-    fontSize: '13px',
-    fontWeight: 500,
-    cursor: 'pointer',
-  },
-  textButton: {
-    background: 'none',
-    border: 'none',
-    color: '#818cf8',
-    cursor: 'pointer',
-    fontSize: '13px',
-    fontWeight: 600,
-    padding: '4px 8px',
-  },
-  feedbackNotice: {
-    marginTop: '16px',
-    padding: '10px 14px',
-    borderRadius: '6px',
-    borderWidth: '1px',
-    borderStyle: 'solid',
-    fontSize: '13px',
-  },
-  tableWrapper: {
-    overflowX: 'auto',
-  },
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse',
-    textAlign: 'left',
-  },
-  th: {
-    padding: '12px 14px',
-    borderBottom: '1px solid #1e293b',
-    color: '#64748b',
-    fontSize: '12px',
-    fontWeight: 600,
-    textTransform: 'uppercase',
-    letterSpacing: '0.05em',
-  },
-  tr: {
-    borderBottom: '1px solid #1e293b40',
-    transition: 'background-color 0.15s',
-  },
-  td: {
-    padding: '12px 14px',
-    fontSize: '13px',
-    color: '#cbd5e1',
-  },
-  tdMono: {
-    padding: '12px 14px',
-    fontSize: '13px',
-    fontFamily: 'monospace',
-    color: '#e2e8f0',
-  },
-  categoryPill: {
-    padding: '3px 8px',
-    borderRadius: '4px',
-    fontSize: '11px',
-    fontWeight: 600,
-  },
-  varianceBadge: {
-    display: 'inline-block',
-    padding: '2px 8px',
-    borderRadius: '4px',
-    fontSize: '12px',
-    fontWeight: 600,
-  },
-  badge: {
-    display: 'inline-block',
-    padding: '3px 9px',
-    borderRadius: '4px',
-    fontSize: '11px',
-    fontWeight: 600,
-    letterSpacing: '0.03em',
-  },
-  miniButton: {
-    backgroundColor: '#1e293b',
-    border: '1px solid #334155',
-    color: '#94a3b8',
-    padding: '4px 10px',
-    borderRadius: '4px',
-    fontSize: '12px',
-    cursor: 'pointer',
-  },
-  filterBar: {
-    display: 'flex',
-    gap: '12px',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    backgroundColor: '#0f172a',
-    padding: '14px 20px',
-    borderRadius: '10px',
-    border: '1px solid #1e293b',
-  },
-  filterGroup: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-  },
-  filterLabel: {
-    fontSize: '12px',
-    fontWeight: 600,
-    color: '#94a3b8',
-  },
-  filterSelect: {
-    backgroundColor: '#090d16',
-    border: '1px solid #334155',
-    color: '#f8fafc',
-    padding: '6px 10px',
-    borderRadius: '6px',
-    fontSize: '13px',
-    outline: 'none',
-  },
-  filterToggle: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '6px',
-    backgroundColor: '#1e293b',
-    border: '1px solid #334155',
-    color: '#94a3b8',
-    padding: '6px 12px',
-    borderRadius: '6px',
-    fontSize: '13px',
-    cursor: 'pointer',
-  },
-  filterToggleActive: {
-    backgroundColor: '#ef444420',
-    color: '#ef4444',
-    borderColor: '#ef4444',
-  },
-  drawerOverlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.65)',
-    backdropFilter: 'blur(4px)',
-    display: 'flex',
-    justifyContent: 'flex-end',
-    zIndex: 1000,
-  },
-  drawer: {
-    width: '460px',
-    height: '100%',
-    backgroundColor: '#0f172a',
-    borderLeft: '1px solid #1e293b',
-    boxShadow: '-8px 0 24px rgba(0, 0, 0, 0.4)',
-    display: 'flex',
-    flexDirection: 'column',
-    padding: '24px',
-    boxSizing: 'border-box',
-    overflowY: 'auto',
-  },
-  drawerHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    borderBottom: '1px solid #1e293b',
-    paddingBottom: '16px',
-  },
-  closeButton: {
-    background: 'none',
-    border: 'none',
-    color: '#94a3b8',
-    fontSize: '18px',
-    cursor: 'pointer',
-  },
-  drawerBody: {
-    marginTop: '20px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '16px',
-  },
-  detailRow: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  detailLabel: {
-    fontSize: '13px',
-    color: '#94a3b8',
-    fontWeight: 500,
-  },
-  reasonBox: {
-    backgroundColor: '#090d16',
-    border: '1px solid #1e293b',
-    borderRadius: '6px',
-    padding: '12px',
-    fontSize: '13px',
-    color: '#cbd5e1',
-    lineHeight: 1.5,
-    marginTop: '6px',
-  },
-  statusButton: {
-    padding: '6px 12px',
-    borderRadius: '6px',
-    border: '1px solid #334155',
-    backgroundColor: '#1e293b',
-    color: '#cbd5e1',
-    fontSize: '12px',
-    cursor: 'pointer',
-  },
-  statusButtonActive: {
-    backgroundColor: '#4f46e5',
-    borderColor: '#6366f1',
-    color: '#ffffff',
-    fontWeight: 600,
-  },
-  chatShell: {
-    backgroundColor: '#0f172a',
-    border: '1px solid #1e293b',
-    borderRadius: '12px',
-    display: 'flex',
-    flexDirection: 'column',
-    height: '620px',
-    overflow: 'hidden',
-  },
-  chatLog: {
-    flex: 1,
-    overflowY: 'auto',
-    padding: '20px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '16px',
-  },
-  chatBubbleContainer: {
-    display: 'flex',
-    width: '100%',
-  },
-  chatBubble: {
-    maxWidth: '75%',
-    padding: '12px 16px',
-    borderRadius: '12px',
-    fontSize: '14px',
-    lineHeight: 1.5,
-  },
-  userBubble: {
-    backgroundColor: '#4f46e5',
-    color: '#ffffff',
-    borderBottomRightRadius: '2px',
-  },
-  botBubble: {
-    backgroundColor: '#1e293b',
-    color: '#f8fafc',
-    borderBottomLeftRadius: '2px',
-    border: '1px solid #33415560',
-  },
-  chatBubbleHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    gap: '12px',
-    marginBottom: '4px',
-  },
-  chatSender: {
-    fontSize: '11px',
-    fontWeight: 700,
-    opacity: 0.8,
-  },
-  chatTimestamp: {
-    fontSize: '10px',
-    opacity: 0.6,
-  },
-  chatText: {
-    fontSize: '14px',
-  },
-  sourceCitation: {
-    marginTop: '8px',
-    paddingTop: '6px',
-    borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-    fontSize: '11px',
-    opacity: 0.8,
-  },
-  promptChips: {
-    display: 'flex',
-    gap: '8px',
-    alignItems: 'center',
-    padding: '8px 16px',
-    backgroundColor: '#090d1650',
-    borderTop: '1px solid #1e293b',
-    overflowX: 'auto',
-  },
-  chipButton: {
-    backgroundColor: '#1e293b',
-    border: '1px solid #334155',
-    color: '#cbd5e1',
-    borderRadius: '16px',
-    padding: '4px 12px',
-    fontSize: '12px',
-    cursor: 'pointer',
-    whiteSpace: 'nowrap',
-  },
-  chatInputRow: {
-    display: 'flex',
-    gap: '10px',
-    padding: '14px 16px',
-    backgroundColor: '#090d16',
-    borderTop: '1px solid #1e293b',
-  },
-  chatInput: {
-    flex: 1,
-    backgroundColor: '#0f172a',
-    border: '1px solid #334155',
-    borderRadius: '8px',
-    padding: '10px 14px',
-    color: '#f8fafc',
-    fontSize: '14px',
-    outline: 'none',
-  },
-  chatSendButton: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '6px',
-    backgroundColor: '#4f46e5',
-    border: 'none',
-    color: '#ffffff',
-    padding: '10px 18px',
-    borderRadius: '8px',
-    fontWeight: 600,
-    fontSize: '13px',
-    cursor: 'pointer',
-  },
-};
+function getStyles(theme: 'dark' | 'light'): Record<string, React.CSSProperties> {
+  const isDark = theme === 'dark';
+
+  return {
+    appShell: {
+      display: 'flex',
+      minHeight: '100vh',
+      backgroundColor: isDark ? '#0b111e' : '#eaf0f9',
+      color: isDark ? '#f8fafc' : '#1e293b',
+      fontFamily: '"Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      transition: 'background-color 0.2s ease, color 0.2s ease',
+    },
+    sidebar: {
+      width: '270px',
+      backgroundColor: isDark ? '#111827' : '#f8fafd',
+      borderRight: isDark ? '1px solid #1f293d' : '1px solid #e2e8f0',
+      display: 'flex',
+      flexDirection: 'column',
+      padding: '24px 16px',
+      flexShrink: 0,
+      transition: 'background-color 0.2s ease, border-color 0.2s ease',
+    },
+    brandContainer: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+      marginBottom: '20px',
+      paddingLeft: '4px',
+    },
+    brandBadge: {
+      width: '38px',
+      height: '38px',
+      borderRadius: '10px',
+      background: 'linear-gradient(135deg, #2b3648, #182232)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontWeight: 800,
+      fontSize: '15px',
+      color: '#ffffff',
+      letterSpacing: '0.05em',
+      boxShadow: '0 4px 14px rgba(24, 34, 50, 0.25)',
+    },
+    brandTitle: {
+      fontSize: '19px',
+      fontWeight: 800,
+      letterSpacing: '-0.02em',
+      color: isDark ? '#f8fafc' : '#1e293b',
+    },
+    brandSubtitle: {
+      fontSize: '11px',
+      color: isDark ? '#64748b' : '#64748b',
+      fontWeight: 500,
+    },
+    sidebarSearchWrapper: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      backgroundColor: isDark ? '#1a2234' : '#ffffff',
+      border: isDark ? '1px solid #28334a' : '1px solid #e2e8f0',
+      borderRadius: '10px',
+      padding: '8px 12px',
+      marginBottom: '20px',
+      color: isDark ? '#94a3b8' : '#64748b',
+    },
+    sidebarSearchInput: {
+      background: 'transparent',
+      border: 'none',
+      outline: 'none',
+      color: isDark ? '#f8fafc' : '#1e293b',
+      fontSize: '13px',
+      width: '100%',
+    },
+    navMenu: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '6px',
+      flex: 1,
+    },
+    navButton: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+      padding: '11px 14px',
+      borderRadius: '10px',
+      border: 'none',
+      backgroundColor: 'transparent',
+      color: isDark ? '#94a3b8' : '#64748b',
+      fontSize: '14px',
+      fontWeight: 600,
+      cursor: 'pointer',
+      textAlign: 'left',
+      transition: 'all 0.15s ease',
+    },
+    navButtonActive: {
+      backgroundColor: isDark ? '#1e293b' : '#2b3648',
+      color: '#ffffff',
+      fontWeight: 600,
+      boxShadow: '0 4px 12px rgba(43, 54, 72, 0.2)',
+    },
+    counterPill: {
+      marginLeft: 'auto',
+      backgroundColor: '#ef4444',
+      color: '#ffffff',
+      fontSize: '11px',
+      fontWeight: 700,
+      padding: '2px 8px',
+      borderRadius: '12px',
+    },
+    userWidget: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '10px',
+      padding: '10px 12px',
+      backgroundColor: isDark ? '#1a2234' : '#ffffff',
+      border: isDark ? '1px solid #28334a' : '1px solid #e2e8f0',
+      borderRadius: '12px',
+      marginBottom: '12px',
+    },
+    userAvatar: {
+      width: '34px',
+      height: '34px',
+      borderRadius: '8px',
+      backgroundColor: isDark ? '#334155' : '#cbd5e1',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: isDark ? '#f8fafc' : '#1e293b',
+      fontWeight: 700,
+      fontSize: '13px',
+    },
+    sidebarFooter: {
+      borderTop: isDark ? '1px solid #1f293d' : '1px solid #e2e8f0',
+      paddingTop: '16px',
+    },
+    themeToggleBtn: {
+      width: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '10px',
+      backgroundColor: isDark ? '#1a2234' : '#ffffff',
+      border: isDark ? '1px solid #28334a' : '1px solid #e2e8f0',
+      borderRadius: '10px',
+      color: isDark ? '#f8fafc' : '#1e293b',
+      cursor: 'pointer',
+      transition: 'all 0.15s ease',
+    },
+    statusIndicatorBox: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '10px',
+      padding: '8px 12px',
+      backgroundColor: isDark ? '#1a223460' : '#ffffff',
+      borderRadius: '8px',
+      border: isDark ? '1px solid #28334a40' : '1px solid #e2e8f0',
+    },
+    statusDot: {
+      width: '8px',
+      height: '8px',
+      borderRadius: '50%',
+    },
+    statusText: {
+      fontSize: '12px',
+      color: isDark ? '#94a3b8' : '#64748b',
+    },
+    collapseBtn: {
+      backgroundColor: isDark ? '#1a2234' : '#ffffff',
+      border: isDark ? '1px solid #28334a' : '1px solid #e2e8f0',
+      borderRadius: '8px',
+      color: isDark ? '#94a3b8' : '#64748b',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      cursor: 'pointer',
+      padding: 0,
+      transition: 'all 0.15s ease',
+    },
+    mainContent: {
+      flex: 1,
+      overflowY: 'auto',
+      padding: '28px 36px',
+      backgroundColor: isDark ? '#0b111e' : '#eaf0f9',
+      transition: 'background-color 0.2s ease',
+    },
+    viewContainer: {
+      maxWidth: '1360px',
+      margin: '0 auto',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '20px',
+    },
+    topHeaderRow: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: '4px',
+    },
+    viewHeader: {
+      marginBottom: '0px',
+    },
+    viewTitle: {
+      fontSize: '26px',
+      fontWeight: 800,
+      letterSpacing: '-0.02em',
+      color: isDark ? '#f8fafc' : '#1e293b',
+      margin: 0,
+    },
+    viewDescription: {
+      fontSize: '13px',
+      color: isDark ? '#94a3b8' : '#64748b',
+      marginTop: '4px',
+    },
+    headerActions: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '10px',
+    },
+    headerIconBtn: {
+      width: '38px',
+      height: '38px',
+      borderRadius: '10px',
+      backgroundColor: isDark ? '#111827' : '#ffffff',
+      border: isDark ? '1px solid #1f293d' : '1px solid #e2e8f0',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: isDark ? '#94a3b8' : '#64748b',
+      cursor: 'pointer',
+      boxShadow: isDark ? 'none' : '0 2px 6px rgba(0, 0, 0, 0.03)',
+      transition: 'all 0.15s ease',
+    },
+    statGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(3, 1fr)',
+      gap: '16px',
+    },
+    statCard: {
+      backgroundColor: isDark ? '#111827' : '#ffffff',
+      border: isDark ? '1px solid #1f293d' : '1px solid #e2e8f0',
+      borderRadius: '16px',
+      padding: '20px 22px',
+      boxShadow: isDark ? '0 4px 12px rgba(0, 0, 0, 0.25)' : '0 4px 20px rgba(71, 91, 137, 0.06)',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '8px',
+    },
+    statTopRow: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '10px',
+      color: isDark ? '#94a3b8' : '#64748b',
+      fontSize: '13px',
+      fontWeight: 600,
+    },
+    statIconCircle: {
+      width: '32px',
+      height: '32px',
+      borderRadius: '50%',
+      backgroundColor: isDark ? '#1e293b' : '#f1f5f9',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: isDark ? '#94a3b8' : '#475569',
+    },
+    statMainRow: {
+      display: 'flex',
+      alignItems: 'baseline',
+      gap: '12px',
+    },
+    statValue: {
+      fontSize: '28px',
+      fontWeight: 800,
+      color: isDark ? '#f8fafc' : '#1e293b',
+      lineHeight: 1.1,
+      letterSpacing: '-0.02em',
+    },
+    trendBadge: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '3px',
+      padding: '2px 8px',
+      borderRadius: '12px',
+      fontSize: '11px',
+      fontWeight: 700,
+    },
+    statSub: {
+      fontSize: '12px',
+      color: isDark ? '#64748b' : '#94a3b8',
+      fontWeight: 500,
+    },
+    dashboardMainGrid: {
+      display: 'grid',
+      gridTemplateColumns: '1.8fr 1fr',
+      gap: '18px',
+    },
+    balanceChartCard: {
+      backgroundColor: isDark ? '#111827' : '#ffffff',
+      border: isDark ? '1px solid #1f293d' : '1px solid #e2e8f0',
+      borderRadius: '16px',
+      padding: '22px 24px',
+      boxShadow: isDark ? '0 4px 12px rgba(0, 0, 0, 0.25)' : '0 4px 20px rgba(71, 91, 137, 0.06)',
+      display: 'flex',
+      flexDirection: 'column',
+    },
+    cardHeader: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: '16px',
+    },
+    cardTitle: {
+      fontSize: '16px',
+      fontWeight: 700,
+      color: isDark ? '#f8fafc' : '#1e293b',
+      margin: 0,
+    },
+    periodDropdown: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '6px',
+      padding: '6px 12px',
+      borderRadius: '8px',
+      backgroundColor: isDark ? '#1a2234' : '#f8fafd',
+      border: isDark ? '1px solid #28334a' : '1px solid #e2e8f0',
+      color: isDark ? '#94a3b8' : '#64748b',
+      fontSize: '12px',
+      fontWeight: 600,
+      cursor: 'pointer',
+    },
+    virtualCardWidget: {
+      background: 'linear-gradient(135deg, #18253a 0%, #0d1522 100%)',
+      borderRadius: '16px',
+      padding: '22px 24px',
+      color: '#ffffff',
+      boxShadow: '0 8px 24px rgba(13, 21, 34, 0.35)',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'space-between',
+      height: '180px',
+      position: 'relative',
+      overflow: 'hidden',
+    },
+    cardQuickActions: {
+      display: 'flex',
+      gap: '10px',
+      marginTop: '14px',
+    },
+    quickActionBtn: {
+      flex: 1,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '6px',
+      backgroundColor: isDark ? '#1a2234' : '#ffffff',
+      border: isDark ? '1px solid #28334a' : '1px solid #e2e8f0',
+      borderRadius: '10px',
+      padding: '9px 12px',
+      fontSize: '12px',
+      fontWeight: 600,
+      color: isDark ? '#f8fafc' : '#1e293b',
+      cursor: 'pointer',
+      boxShadow: isDark ? 'none' : '0 2px 6px rgba(0,0,0,0.03)',
+      transition: 'all 0.15s ease',
+    },
+    dashboardBottomGrid: {
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr 1.4fr',
+      gap: '18px',
+    },
+    panel: {
+      backgroundColor: isDark ? '#111827' : '#ffffff',
+      border: isDark ? '1px solid #1f293d' : '1px solid #e2e8f0',
+      borderRadius: '16px',
+      padding: '22px 24px',
+      boxShadow: isDark ? '0 4px 12px rgba(0, 0, 0, 0.25)' : '0 4px 20px rgba(71, 91, 137, 0.06)',
+    },
+    panelHeader: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: '16px',
+    },
+    panelTitle: {
+      fontSize: '15px',
+      fontWeight: 700,
+      margin: 0,
+      color: isDark ? '#f8fafc' : '#1e293b',
+    },
+    severitySection: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '14px',
+    },
+    severityBarRow: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '6px',
+    },
+    severityBarMeta: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      fontSize: '13px',
+      color: isDark ? '#cbd5e1' : '#334155',
+    },
+    barTrack: {
+      height: '8px',
+      backgroundColor: isDark ? '#1e293b' : '#e2e8f0',
+      borderRadius: '4px',
+      overflow: 'hidden',
+    },
+    barFill: {
+      height: '100%',
+      borderRadius: '4px',
+      transition: 'width 0.4s ease',
+    },
+    urgentAlert: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      backgroundColor: isDark ? '#450a0a30' : '#fef2f2',
+      border: isDark ? '1px solid #ef444455' : '1px solid #fecaca',
+      padding: '14px 20px',
+      borderRadius: '12px',
+      fontSize: '13px',
+      color: isDark ? '#f8fafc' : '#991b1b',
+    },
+    formGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+      gap: '16px',
+    },
+    fieldGroup: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '6px',
+    },
+    label: {
+      fontSize: '12px',
+      fontWeight: 600,
+      color: isDark ? '#94a3b8' : '#475569',
+    },
+    input: {
+      backgroundColor: isDark ? '#1a2234' : '#ffffff',
+      border: isDark ? '1px solid #28334a' : '1px solid #cbd5e1',
+      borderRadius: '8px',
+      padding: '10px 12px',
+      color: isDark ? '#f8fafc' : '#0f172a',
+      fontSize: '14px',
+      outline: 'none',
+    },
+    select: {
+      backgroundColor: isDark ? '#1a2234' : '#ffffff',
+      border: isDark ? '1px solid #28334a' : '1px solid #cbd5e1',
+      borderRadius: '8px',
+      padding: '10px 12px',
+      color: isDark ? '#f8fafc' : '#0f172a',
+      fontSize: '14px',
+      outline: 'none',
+    },
+    primaryButton: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '8px',
+      backgroundColor: '#2b3648',
+      border: 'none',
+      color: '#ffffff',
+      padding: '10px 18px',
+      borderRadius: '10px',
+      fontSize: '13px',
+      fontWeight: 600,
+      cursor: 'pointer',
+      boxShadow: '0 4px 12px rgba(43, 54, 72, 0.25)',
+      transition: 'all 0.15s ease',
+    },
+    secondaryButton: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '8px',
+      backgroundColor: isDark ? '#1a2234' : '#ffffff',
+      border: isDark ? '1px solid #28334a' : '1px solid #cbd5e1',
+      color: isDark ? '#f8fafc' : '#1e293b',
+      padding: '8px 14px',
+      borderRadius: '8px',
+      fontSize: '13px',
+      fontWeight: 600,
+      cursor: 'pointer',
+    },
+    textButton: {
+      background: 'none',
+      border: 'none',
+      color: isDark ? '#818cf8' : '#4f46e5',
+      cursor: 'pointer',
+      fontSize: '13px',
+      fontWeight: 600,
+      padding: '4px 8px',
+    },
+    feedbackNotice: {
+      marginTop: '16px',
+      padding: '10px 14px',
+      borderRadius: '8px',
+      borderWidth: '1px',
+      borderStyle: 'solid',
+      fontSize: '13px',
+    },
+    tableWrapper: {
+      overflowX: 'auto',
+    },
+    table: {
+      width: '100%',
+      borderCollapse: 'collapse',
+      textAlign: 'left',
+    },
+    th: {
+      padding: '12px 14px',
+      borderBottom: isDark ? '1px solid #1f293d' : '1px solid #e2e8f0',
+      color: isDark ? '#64748b' : '#64748b',
+      fontSize: '12px',
+      fontWeight: 700,
+      textTransform: 'uppercase',
+      letterSpacing: '0.05em',
+    },
+    tr: {
+      borderBottom: isDark ? '1px solid #1f293d40' : '1px solid #f1f5f9',
+      transition: 'background-color 0.15s',
+    },
+    td: {
+      padding: '12px 14px',
+      fontSize: '13px',
+      color: isDark ? '#cbd5e1' : '#334155',
+    },
+    tdMono: {
+      padding: '12px 14px',
+      fontSize: '13px',
+      fontFamily: 'monospace',
+      color: isDark ? '#e2e8f0' : '#1e293b',
+    },
+    categoryPill: {
+      padding: '3px 8px',
+      borderRadius: '6px',
+      fontSize: '11px',
+      fontWeight: 600,
+    },
+    varianceBadge: {
+      display: 'inline-block',
+      padding: '3px 8px',
+      borderRadius: '6px',
+      fontSize: '12px',
+      fontWeight: 700,
+    },
+    badge: {
+      display: 'inline-block',
+      padding: '3px 9px',
+      borderRadius: '6px',
+      fontSize: '11px',
+      fontWeight: 600,
+      letterSpacing: '0.03em',
+    },
+    miniButton: {
+      backgroundColor: isDark ? '#1a2234' : '#f1f5f9',
+      border: isDark ? '1px solid #28334a' : '1px solid #cbd5e1',
+      color: isDark ? '#94a3b8' : '#475569',
+      padding: '4px 10px',
+      borderRadius: '6px',
+      fontSize: '12px',
+      cursor: 'pointer',
+    },
+    filterBar: {
+      display: 'flex',
+      gap: '12px',
+      alignItems: 'center',
+      flexWrap: 'wrap',
+      backgroundColor: isDark ? '#111827' : '#ffffff',
+      padding: '14px 20px',
+      borderRadius: '12px',
+      border: isDark ? '1px solid #1f293d' : '1px solid #e2e8f0',
+      boxShadow: isDark ? 'none' : '0 2px 10px rgba(0, 0, 0, 0.03)',
+    },
+    filterGroup: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+    },
+    filterLabel: {
+      fontSize: '12px',
+      fontWeight: 600,
+      color: isDark ? '#94a3b8' : '#475569',
+    },
+    filterSelect: {
+      backgroundColor: isDark ? '#1a2234' : '#f8fafd',
+      border: isDark ? '1px solid #28334a' : '1px solid #cbd5e1',
+      color: isDark ? '#f8fafc' : '#0f172a',
+      padding: '6px 10px',
+      borderRadius: '6px',
+      fontSize: '13px',
+      outline: 'none',
+    },
+    filterToggle: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '6px',
+      backgroundColor: isDark ? '#1a2234' : '#f1f5f9',
+      border: isDark ? '1px solid #28334a' : '1px solid #cbd5e1',
+      color: isDark ? '#94a3b8' : '#64748b',
+      padding: '6px 12px',
+      borderRadius: '6px',
+      fontSize: '13px',
+      cursor: 'pointer',
+    },
+    filterToggleActive: {
+      backgroundColor: isDark ? '#ef444420' : '#fee2e2',
+      color: isDark ? '#ef4444' : '#dc2626',
+      borderColor: '#ef4444',
+    },
+    drawerOverlay: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.65)',
+      backdropFilter: 'blur(4px)',
+      display: 'flex',
+      justifyContent: 'flex-end',
+      zIndex: 1000,
+    },
+    drawer: {
+      width: '460px',
+      height: '100%',
+      backgroundColor: isDark ? '#111827' : '#ffffff',
+      borderLeft: isDark ? '1px solid #1f293d' : '1px solid #e2e8f0',
+      boxShadow: '-8px 0 24px rgba(0, 0, 0, 0.25)',
+      display: 'flex',
+      flexDirection: 'column',
+      padding: '24px',
+      boxSizing: 'border-box',
+      overflowY: 'auto',
+    },
+    drawerHeader: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      borderBottom: isDark ? '1px solid #1f293d' : '1px solid #e2e8f0',
+      paddingBottom: '16px',
+    },
+    closeButton: {
+      background: 'none',
+      border: 'none',
+      color: isDark ? '#94a3b8' : '#64748b',
+      fontSize: '18px',
+      cursor: 'pointer',
+    },
+    drawerBody: {
+      marginTop: '20px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '16px',
+    },
+    detailRow: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    detailLabel: {
+      fontSize: '13px',
+      color: isDark ? '#94a3b8' : '#64748b',
+      fontWeight: 500,
+    },
+    reasonBox: {
+      backgroundColor: isDark ? '#1a2234' : '#f8fafd',
+      border: isDark ? '1px solid #28334a' : '1px solid #e2e8f0',
+      borderRadius: '8px',
+      padding: '12px',
+      fontSize: '13px',
+      color: isDark ? '#cbd5e1' : '#334155',
+      lineHeight: 1.5,
+      marginTop: '6px',
+    },
+    statusButton: {
+      padding: '6px 12px',
+      borderRadius: '8px',
+      border: isDark ? '1px solid #28334a' : '1px solid #cbd5e1',
+      backgroundColor: isDark ? '#1a2234' : '#f1f5f9',
+      color: isDark ? '#cbd5e1' : '#475569',
+      fontSize: '12px',
+      cursor: 'pointer',
+    },
+    statusButtonActive: {
+      backgroundColor: '#2b3648',
+      borderColor: '#2b3648',
+      color: '#ffffff',
+      fontWeight: 600,
+    },
+    chatShell: {
+      backgroundColor: isDark ? '#111827' : '#ffffff',
+      border: isDark ? '1px solid #1f293d' : '1px solid #e2e8f0',
+      borderRadius: '16px',
+      display: 'flex',
+      flexDirection: 'column',
+      height: '620px',
+      overflow: 'hidden',
+      boxShadow: isDark ? 'none' : '0 4px 20px rgba(71, 91, 137, 0.06)',
+    },
+    chatLog: {
+      flex: 1,
+      overflowY: 'auto',
+      padding: '20px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '16px',
+      backgroundColor: isDark ? '#111827' : '#f8fafd',
+    },
+    chatBubbleContainer: {
+      display: 'flex',
+      width: '100%',
+    },
+    chatBubble: {
+      maxWidth: '75%',
+      padding: '12px 16px',
+      borderRadius: '14px',
+      fontSize: '14px',
+      lineHeight: 1.5,
+    },
+    userBubble: {
+      backgroundColor: '#2b3648',
+      color: '#ffffff',
+      borderBottomRightRadius: '2px',
+    },
+    botBubble: {
+      backgroundColor: isDark ? '#1a2234' : '#ffffff',
+      color: isDark ? '#f8fafc' : '#0f172a',
+      borderBottomLeftRadius: '2px',
+      border: isDark ? '1px solid #28334a60' : '1px solid #e2e8f0',
+      boxShadow: isDark ? 'none' : '0 2px 6px rgba(0,0,0,0.03)',
+    },
+    chatBubbleHeader: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      gap: '12px',
+      marginBottom: '4px',
+    },
+    chatSender: {
+      fontSize: '11px',
+      fontWeight: 700,
+      opacity: 0.8,
+    },
+    chatTimestamp: {
+      fontSize: '10px',
+      opacity: 0.6,
+    },
+    chatText: {
+      fontSize: '14px',
+    },
+    sourceCitation: {
+      marginTop: '8px',
+      paddingTop: '6px',
+      borderTop: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
+      fontSize: '11px',
+      opacity: 0.8,
+    },
+    promptChips: {
+      display: 'flex',
+      gap: '8px',
+      alignItems: 'center',
+      padding: '8px 16px',
+      backgroundColor: isDark ? '#0b111e50' : '#ffffff',
+      borderTop: isDark ? '1px solid #1f293d' : '1px solid #e2e8f0',
+      overflowX: 'auto',
+    },
+    chipButton: {
+      backgroundColor: isDark ? '#1a2234' : '#f1f5f9',
+      border: isDark ? '1px solid #28334a' : '1px solid #cbd5e1',
+      color: isDark ? '#cbd5e1' : '#475569',
+      borderRadius: '16px',
+      padding: '4px 12px',
+      fontSize: '12px',
+      cursor: 'pointer',
+      whiteSpace: 'nowrap',
+    },
+    chatInputRow: {
+      display: 'flex',
+      gap: '10px',
+      padding: '14px 16px',
+      backgroundColor: isDark ? '#0b111e' : '#ffffff',
+      borderTop: isDark ? '1px solid #1f293d' : '1px solid #e2e8f0',
+    },
+    chatInput: {
+      flex: 1,
+      backgroundColor: isDark ? '#1a2234' : '#f8fafd',
+      border: isDark ? '1px solid #28334a' : '1px solid #cbd5e1',
+      borderRadius: '10px',
+      padding: '10px 14px',
+      color: isDark ? '#f8fafc' : '#0f172a',
+      fontSize: '14px',
+      outline: 'none',
+    },
+    chatSendButton: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '6px',
+      backgroundColor: '#2b3648',
+      border: 'none',
+      color: '#ffffff',
+      padding: '10px 18px',
+      borderRadius: '10px',
+      fontWeight: 600,
+      fontSize: '13px',
+      cursor: 'pointer',
+    },
+  };
+}
 
 export default FemaApp;

@@ -178,6 +178,18 @@ const Icons = {
   User: () => (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
   ),
+  ChevronLeft: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+  ),
+  ChevronRight: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+  ),
+  Sun: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+  ),
+  Moon: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+  ),
 };
 
 // ============================================================================
@@ -186,6 +198,11 @@ const Icons = {
 export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost:5000/api' }) => {
   // Navigation
   const [currentView, setCurrentView] = useState<'dashboard' | 'records' | 'exceptions' | 'chat'>('dashboard');
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+
+  // Dynamic Theme Styles
+  const styles = useMemo(() => getStyles(theme), [theme]);
 
   // Backend connection state
   const [isBackendConnected, setIsBackendConnected] = useState<boolean | null>(null);
@@ -573,58 +590,183 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
       {/* ---------------------------------------------------------------- */}
       {/* SIDEBAR NAVIGATION                                               */}
       {/* ---------------------------------------------------------------- */}
-      <aside style={styles.sidebar}>
-        <div style={styles.brandContainer}>
-          <div style={styles.brandBadge}>FE</div>
-          <div>
-            <div style={styles.brandTitle}>FEMA</div>
-            <div style={styles.brandSubtitle}>Finance Exception Agent</div>
-          </div>
+      <aside
+        style={{
+          ...styles.sidebar,
+          width: isSidebarCollapsed ? '80px' : '270px',
+          padding: isSidebarCollapsed ? '20px 8px' : '24px 16px',
+          transition: 'width 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+        }}
+      >
+        <div style={{ ...styles.brandContainer, paddingLeft: 0, marginBottom: '24px' }}>
+          {isSidebarCollapsed ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', width: '100%' }}>
+              <div
+                style={{
+                  ...styles.brandBadge,
+                  width: '42px',
+                  height: '42px',
+                  flexShrink: 0,
+                  fontSize: '16px',
+                }}
+                title="FEMA - Finance Exception Agent"
+              >
+                FE
+              </div>
+              <button
+                onClick={() => setIsSidebarCollapsed(false)}
+                style={{
+                  ...styles.collapseBtn,
+                  width: '32px',
+                  height: '26px',
+                }}
+                title="Expand Sidebar"
+              >
+                <Icons.ChevronRight />
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', paddingLeft: '4px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', overflow: 'hidden' }}>
+                <div style={{ ...styles.brandBadge, flexShrink: 0 }} title="FEMA - Finance Exception Agent">
+                  FE
+                </div>
+                <div style={{ whiteSpace: 'nowrap' }}>
+                  <div style={styles.brandTitle}>FEMA</div>
+                  <div style={styles.brandSubtitle}>Finance Exception Agent</div>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsSidebarCollapsed(true)}
+                style={{
+                  ...styles.collapseBtn,
+                  width: '28px',
+                  height: '28px',
+                  flexShrink: 0,
+                }}
+                title="Collapse Sidebar"
+              >
+                <Icons.ChevronLeft />
+              </button>
+            </div>
+          )}
         </div>
 
         <nav style={styles.navMenu}>
           <button
             onClick={() => setCurrentView('dashboard')}
-            style={{ ...styles.navButton, ...(currentView === 'dashboard' ? styles.navButtonActive : {}) }}
+            style={{
+              ...styles.navButton,
+              ...(currentView === 'dashboard' ? styles.navButtonActive : {}),
+              justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+              padding: isSidebarCollapsed ? '12px' : '11px 14px',
+              position: 'relative',
+            }}
+            title={isSidebarCollapsed ? 'Dashboard' : undefined}
           >
-            <span style={styles.navIndex}>01</span>
             <Icons.Dashboard />
-            <span>Dashboard</span>
+            {!isSidebarCollapsed && <span>Dashboard</span>}
           </button>
 
           <button
             onClick={() => setCurrentView('records')}
-            style={{ ...styles.navButton, ...(currentView === 'records' ? styles.navButtonActive : {}) }}
+            style={{
+              ...styles.navButton,
+              ...(currentView === 'records' ? styles.navButtonActive : {}),
+              justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+              padding: isSidebarCollapsed ? '12px' : '11px 14px',
+              position: 'relative',
+            }}
+            title={isSidebarCollapsed ? 'Financial Records' : undefined}
           >
-            <span style={styles.navIndex}>02</span>
             <Icons.Records />
-            <span>Financial Records</span>
+            {!isSidebarCollapsed && <span>Financial Records</span>}
           </button>
 
           <button
             onClick={() => setCurrentView('exceptions')}
-            style={{ ...styles.navButton, ...(currentView === 'exceptions' ? styles.navButtonActive : {}) }}
+            style={{
+              ...styles.navButton,
+              ...(currentView === 'exceptions' ? styles.navButtonActive : {}),
+              justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+              padding: isSidebarCollapsed ? '12px' : '11px 14px',
+              position: 'relative',
+            }}
+            title={isSidebarCollapsed ? `Exception Cases (${summary.open_exceptions})` : undefined}
           >
-            <span style={styles.navIndex}>03</span>
             <Icons.Exceptions />
-            <span>Exception Cases</span>
+            {!isSidebarCollapsed && <span>Exception Cases</span>}
             {summary.open_exceptions > 0 && (
-              <span style={styles.counterPill}>{summary.open_exceptions}</span>
+              isSidebarCollapsed ? (
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: '6px',
+                    right: '10px',
+                    width: '10px',
+                    height: '10px',
+                    backgroundColor: '#ef4444',
+                    borderRadius: '50%',
+                    border: '2px solid #0f172a',
+                  }}
+                />
+              ) : (
+                <span style={styles.counterPill}>{summary.open_exceptions}</span>
+              )
             )}
           </button>
 
           <button
             onClick={() => setCurrentView('chat')}
-            style={{ ...styles.navButton, ...(currentView === 'chat' ? styles.navButtonActive : {}) }}
+            style={{
+              ...styles.navButton,
+              ...(currentView === 'chat' ? styles.navButtonActive : {}),
+              justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+              padding: isSidebarCollapsed ? '12px' : '11px 14px',
+              position: 'relative',
+            }}
+            title={isSidebarCollapsed ? 'Finance Chat' : undefined}
           >
-            <span style={styles.navIndex}>04</span>
             <Icons.Chat />
-            <span>Finance Chat</span>
+            {!isSidebarCollapsed && <span>Finance Chat</span>}
           </button>
         </nav>
 
         <div style={styles.sidebarFooter}>
-          <div style={styles.statusIndicatorBox}>
+          {/* Light / Dark Mode Toggle */}
+          <div style={{ marginBottom: '10px' }}>
+            <button
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              style={{
+                ...styles.themeToggleBtn,
+                justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                padding: isSidebarCollapsed ? '8px' : '8px 12px',
+              }}
+              title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              {theme === 'dark' ? <Icons.Sun /> : <Icons.Moon />}
+              {!isSidebarCollapsed && (
+                <span style={{ fontSize: '12px', fontWeight: 600 }}>
+                  {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                </span>
+              )}
+            </button>
+          </div>
+
+          <div
+            style={{
+              ...styles.statusIndicatorBox,
+              justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+              padding: isSidebarCollapsed ? '8px' : '8px 12px',
+            }}
+            title={
+              isBackendConnected === null
+                ? 'Checking API...'
+                : isBackendConnected
+                ? 'Backend Connected (5000)'
+                : 'Standalone UI (Mock Mode)'
+            }
+          >
             <span
               style={{
                 ...styles.statusDot,
@@ -632,13 +774,15 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                 boxShadow: isBackendConnected ? '0 0 8px #10b981' : '0 0 8px #f59e0b',
               }}
             />
-            <span style={styles.statusText}>
-              {isBackendConnected === null
-                ? 'Checking API...'
-                : isBackendConnected
-                ? 'Backend Connected (5000)'
-                : 'Standalone UI (Mock Mode)'}
-            </span>
+            {!isSidebarCollapsed && (
+              <span style={styles.statusText}>
+                {isBackendConnected === null
+                  ? 'Checking API...'
+                  : isBackendConnected
+                  ? 'Backend Connected (5000)'
+                  : 'Standalone UI (Mock Mode)'}
+              </span>
+            )}
           </div>
         </div>
       </aside>
@@ -659,66 +803,82 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
               </p>
             </header>
 
-            {/* Metric Stat Cards */}
+            {/* Top Stat KPI Cards */}
             <div style={styles.statGrid}>
               <div style={styles.statCard}>
-                <div style={styles.statLabel}>TOTAL MONITORED RECORDS</div>
-                <div style={styles.statValue}>{summary.total_records}</div>
-                <div style={styles.statSub}>Budget vs Actual ledger items</div>
+                <div style={styles.statLabel}>TOTAL BUDGETED SPEND</div>
+                <div style={styles.statValue}>{formatCurrency(summary.total_budget)}</div>
+                <div style={styles.statSub}>Across {summary.total_records} cost centers</div>
+              </div>
+
+              <div style={styles.statCard}>
+                <div style={styles.statLabel}>ACTUAL RECORDED REVENUE/SPEND</div>
+                <div style={styles.statValue}>{formatCurrency(summary.total_actual)}</div>
+                <div style={styles.statSub}>
+                  Net variance:{' '}
+                  <span
+                    style={{
+                      color: summary.total_actual > summary.total_budget ? '#f87171' : '#34d399',
+                      fontWeight: 600,
+                    }}
+                  >
+                    {summary.total_budget > 0
+                      ? (((summary.total_actual - summary.total_budget) / summary.total_budget) * 100).toFixed(1)
+                      : 0}
+                    %
+                  </span>
+                </div>
               </div>
 
               <div style={styles.statCard}>
                 <div style={styles.statLabel}>OPEN EXCEPTION CASES</div>
-                <div style={{ ...styles.statValue, color: '#f87171' }}>{summary.open_exceptions}</div>
-                <div style={styles.statSub}>Requiring finance team resolution</div>
-              </div>
-
-              <div style={styles.statCard}>
-                <div style={styles.statLabel}>OVERDUE SLA BREACHES</div>
-                <div style={{ ...styles.statValue, color: summary.overdue_exceptions > 0 ? '#ef4444' : '#10b981' }}>
-                  {summary.overdue_exceptions}
+                <div style={{ ...styles.statValue, color: summary.open_exceptions > 0 ? '#fbbf24' : '#34d399' }}>
+                  {summary.open_exceptions}
                 </div>
-                <div style={styles.statSub}>Passed resolution timeline</div>
+                <div style={styles.statSub}>
+                  {summary.overdue_exceptions > 0 ? (
+                    <span style={{ color: '#ef4444', fontWeight: 600 }}>
+                      ⚠️ {summary.overdue_exceptions} SLA deadline overdue
+                    </span>
+                  ) : (
+                    'All cases currently within SLA'
+                  )}
+                </div>
               </div>
 
               <div style={styles.statCard}>
-                <div style={styles.statLabel}>RESOLVED CASES</div>
-                <div style={{ ...styles.statValue, color: '#34d399' }}>{summary.exceptions_by_status.RESOLVED || 0}</div>
-                <div style={styles.statSub}>Audit closed and verified</div>
+                <div style={styles.statLabel}>ACTIVE FINANCIAL OWNERS</div>
+                <div style={styles.statValue}>{owners.length}</div>
+                <div style={styles.statSub}>Level 1 to 4 escalation ladder</div>
               </div>
             </div>
 
-            {/* Severity Distribution Bars */}
+            {/* Severity Distribution Section */}
             <div style={styles.panel}>
               <div style={styles.panelHeader}>
-                <h2 style={styles.panelTitle}>Exceptions by Severity Level</h2>
-                <button onClick={handleRunMonitoring} disabled={isMonitoring} style={styles.primaryButton}>
-                  <Icons.Refresh />
-                  {isMonitoring ? 'Analyzing Ledgers...' : 'Run Variance Audit'}
-                </button>
+                <h3 style={styles.panelTitle}>Exception Severity Breakdown</h3>
+                <span style={{ fontSize: '13px', color: '#94a3b8' }}>
+                  Total Flagged: {exceptions.length}
+                </span>
               </div>
 
               <div style={styles.severitySection}>
                 {(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'] as Severity[]).map((sev) => {
                   const count = summary.exceptions_by_severity[sev] || 0;
-                  const total = summary.total_exceptions || 1;
-                  const pct = Math.round((count / total) * 100);
-
-                  const barColor =
-                    sev === 'CRITICAL'
-                      ? '#ef4444'
-                      : sev === 'HIGH'
-                      ? '#f59e0b'
-                      : sev === 'MEDIUM'
-                      ? '#818cf8'
-                      : '#10b981';
+                  const pct = exceptions.length ? (count / exceptions.length) * 100 : 0;
+                  const colorMap: Record<Severity, string> = {
+                    CRITICAL: '#ef4444',
+                    HIGH: '#f59e0b',
+                    MEDIUM: '#6366f1',
+                    LOW: '#10b981',
+                  };
 
                   return (
                     <div key={sev} style={styles.severityBarRow}>
                       <div style={styles.severityBarMeta}>
-                        <span style={{ fontWeight: 600, color: barColor }}>{sev}</span>
-                        <span style={{ color: '#94a3b8' }}>
-                          {count} case{count !== 1 ? 's' : ''} ({pct}%)
+                        <span style={{ fontWeight: 600 }}>{sev}</span>
+                        <span>
+                          {count} cases ({pct.toFixed(0)}%)
                         </span>
                       </div>
                       <div style={styles.barTrack}>
@@ -726,7 +886,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                           style={{
                             ...styles.barFill,
                             width: `${pct}%`,
-                            backgroundColor: barColor,
+                            backgroundColor: colorMap[sev],
                           }}
                         />
                       </div>
@@ -736,24 +896,23 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
               </div>
             </div>
 
-            {/* Urgent Attention Alert Box */}
+            {/* Urgent Alert Banner if overdue cases exist */}
             {summary.overdue_exceptions > 0 && (
               <div style={styles.urgentAlert}>
-                <div style={{ color: '#ef4444', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <Icons.AlertCircle />
-                  <strong>Attention Required:</strong>
+                  <span>
+                    <strong>Urgent SLA Breach Warning:</strong> You have {summary.overdue_exceptions} case(s) requiring immediate CFO / Manager escalation.
+                  </span>
                 </div>
-                <span style={{ color: '#cbd5e1' }}>
-                  {summary.overdue_exceptions} case(s) have passed their assigned SLA deadline. Immediate escalation recommended.
-                </span>
                 <button
                   onClick={() => {
-                    setShowOverdueOnly(true);
                     setCurrentView('exceptions');
+                    setShowOverdueOnly(true);
                   }}
-                  style={styles.textButton}
+                  style={{ ...styles.secondaryButton, padding: '6px 12px', fontSize: '12px' }}
                 >
-                  View Overdue →
+                  View Overdue Cases →
                 </button>
               </div>
             )}
@@ -766,83 +925,93 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
         {currentView === 'records' && (
           <div style={styles.viewContainer}>
             <header style={styles.viewHeader}>
-              <h1 style={styles.viewTitle}>Financial Records</h1>
+              <h1 style={styles.viewTitle}>Financial Ledger & Record Entry</h1>
               <p style={styles.viewDescription}>
-                Budget vs. Actual figures ingested for variance surveillance.
+                Post ledger items to trigger AI-driven variance computation and automatic anomaly detection.
               </p>
             </header>
 
             {/* Add Record Form */}
             <div style={styles.panel}>
-              <div style={styles.panelHeader}>
-                <h2 style={styles.panelTitle}>Add New Ledger Entry</h2>
-              </div>
+              <h3 style={{ ...styles.panelTitle, marginBottom: '16px' }}>Add Ledger Record</h3>
 
-              <form onSubmit={handleCreateRecord} style={styles.formGrid}>
-                <div style={styles.fieldGroup}>
-                  <label style={styles.label}>Category</label>
-                  <select
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
-                    style={styles.select}
+              <form onSubmit={handleCreateRecord}>
+                <div style={styles.formGrid}>
+                  <div style={styles.fieldGroup}>
+                    <label style={styles.label}>Category</label>
+                    <select
+                      value={formData.category}
+                      onChange={(e) => setFormData({ ...formData, category: e.target.value as 'Revenue' | 'Expense' })}
+                      style={styles.select}
+                    >
+                      <option value="Revenue">Revenue</option>
+                      <option value="Expense">Expense</option>
+                    </select>
+                  </div>
+
+                  <div style={styles.fieldGroup}>
+                    <label style={styles.label}>Period (YYYY-MM)</label>
+                    <input
+                      type="text"
+                      value={formData.period}
+                      onChange={(e) => setFormData({ ...formData, period: e.target.value })}
+                      placeholder="e.g. 2026-09"
+                      required
+                      style={styles.input}
+                    />
+                  </div>
+
+                  <div style={styles.fieldGroup}>
+                    <label style={styles.label}>Department / Cost Center</label>
+                    <input
+                      type="text"
+                      value={formData.department}
+                      onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                      placeholder="e.g. Marketing, DevOps"
+                      required
+                      style={styles.input}
+                    />
+                  </div>
+
+                  <div style={styles.fieldGroup}>
+                    <label style={styles.label}>Budget Amount (₹)</label>
+                    <input
+                      type="number"
+                      step="any"
+                      value={formData.budget_amount}
+                      onChange={(e) => setFormData({ ...formData, budget_amount: e.target.value })}
+                      placeholder="0.00"
+                      required
+                      style={styles.input}
+                    />
+                  </div>
+
+                  <div style={styles.fieldGroup}>
+                    <label style={styles.label}>Actual Amount (₹)</label>
+                    <input
+                      type="number"
+                      step="any"
+                      value={formData.actual_amount}
+                      onChange={(e) => setFormData({ ...formData, actual_amount: e.target.value })}
+                      placeholder="0.00"
+                      required
+                      style={styles.input}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ marginTop: '20px', display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <button type="submit" style={styles.primaryButton}>
+                    Post Ledger Entry
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleRunMonitoring}
+                    disabled={isMonitoring}
+                    style={styles.secondaryButton}
                   >
-                    <option value="Revenue">Revenue</option>
-                    <option value="Expense">Expense</option>
-                  </select>
-                </div>
-
-                <div style={styles.fieldGroup}>
-                  <label style={styles.label}>Period (YYYY-MM)</label>
-                  <input
-                    type="text"
-                    value={formData.period}
-                    onChange={(e) => setFormData({ ...formData, period: e.target.value })}
-                    placeholder="2026-09"
-                    required
-                    style={styles.input}
-                  />
-                </div>
-
-                <div style={styles.fieldGroup}>
-                  <label style={styles.label}>Department / Cost Center</label>
-                  <input
-                    type="text"
-                    value={formData.department}
-                    onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                    placeholder="e.g. Engineering, Sales, Marketing"
-                    style={styles.input}
-                  />
-                </div>
-
-                <div style={styles.fieldGroup}>
-                  <label style={styles.label}>Budget Amount (₹)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={formData.budget_amount}
-                    onChange={(e) => setFormData({ ...formData, budget_amount: e.target.value })}
-                    placeholder="1000000"
-                    required
-                    style={styles.input}
-                  />
-                </div>
-
-                <div style={styles.fieldGroup}>
-                  <label style={styles.label}>Actual Amount (₹)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={formData.actual_amount}
-                    onChange={(e) => setFormData({ ...formData, actual_amount: e.target.value })}
-                    placeholder="850000"
-                    required
-                    style={styles.input}
-                  />
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-                  <button type="submit" style={{ ...styles.primaryButton, width: '100%', height: '42px' }}>
-                    Record Entry
+                    <Icons.Refresh />
+                    {isMonitoring ? 'Agent Analyzing...' : 'Run Exception Monitor'}
                   </button>
                 </div>
               </form>
@@ -851,7 +1020,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                 <div
                   style={{
                     ...styles.feedbackNotice,
-                    backgroundColor: formFeedback.type === 'success' ? '#065f4625' : '#88133725',
+                    backgroundColor: formFeedback.type === 'success' ? '#022c22' : '#450a0a',
                     borderColor: formFeedback.type === 'success' ? '#10b981' : '#ef4444',
                     color: formFeedback.type === 'success' ? '#34d399' : '#f87171',
                   }}
@@ -864,71 +1033,59 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
             {/* Records Ledger Table */}
             <div style={styles.panel}>
               <div style={styles.panelHeader}>
-                <div>
-                  <h2 style={styles.panelTitle}>Active Ledger Records ({records.length})</h2>
-                  <p style={{ fontSize: '13px', color: '#94a3b8', marginTop: '2px' }}>
-                    Click &quot;Run Monitoring&quot; to inspect all records and generate exception cases.
-                  </p>
-                </div>
-                <button onClick={handleRunMonitoring} disabled={isMonitoring} style={styles.secondaryButton}>
-                  <Icons.Refresh />
-                  {isMonitoring ? 'Scanning...' : 'Run Monitoring →'}
-                </button>
+                <h3 style={styles.panelTitle}>Active Ledger Records ({records.length})</h3>
               </div>
 
               <div style={styles.tableWrapper}>
                 <table style={styles.table}>
                   <thead>
                     <tr>
-                      <th style={styles.th}>ID</th>
-                      <th style={styles.th}>Category</th>
+                      <th style={styles.th}>Record ID</th>
                       <th style={styles.th}>Period</th>
+                      <th style={styles.th}>Category</th>
                       <th style={styles.th}>Department</th>
-                      <th style={{ ...styles.th, textAlign: 'right' }}>Budget</th>
-                      <th style={{ ...styles.th, textAlign: 'right' }}>Actual</th>
-                      <th style={{ ...styles.th, textAlign: 'right' }}>Variance</th>
+                      <th style={styles.th}>Budget</th>
+                      <th style={styles.th}>Actual</th>
+                      <th style={styles.th}>Variance</th>
                     </tr>
                   </thead>
                   <tbody>
                     {records.map((r) => {
-                      const variance =
-                        r.variance_percent ??
-                        (r.budget_amount !== 0
-                          ? ((r.actual_amount - r.budget_amount) / r.budget_amount) * 100
-                          : 0);
-
-                      const isNegativeRevenue = r.category === 'Revenue' && variance < -10;
-                      const isOverExpense = r.category === 'Expense' && variance > 10;
-                      const isAbnormal = isNegativeRevenue || isOverExpense;
+                      const isHighRisk = Math.abs(r.variance_percent) >= 20;
 
                       return (
                         <tr key={r.id} style={styles.tr}>
-                          <td style={styles.tdMono}>#{r.id}</td>
+                          <td style={styles.tdMono}>REC-#{r.id}</td>
+                          <td style={styles.td}>{r.period}</td>
                           <td style={styles.td}>
                             <span
                               style={{
                                 ...styles.categoryPill,
-                                backgroundColor: r.category === 'Revenue' ? '#065f4625' : '#88133725',
-                                color: r.category === 'Revenue' ? '#34d399' : '#f87171',
+                                backgroundColor: r.category === 'Revenue' ? '#1e1b4b' : '#312e81',
+                                color: '#a5b4fc',
                               }}
                             >
                               {r.category}
                             </span>
                           </td>
-                          <td style={styles.tdMono}>{r.period}</td>
-                          <td style={styles.td}>{r.department || '—'}</td>
-                          <td style={{ ...styles.tdMono, textAlign: 'right' }}>{formatCurrency(r.budget_amount)}</td>
-                          <td style={{ ...styles.tdMono, textAlign: 'right' }}>{formatCurrency(r.actual_amount)}</td>
-                          <td style={{ ...styles.td, textAlign: 'right' }}>
+                          <td style={{ ...styles.td, fontWeight: 500, color: '#f1f5f9' }}>{r.department}</td>
+                          <td style={styles.tdMono}>{formatCurrency(r.budget_amount)}</td>
+                          <td style={styles.tdMono}>{formatCurrency(r.actual_amount)}</td>
+                          <td style={styles.td}>
                             <span
                               style={{
                                 ...styles.varianceBadge,
-                                color: isAbnormal ? '#ef4444' : '#10b981',
-                                backgroundColor: isAbnormal ? '#450a0a' : '#022c22',
+                                backgroundColor: isHighRisk
+                                  ? r.variance_percent < 0
+                                    ? '#450a0a'
+                                    : '#451a03'
+                                  : '#0f172a',
+                                color: r.variance_percent < 0 ? '#f87171' : '#fbbf24',
+                                border: isHighRisk ? '1px solid currentColor' : '1px solid #334155',
                               }}
                             >
-                              {variance > 0 ? '+' : ''}
-                              {variance.toFixed(1)}%
+                              {r.variance_percent > 0 ? '+' : ''}
+                              {r.variance_percent}%
                             </span>
                           </td>
                         </tr>
@@ -947,9 +1104,9 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
         {currentView === 'exceptions' && (
           <div style={styles.viewContainer}>
             <header style={styles.viewHeader}>
-              <h1 style={styles.viewTitle}>Exception Management</h1>
+              <h1 style={styles.viewTitle}>Exceptions & SLA Management</h1>
               <p style={styles.viewDescription}>
-                Detected variances triage, SLA countdowns, and escalation workflows.
+                Multi-agent triage, accountable owner assignments, SLA countdowns, and automated escalation.
               </p>
             </header>
 
@@ -993,23 +1150,30 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                 }}
               >
                 <Icons.AlertCircle />
-                Overdue Only
+                Overdue SLA Only
               </button>
 
-              <button
-                onClick={() => {
-                  setFilterSeverity('');
-                  setFilterStatus('');
-                  setShowOverdueOnly(false);
-                }}
-                style={styles.textButton}
-              >
-                Reset Filters
-              </button>
+              {(filterSeverity || filterStatus || showOverdueOnly) && (
+                <button
+                  onClick={() => {
+                    setFilterSeverity('');
+                    setFilterStatus('');
+                    setShowOverdueOnly(false);
+                  }}
+                  style={styles.textButton}
+                >
+                  Reset Filters
+                </button>
+              )}
             </div>
 
             {/* Exception Cases Ledger */}
             <div style={styles.panel}>
+              <div style={styles.panelHeader}>
+                <h3 style={styles.panelTitle}>Tracked Exceptions ({filteredExceptions.length})</h3>
+                <span style={{ fontSize: '12px', color: '#94a3b8' }}>Click row to view details & audit trail</span>
+              </div>
+
               <div style={styles.tableWrapper}>
                 <table style={styles.table}>
                   <thead>
@@ -1019,7 +1183,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                       <th style={styles.th}>Variance</th>
                       <th style={styles.th}>Severity</th>
                       <th style={styles.th}>Status</th>
-                      <th style={styles.th}>Owner</th>
+                      <th style={styles.th}>Accountable Owner</th>
                       <th style={styles.th}>SLA Deadline</th>
                       <th style={{ ...styles.th, textAlign: 'center' }}>Actions</th>
                     </tr>
@@ -1034,7 +1198,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                           style={{
                             ...styles.tr,
                             cursor: 'pointer',
-                            backgroundColor: selectedCase?.id === c.id ? '#1e293b' : undefined,
+                            backgroundColor: selectedCase?.id === c.id ? (theme === 'dark' ? '#1e293b' : '#e0e7ff') : 'transparent',
                           }}
                         >
                           <td style={styles.tdMono}>
@@ -1048,18 +1212,18 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                             </span>
                           </td>
                           <td style={styles.td}>
-                            <span style={{ ...styles.badge, ...getSeverityBadgeInline(c.severity) }}>
+                            <span style={{ ...styles.badge, ...getSeverityBadgeInline(c.severity, theme) }}>
                               {c.severity}
                             </span>
                           </td>
                           <td style={styles.td}>
-                            <span style={{ ...styles.badge, ...getStatusBadgeInline(c.status) }}>
+                            <span style={{ ...styles.badge, ...getStatusBadgeInline(c.status, theme) }}>
                               {c.status}
                             </span>
                           </td>
                           <td style={styles.td}>
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
-                              <span style={{ fontSize: '13px', fontWeight: 500, color: '#f1f5f9' }}>
+                              <span style={{ fontSize: '13px', fontWeight: 500, color: theme === 'dark' ? '#f1f5f9' : '#0f172a' }}>
                                 {c.owner?.name || 'Unassigned'}
                               </span>
                               <span style={{ fontSize: '11px', color: '#94a3b8' }}>{c.owner?.role}</span>
@@ -1076,7 +1240,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                                 style={{
                                   fontSize: '12px',
                                   fontFamily: 'monospace',
-                                  color: overdue ? '#ef4444' : '#cbd5e1',
+                                  color: overdue ? '#ef4444' : (theme === 'dark' ? '#cbd5e1' : '#334155'),
                                 }}
                               >
                                 {new Date(c.sla_deadline).toLocaleDateString()}
@@ -1111,7 +1275,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                       <span style={{ fontSize: '12px', color: '#818cf8', fontWeight: 600, letterSpacing: '0.05em' }}>
                         EXCEPTION DETAIL
                       </span>
-                      <h2 style={{ fontSize: '20px', margin: '4px 0 0 0', color: '#f8fafc' }}>
+                      <h2 style={{ fontSize: '20px', margin: '4px 0 0 0', color: theme === 'dark' ? '#f8fafc' : '#0f172a' }}>
                         Case #{selectedCase.id}
                       </h2>
                     </div>
@@ -1131,14 +1295,14 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
 
                     <div style={styles.detailRow}>
                       <span style={styles.detailLabel}>Severity:</span>
-                      <span style={{ ...styles.badge, ...getSeverityBadgeInline(selectedCase.severity) }}>
+                      <span style={{ ...styles.badge, ...getSeverityBadgeInline(selectedCase.severity, theme) }}>
                         {selectedCase.severity}
                       </span>
                     </div>
 
                     <div style={styles.detailRow}>
                       <span style={styles.detailLabel}>Escalation Level:</span>
-                      <span style={{ color: '#e2e8f0', fontWeight: 600 }}>
+                      <span style={{ color: theme === 'dark' ? '#e2e8f0' : '#0f172a', fontWeight: 600 }}>
                         Level {selectedCase.escalation_level} of 4
                       </span>
                     </div>
@@ -1146,14 +1310,14 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                     <div style={styles.detailRow}>
                       <span style={styles.detailLabel}>Assigned Owner:</span>
                       <div>
-                        <div style={{ color: '#f1f5f9', fontWeight: 600 }}>{selectedCase.owner?.name}</div>
+                        <div style={{ color: theme === 'dark' ? '#f1f5f9' : '#0f172a', fontWeight: 600 }}>{selectedCase.owner?.name}</div>
                         <div style={{ fontSize: '12px', color: '#94a3b8' }}>{selectedCase.owner?.role}</div>
                       </div>
                     </div>
 
                     <div style={styles.detailRow}>
                       <span style={styles.detailLabel}>SLA Deadline:</span>
-                      <div style={{ color: isCaseOverdue(selectedCase.sla_deadline, selectedCase.status) ? '#ef4444' : '#f1f5f9' }}>
+                      <div style={{ color: isCaseOverdue(selectedCase.sla_deadline, selectedCase.status) ? '#ef4444' : (theme === 'dark' ? '#f1f5f9' : '#0f172a') }}>
                         {new Date(selectedCase.sla_deadline).toLocaleString()}
                         {isCaseOverdue(selectedCase.sla_deadline, selectedCase.status) && ' (BREACHED)'}
                       </div>
@@ -1165,7 +1329,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                     </div>
 
                     {/* Status Update & Actions */}
-                    <div style={{ marginTop: '24px', borderTop: '1px solid #334155', paddingTop: '16px' }}>
+                    <div style={{ marginTop: '24px', borderTop: theme === 'dark' ? '1px solid #334155' : '1px solid #e2e8f0', paddingTop: '16px' }}>
                       <label style={{ ...styles.label, marginBottom: '8px', display: 'block' }}>Update Status</label>
                       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                         {(['OPEN', 'IN_PROGRESS', 'RESOLVED'] as CaseStatus[]).map((st) => (
@@ -1306,633 +1470,683 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
 // ============================================================================
 // STYLING HELPERS & DESIGN SYSTEM
 // ============================================================================
-function getSeverityBadgeInline(sev: Severity): React.CSSProperties {
+function getSeverityBadgeInline(sev: Severity, theme: 'dark' | 'light' = 'dark'): React.CSSProperties {
+  const isDark = theme === 'dark';
   switch (sev) {
     case 'CRITICAL':
-      return { backgroundColor: '#450a0a', color: '#f87171', border: '1px solid #ef444455' };
+      return isDark
+        ? { backgroundColor: '#450a0a', color: '#f87171', border: '1px solid #ef444455' }
+        : { backgroundColor: '#fee2e2', color: '#b91c1c', border: '1px solid #fca5a5' };
     case 'HIGH':
-      return { backgroundColor: '#451a03', color: '#fbbf24', border: '1px solid #f59e0b55' };
+      return isDark
+        ? { backgroundColor: '#451a03', color: '#fbbf24', border: '1px solid #f59e0b55' }
+        : { backgroundColor: '#fef3c7', color: '#b45309', border: '1px solid #fcd34d' };
     case 'MEDIUM':
-      return { backgroundColor: '#1e1b4b', color: '#a5b4fc', border: '1px solid #6366f155' };
+      return isDark
+        ? { backgroundColor: '#1e1b4b', color: '#a5b4fc', border: '1px solid #6366f155' }
+        : { backgroundColor: '#e0e7ff', color: '#4338ca', border: '1px solid #c7d2fe' };
     case 'LOW':
-      return { backgroundColor: '#022c22', color: '#34d399', border: '1px solid #10b98155' };
+      return isDark
+        ? { backgroundColor: '#022c22', color: '#34d399', border: '1px solid #10b98155' }
+        : { backgroundColor: '#d1fae5', color: '#047857', border: '1px solid #6ee7b7' };
   }
 }
 
-function getStatusBadgeInline(status: CaseStatus): React.CSSProperties {
+function getStatusBadgeInline(status: CaseStatus, theme: 'dark' | 'light' = 'dark'): React.CSSProperties {
+  const isDark = theme === 'dark';
   switch (status) {
     case 'OPEN':
-      return { backgroundColor: '#172554', color: '#60a5fa', border: '1px solid #3b82f644' };
+      return isDark
+        ? { backgroundColor: '#172554', color: '#60a5fa', border: '1px solid #3b82f644' }
+        : { backgroundColor: '#dbeafe', color: '#1d4ed8', border: '1px solid #93c5fd' };
     case 'IN_PROGRESS':
-      return { backgroundColor: '#2e1065', color: '#c084fc', border: '1px solid #a855f744' };
+      return isDark
+        ? { backgroundColor: '#2e1065', color: '#c084fc', border: '1px solid #a855f744' }
+        : { backgroundColor: '#f3e8ff', color: '#7e22ce', border: '1px solid #d8b4fe' };
     case 'RESOLVED':
-      return { backgroundColor: '#022c22', color: '#34d399', border: '1px solid #10b98144' };
+      return isDark
+        ? { backgroundColor: '#022c22', color: '#34d399', border: '1px solid #10b98144' }
+        : { backgroundColor: '#d1fae5', color: '#047857', border: '1px solid #6ee7b7' };
     case 'ESCALATED':
-      return { backgroundColor: '#4c0519', color: '#fda4af', border: '1px solid #f43f5e55', fontWeight: 600 };
+      return isDark
+        ? { backgroundColor: '#4c0519', color: '#fda4af', border: '1px solid #f43f5e55', fontWeight: 600 }
+        : { backgroundColor: '#ffe4e6', color: '#be123c', border: '1px solid #fda4af', fontWeight: 600 };
   }
 }
 
-const styles: Record<string, React.CSSProperties> = {
-  appShell: {
-    display: 'flex',
-    minHeight: '100vh',
-    backgroundColor: '#090d16',
-    color: '#f8fafc',
-    fontFamily: '"Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-  },
-  sidebar: {
-    width: '270px',
-    backgroundColor: '#0f172a',
-    borderRight: '1px solid #1e293b',
-    display: 'flex',
-    flexDirection: 'column',
-    padding: '24px 16px',
-    flexShrink: 0,
-  },
-  brandContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    marginBottom: '32px',
-    paddingLeft: '8px',
-  },
-  brandBadge: {
-    width: '38px',
-    height: '38px',
-    borderRadius: '8px',
-    background: 'linear-gradient(135deg, #6366f1, #3b82f6)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontWeight: 800,
-    fontSize: '15px',
-    color: '#ffffff',
-    letterSpacing: '0.05em',
-    boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)',
-  },
-  brandTitle: {
-    fontSize: '18px',
-    fontWeight: 700,
-    letterSpacing: '0.02em',
-    color: '#f8fafc',
-  },
-  brandSubtitle: {
-    fontSize: '11px',
-    color: '#64748b',
-    fontWeight: 500,
-  },
-  navMenu: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '6px',
-    flex: 1,
-  },
-  navButton: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    padding: '11px 14px',
-    borderRadius: '8px',
-    border: 'none',
-    backgroundColor: 'transparent',
-    color: '#94a3b8',
-    fontSize: '14px',
-    fontWeight: 500,
-    cursor: 'pointer',
-    textAlign: 'left',
-    transition: 'all 0.15s ease',
-  },
-  navButtonActive: {
-    backgroundColor: '#1e293b',
-    color: '#ffffff',
-    fontWeight: 600,
-    boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.05)',
-  },
-  navIndex: {
-    fontSize: '11px',
-    fontFamily: 'monospace',
-    color: '#64748b',
-  },
-  counterPill: {
-    marginLeft: 'auto',
-    backgroundColor: '#ef4444',
-    color: '#ffffff',
-    fontSize: '11px',
-    fontWeight: 700,
-    padding: '2px 7px',
-    borderRadius: '12px',
-  },
-  sidebarFooter: {
-    borderTop: '1px solid #1e293b',
-    paddingTop: '16px',
-  },
-  statusIndicatorBox: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    padding: '8px 12px',
-    backgroundColor: '#1e293b60',
-    borderRadius: '6px',
-    border: '1px solid #33415530',
-  },
-  statusDot: {
-    width: '8px',
-    height: '8px',
-    borderRadius: '50%',
-  },
-  statusText: {
-    fontSize: '12px',
-    color: '#94a3b8',
-  },
-  mainContent: {
-    flex: 1,
-    overflowY: 'auto',
-    padding: '32px 40px',
-    backgroundColor: '#090d16',
-  },
-  viewContainer: {
-    maxWidth: '1200px',
-    margin: '0 auto',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '24px',
-  },
-  viewHeader: {
-    marginBottom: '8px',
-  },
-  viewTitle: {
-    fontSize: '28px',
-    fontWeight: 700,
-    color: '#f8fafc',
-    margin: 0,
-  },
-  viewDescription: {
-    fontSize: '14px',
-    color: '#94a3b8',
-    marginTop: '6px',
-  },
-  statGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-    gap: '16px',
-  },
-  statCard: {
-    backgroundColor: '#0f172a',
-    border: '1px solid #1e293b',
-    borderRadius: '12px',
-    padding: '20px',
-    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.2)',
-  },
-  statLabel: {
-    fontSize: '11px',
-    fontWeight: 700,
-    letterSpacing: '0.05em',
-    color: '#64748b',
-    marginBottom: '8px',
-  },
-  statValue: {
-    fontSize: '32px',
-    fontWeight: 800,
-    color: '#f8fafc',
-    lineHeight: 1.1,
-  },
-  statSub: {
-    fontSize: '12px',
-    color: '#94a3b8',
-    marginTop: '8px',
-  },
-  panel: {
-    backgroundColor: '#0f172a',
-    border: '1px solid #1e293b',
-    borderRadius: '12px',
-    padding: '24px',
-    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.2)',
-  },
-  panelHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '20px',
-  },
-  panelTitle: {
-    fontSize: '18px',
-    fontWeight: 600,
-    margin: 0,
-    color: '#f8fafc',
-  },
-  severitySection: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '14px',
-  },
-  severityBarRow: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '6px',
-  },
-  severityBarMeta: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    fontSize: '13px',
-  },
-  barTrack: {
-    height: '8px',
-    backgroundColor: '#1e293b',
-    borderRadius: '4px',
-    overflow: 'hidden',
-  },
-  barFill: {
-    height: '100%',
-    borderRadius: '4px',
-    transition: 'width 0.4s ease',
-  },
-  urgentAlert: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#450a0a30',
-    border: '1px solid #ef444455',
-    padding: '14px 20px',
-    borderRadius: '8px',
-    fontSize: '13px',
-  },
-  formGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-    gap: '16px',
-  },
-  fieldGroup: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '6px',
-  },
-  label: {
-    fontSize: '12px',
-    fontWeight: 600,
-    color: '#94a3b8',
-  },
-  input: {
-    backgroundColor: '#090d16',
-    border: '1px solid #334155',
-    borderRadius: '6px',
-    padding: '10px 12px',
-    color: '#f8fafc',
-    fontSize: '14px',
-    outline: 'none',
-  },
-  select: {
-    backgroundColor: '#090d16',
-    border: '1px solid #334155',
-    borderRadius: '6px',
-    padding: '10px 12px',
-    color: '#f8fafc',
-    fontSize: '14px',
-    outline: 'none',
-  },
-  primaryButton: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '8px',
-    backgroundColor: '#4f46e5',
-    border: '1px solid #6366f1',
-    color: '#ffffff',
-    padding: '9px 16px',
-    borderRadius: '6px',
-    fontSize: '13px',
-    fontWeight: 600,
-    cursor: 'pointer',
-    transition: 'all 0.15s ease',
-  },
-  secondaryButton: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '8px',
-    backgroundColor: '#1e293b',
-    border: '1px solid #334155',
-    color: '#f8fafc',
-    padding: '8px 14px',
-    borderRadius: '6px',
-    fontSize: '13px',
-    fontWeight: 500,
-    cursor: 'pointer',
-  },
-  textButton: {
-    background: 'none',
-    border: 'none',
-    color: '#818cf8',
-    cursor: 'pointer',
-    fontSize: '13px',
-    fontWeight: 600,
-    padding: '4px 8px',
-  },
-  feedbackNotice: {
-    marginTop: '16px',
-    padding: '10px 14px',
-    borderRadius: '6px',
-    borderWidth: '1px',
-    borderStyle: 'solid',
-    fontSize: '13px',
-  },
-  tableWrapper: {
-    overflowX: 'auto',
-  },
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse',
-    textAlign: 'left',
-  },
-  th: {
-    padding: '12px 14px',
-    borderBottom: '1px solid #1e293b',
-    color: '#64748b',
-    fontSize: '12px',
-    fontWeight: 600,
-    textTransform: 'uppercase',
-    letterSpacing: '0.05em',
-  },
-  tr: {
-    borderBottom: '1px solid #1e293b40',
-    transition: 'background-color 0.15s',
-  },
-  td: {
-    padding: '12px 14px',
-    fontSize: '13px',
-    color: '#cbd5e1',
-  },
-  tdMono: {
-    padding: '12px 14px',
-    fontSize: '13px',
-    fontFamily: 'monospace',
-    color: '#e2e8f0',
-  },
-  categoryPill: {
-    padding: '3px 8px',
-    borderRadius: '4px',
-    fontSize: '11px',
-    fontWeight: 600,
-  },
-  varianceBadge: {
-    display: 'inline-block',
-    padding: '2px 8px',
-    borderRadius: '4px',
-    fontSize: '12px',
-    fontWeight: 600,
-  },
-  badge: {
-    display: 'inline-block',
-    padding: '3px 9px',
-    borderRadius: '4px',
-    fontSize: '11px',
-    fontWeight: 600,
-    letterSpacing: '0.03em',
-  },
-  miniButton: {
-    backgroundColor: '#1e293b',
-    border: '1px solid #334155',
-    color: '#94a3b8',
-    padding: '4px 10px',
-    borderRadius: '4px',
-    fontSize: '12px',
-    cursor: 'pointer',
-  },
-  filterBar: {
-    display: 'flex',
-    gap: '12px',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    backgroundColor: '#0f172a',
-    padding: '14px 20px',
-    borderRadius: '10px',
-    border: '1px solid #1e293b',
-  },
-  filterGroup: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-  },
-  filterLabel: {
-    fontSize: '12px',
-    fontWeight: 600,
-    color: '#94a3b8',
-  },
-  filterSelect: {
-    backgroundColor: '#090d16',
-    border: '1px solid #334155',
-    color: '#f8fafc',
-    padding: '6px 10px',
-    borderRadius: '6px',
-    fontSize: '13px',
-    outline: 'none',
-  },
-  filterToggle: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '6px',
-    backgroundColor: '#1e293b',
-    border: '1px solid #334155',
-    color: '#94a3b8',
-    padding: '6px 12px',
-    borderRadius: '6px',
-    fontSize: '13px',
-    cursor: 'pointer',
-  },
-  filterToggleActive: {
-    backgroundColor: '#ef444420',
-    color: '#ef4444',
-    borderColor: '#ef4444',
-  },
-  drawerOverlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.65)',
-    backdropFilter: 'blur(4px)',
-    display: 'flex',
-    justifyContent: 'flex-end',
-    zIndex: 1000,
-  },
-  drawer: {
-    width: '460px',
-    height: '100%',
-    backgroundColor: '#0f172a',
-    borderLeft: '1px solid #1e293b',
-    boxShadow: '-8px 0 24px rgba(0, 0, 0, 0.4)',
-    display: 'flex',
-    flexDirection: 'column',
-    padding: '24px',
-    boxSizing: 'border-box',
-    overflowY: 'auto',
-  },
-  drawerHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    borderBottom: '1px solid #1e293b',
-    paddingBottom: '16px',
-  },
-  closeButton: {
-    background: 'none',
-    border: 'none',
-    color: '#94a3b8',
-    fontSize: '18px',
-    cursor: 'pointer',
-  },
-  drawerBody: {
-    marginTop: '20px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '16px',
-  },
-  detailRow: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  detailLabel: {
-    fontSize: '13px',
-    color: '#94a3b8',
-    fontWeight: 500,
-  },
-  reasonBox: {
-    backgroundColor: '#090d16',
-    border: '1px solid #1e293b',
-    borderRadius: '6px',
-    padding: '12px',
-    fontSize: '13px',
-    color: '#cbd5e1',
-    lineHeight: 1.5,
-    marginTop: '6px',
-  },
-  statusButton: {
-    padding: '6px 12px',
-    borderRadius: '6px',
-    border: '1px solid #334155',
-    backgroundColor: '#1e293b',
-    color: '#cbd5e1',
-    fontSize: '12px',
-    cursor: 'pointer',
-  },
-  statusButtonActive: {
-    backgroundColor: '#4f46e5',
-    borderColor: '#6366f1',
-    color: '#ffffff',
-    fontWeight: 600,
-  },
-  chatShell: {
-    backgroundColor: '#0f172a',
-    border: '1px solid #1e293b',
-    borderRadius: '12px',
-    display: 'flex',
-    flexDirection: 'column',
-    height: '620px',
-    overflow: 'hidden',
-  },
-  chatLog: {
-    flex: 1,
-    overflowY: 'auto',
-    padding: '20px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '16px',
-  },
-  chatBubbleContainer: {
-    display: 'flex',
-    width: '100%',
-  },
-  chatBubble: {
-    maxWidth: '75%',
-    padding: '12px 16px',
-    borderRadius: '12px',
-    fontSize: '14px',
-    lineHeight: 1.5,
-  },
-  userBubble: {
-    backgroundColor: '#4f46e5',
-    color: '#ffffff',
-    borderBottomRightRadius: '2px',
-  },
-  botBubble: {
-    backgroundColor: '#1e293b',
-    color: '#f8fafc',
-    borderBottomLeftRadius: '2px',
-    border: '1px solid #33415560',
-  },
-  chatBubbleHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    gap: '12px',
-    marginBottom: '4px',
-  },
-  chatSender: {
-    fontSize: '11px',
-    fontWeight: 700,
-    opacity: 0.8,
-  },
-  chatTimestamp: {
-    fontSize: '10px',
-    opacity: 0.6,
-  },
-  chatText: {
-    fontSize: '14px',
-  },
-  sourceCitation: {
-    marginTop: '8px',
-    paddingTop: '6px',
-    borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-    fontSize: '11px',
-    opacity: 0.8,
-  },
-  promptChips: {
-    display: 'flex',
-    gap: '8px',
-    alignItems: 'center',
-    padding: '8px 16px',
-    backgroundColor: '#090d1650',
-    borderTop: '1px solid #1e293b',
-    overflowX: 'auto',
-  },
-  chipButton: {
-    backgroundColor: '#1e293b',
-    border: '1px solid #334155',
-    color: '#cbd5e1',
-    borderRadius: '16px',
-    padding: '4px 12px',
-    fontSize: '12px',
-    cursor: 'pointer',
-    whiteSpace: 'nowrap',
-  },
-  chatInputRow: {
-    display: 'flex',
-    gap: '10px',
-    padding: '14px 16px',
-    backgroundColor: '#090d16',
-    borderTop: '1px solid #1e293b',
-  },
-  chatInput: {
-    flex: 1,
-    backgroundColor: '#0f172a',
-    border: '1px solid #334155',
-    borderRadius: '8px',
-    padding: '10px 14px',
-    color: '#f8fafc',
-    fontSize: '14px',
-    outline: 'none',
-  },
-  chatSendButton: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '6px',
-    backgroundColor: '#4f46e5',
-    border: 'none',
-    color: '#ffffff',
-    padding: '10px 18px',
-    borderRadius: '8px',
-    fontWeight: 600,
-    fontSize: '13px',
-    cursor: 'pointer',
-  },
-};
+function getStyles(theme: 'dark' | 'light'): Record<string, React.CSSProperties> {
+  const isDark = theme === 'dark';
+
+  return {
+    appShell: {
+      display: 'flex',
+      minHeight: '100vh',
+      backgroundColor: isDark ? '#090d16' : '#f1f5f9',
+      color: isDark ? '#f8fafc' : '#0f172a',
+      fontFamily: '"Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      transition: 'background-color 0.2s ease, color 0.2s ease',
+    },
+    sidebar: {
+      width: '270px',
+      backgroundColor: isDark ? '#0f172a' : '#ffffff',
+      borderRight: isDark ? '1px solid #1e293b' : '1px solid #e2e8f0',
+      display: 'flex',
+      flexDirection: 'column',
+      padding: '24px 16px',
+      flexShrink: 0,
+      transition: 'background-color 0.2s ease, border-color 0.2s ease',
+    },
+    brandContainer: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+      marginBottom: '32px',
+      paddingLeft: '8px',
+    },
+    brandBadge: {
+      width: '38px',
+      height: '38px',
+      borderRadius: '8px',
+      background: 'linear-gradient(135deg, #6366f1, #3b82f6)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontWeight: 800,
+      fontSize: '15px',
+      color: '#ffffff',
+      letterSpacing: '0.05em',
+      boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)',
+    },
+    brandTitle: {
+      fontSize: '18px',
+      fontWeight: 700,
+      letterSpacing: '0.02em',
+      color: isDark ? '#f8fafc' : '#0f172a',
+    },
+    brandSubtitle: {
+      fontSize: '11px',
+      color: isDark ? '#64748b' : '#64748b',
+      fontWeight: 500,
+    },
+    navMenu: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '6px',
+      flex: 1,
+    },
+    navButton: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+      padding: '11px 14px',
+      borderRadius: '8px',
+      border: 'none',
+      backgroundColor: 'transparent',
+      color: isDark ? '#94a3b8' : '#64748b',
+      fontSize: '14px',
+      fontWeight: 500,
+      cursor: 'pointer',
+      textAlign: 'left',
+      transition: 'all 0.15s ease',
+    },
+    navButtonActive: {
+      backgroundColor: isDark ? '#1e293b' : '#e0e7ff',
+      color: isDark ? '#ffffff' : '#4338ca',
+      fontWeight: 600,
+      boxShadow: isDark ? 'inset 0 1px 0 rgba(255, 255, 255, 0.05)' : 'none',
+    },
+    counterPill: {
+      marginLeft: 'auto',
+      backgroundColor: '#ef4444',
+      color: '#ffffff',
+      fontSize: '11px',
+      fontWeight: 700,
+      padding: '2px 7px',
+      borderRadius: '12px',
+    },
+    sidebarFooter: {
+      borderTop: isDark ? '1px solid #1e293b' : '1px solid #e2e8f0',
+      paddingTop: '16px',
+    },
+    themeToggleBtn: {
+      width: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '10px',
+      backgroundColor: isDark ? '#1e293b' : '#f1f5f9',
+      border: isDark ? '1px solid #334155' : '1px solid #cbd5e1',
+      borderRadius: '8px',
+      color: isDark ? '#f8fafc' : '#0f172a',
+      cursor: 'pointer',
+      transition: 'all 0.15s ease',
+    },
+    statusIndicatorBox: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '10px',
+      padding: '8px 12px',
+      backgroundColor: isDark ? '#1e293b60' : '#f8fafc',
+      borderRadius: '6px',
+      border: isDark ? '1px solid #33415530' : '1px solid #e2e8f0',
+    },
+    statusDot: {
+      width: '8px',
+      height: '8px',
+      borderRadius: '50%',
+    },
+    statusText: {
+      fontSize: '12px',
+      color: isDark ? '#94a3b8' : '#64748b',
+    },
+    collapseBtn: {
+      backgroundColor: isDark ? '#1e293b' : '#f1f5f9',
+      border: isDark ? '1px solid #334155' : '1px solid #cbd5e1',
+      borderRadius: '6px',
+      color: isDark ? '#94a3b8' : '#64748b',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      cursor: 'pointer',
+      padding: 0,
+      transition: 'all 0.15s ease',
+    },
+    mainContent: {
+      flex: 1,
+      overflowY: 'auto',
+      padding: '32px 40px',
+      backgroundColor: isDark ? '#090d16' : '#f8fafc',
+      transition: 'background-color 0.2s ease',
+    },
+    viewContainer: {
+      maxWidth: '1200px',
+      margin: '0 auto',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '24px',
+    },
+    viewHeader: {
+      marginBottom: '8px',
+    },
+    viewTitle: {
+      fontSize: '28px',
+      fontWeight: 700,
+      color: isDark ? '#f8fafc' : '#0f172a',
+      margin: 0,
+    },
+    viewDescription: {
+      fontSize: '14px',
+      color: isDark ? '#94a3b8' : '#64748b',
+      marginTop: '6px',
+    },
+    statGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+      gap: '16px',
+    },
+    statCard: {
+      backgroundColor: isDark ? '#0f172a' : '#ffffff',
+      border: isDark ? '1px solid #1e293b' : '1px solid #e2e8f0',
+      borderRadius: '12px',
+      padding: '20px',
+      boxShadow: isDark ? '0 4px 6px -1px rgba(0, 0, 0, 0.2)' : '0 2px 4px rgba(0, 0, 0, 0.04)',
+    },
+    statLabel: {
+      fontSize: '11px',
+      fontWeight: 700,
+      letterSpacing: '0.05em',
+      color: isDark ? '#64748b' : '#64748b',
+      marginBottom: '8px',
+    },
+    statValue: {
+      fontSize: '32px',
+      fontWeight: 800,
+      color: isDark ? '#f8fafc' : '#0f172a',
+      lineHeight: 1.1,
+    },
+    statSub: {
+      fontSize: '12px',
+      color: isDark ? '#94a3b8' : '#64748b',
+      marginTop: '8px',
+    },
+    panel: {
+      backgroundColor: isDark ? '#0f172a' : '#ffffff',
+      border: isDark ? '1px solid #1e293b' : '1px solid #e2e8f0',
+      borderRadius: '12px',
+      padding: '24px',
+      boxShadow: isDark ? '0 4px 6px -1px rgba(0, 0, 0, 0.2)' : '0 2px 4px rgba(0, 0, 0, 0.04)',
+    },
+    panelHeader: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: '20px',
+    },
+    panelTitle: {
+      fontSize: '18px',
+      fontWeight: 600,
+      margin: 0,
+      color: isDark ? '#f8fafc' : '#0f172a',
+    },
+    severitySection: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '14px',
+    },
+    severityBarRow: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '6px',
+    },
+    severityBarMeta: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      fontSize: '13px',
+      color: isDark ? '#cbd5e1' : '#334155',
+    },
+    barTrack: {
+      height: '8px',
+      backgroundColor: isDark ? '#1e293b' : '#e2e8f0',
+      borderRadius: '4px',
+      overflow: 'hidden',
+    },
+    barFill: {
+      height: '100%',
+      borderRadius: '4px',
+      transition: 'width 0.4s ease',
+    },
+    urgentAlert: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      backgroundColor: isDark ? '#450a0a30' : '#fef2f2',
+      border: isDark ? '1px solid #ef444455' : '1px solid #fecaca',
+      padding: '14px 20px',
+      borderRadius: '8px',
+      fontSize: '13px',
+      color: isDark ? '#f8fafc' : '#991b1b',
+    },
+    formGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+      gap: '16px',
+    },
+    fieldGroup: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '6px',
+    },
+    label: {
+      fontSize: '12px',
+      fontWeight: 600,
+      color: isDark ? '#94a3b8' : '#475569',
+    },
+    input: {
+      backgroundColor: isDark ? '#090d16' : '#ffffff',
+      border: isDark ? '1px solid #334155' : '1px solid #cbd5e1',
+      borderRadius: '6px',
+      padding: '10px 12px',
+      color: isDark ? '#f8fafc' : '#0f172a',
+      fontSize: '14px',
+      outline: 'none',
+    },
+    select: {
+      backgroundColor: isDark ? '#090d16' : '#ffffff',
+      border: isDark ? '1px solid #334155' : '1px solid #cbd5e1',
+      borderRadius: '6px',
+      padding: '10px 12px',
+      color: isDark ? '#f8fafc' : '#0f172a',
+      fontSize: '14px',
+      outline: 'none',
+    },
+    primaryButton: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '8px',
+      backgroundColor: '#4f46e5',
+      border: '1px solid #6366f1',
+      color: '#ffffff',
+      padding: '9px 16px',
+      borderRadius: '6px',
+      fontSize: '13px',
+      fontWeight: 600,
+      cursor: 'pointer',
+      transition: 'all 0.15s ease',
+    },
+    secondaryButton: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '8px',
+      backgroundColor: isDark ? '#1e293b' : '#f1f5f9',
+      border: isDark ? '1px solid #334155' : '1px solid #cbd5e1',
+      color: isDark ? '#f8fafc' : '#1e293b',
+      padding: '8px 14px',
+      borderRadius: '6px',
+      fontSize: '13px',
+      fontWeight: 500,
+      cursor: 'pointer',
+    },
+    textButton: {
+      background: 'none',
+      border: 'none',
+      color: isDark ? '#818cf8' : '#4f46e5',
+      cursor: 'pointer',
+      fontSize: '13px',
+      fontWeight: 600,
+      padding: '4px 8px',
+    },
+    feedbackNotice: {
+      marginTop: '16px',
+      padding: '10px 14px',
+      borderRadius: '6px',
+      borderWidth: '1px',
+      borderStyle: 'solid',
+      fontSize: '13px',
+    },
+    tableWrapper: {
+      overflowX: 'auto',
+    },
+    table: {
+      width: '100%',
+      borderCollapse: 'collapse',
+      textAlign: 'left',
+    },
+    th: {
+      padding: '12px 14px',
+      borderBottom: isDark ? '1px solid #1e293b' : '1px solid #e2e8f0',
+      color: isDark ? '#64748b' : '#64748b',
+      fontSize: '12px',
+      fontWeight: 600,
+      textTransform: 'uppercase',
+      letterSpacing: '0.05em',
+    },
+    tr: {
+      borderBottom: isDark ? '1px solid #1e293b40' : '1px solid #f1f5f9',
+      transition: 'background-color 0.15s',
+    },
+    td: {
+      padding: '12px 14px',
+      fontSize: '13px',
+      color: isDark ? '#cbd5e1' : '#334155',
+    },
+    tdMono: {
+      padding: '12px 14px',
+      fontSize: '13px',
+      fontFamily: 'monospace',
+      color: isDark ? '#e2e8f0' : '#1e293b',
+    },
+    categoryPill: {
+      padding: '3px 8px',
+      borderRadius: '4px',
+      fontSize: '11px',
+      fontWeight: 600,
+    },
+    varianceBadge: {
+      display: 'inline-block',
+      padding: '2px 8px',
+      borderRadius: '4px',
+      fontSize: '12px',
+      fontWeight: 600,
+    },
+    badge: {
+      display: 'inline-block',
+      padding: '3px 9px',
+      borderRadius: '4px',
+      fontSize: '11px',
+      fontWeight: 600,
+      letterSpacing: '0.03em',
+    },
+    miniButton: {
+      backgroundColor: isDark ? '#1e293b' : '#f1f5f9',
+      border: isDark ? '1px solid #334155' : '1px solid #cbd5e1',
+      color: isDark ? '#94a3b8' : '#475569',
+      padding: '4px 10px',
+      borderRadius: '4px',
+      fontSize: '12px',
+      cursor: 'pointer',
+    },
+    filterBar: {
+      display: 'flex',
+      gap: '12px',
+      alignItems: 'center',
+      flexWrap: 'wrap',
+      backgroundColor: isDark ? '#0f172a' : '#ffffff',
+      padding: '14px 20px',
+      borderRadius: '10px',
+      border: isDark ? '1px solid #1e293b' : '1px solid #e2e8f0',
+      boxShadow: isDark ? 'none' : '0 1px 3px rgba(0, 0, 0, 0.05)',
+    },
+    filterGroup: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+    },
+    filterLabel: {
+      fontSize: '12px',
+      fontWeight: 600,
+      color: isDark ? '#94a3b8' : '#475569',
+    },
+    filterSelect: {
+      backgroundColor: isDark ? '#090d16' : '#f8fafc',
+      border: isDark ? '1px solid #334155' : '1px solid #cbd5e1',
+      color: isDark ? '#f8fafc' : '#0f172a',
+      padding: '6px 10px',
+      borderRadius: '6px',
+      fontSize: '13px',
+      outline: 'none',
+    },
+    filterToggle: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '6px',
+      backgroundColor: isDark ? '#1e293b' : '#f1f5f9',
+      border: isDark ? '1px solid #334155' : '1px solid #cbd5e1',
+      color: isDark ? '#94a3b8' : '#64748b',
+      padding: '6px 12px',
+      borderRadius: '6px',
+      fontSize: '13px',
+      cursor: 'pointer',
+    },
+    filterToggleActive: {
+      backgroundColor: isDark ? '#ef444420' : '#fee2e2',
+      color: isDark ? '#ef4444' : '#dc2626',
+      borderColor: '#ef4444',
+    },
+    drawerOverlay: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.65)',
+      backdropFilter: 'blur(4px)',
+      display: 'flex',
+      justifyContent: 'flex-end',
+      zIndex: 1000,
+    },
+    drawer: {
+      width: '460px',
+      height: '100%',
+      backgroundColor: isDark ? '#0f172a' : '#ffffff',
+      borderLeft: isDark ? '1px solid #1e293b' : '1px solid #e2e8f0',
+      boxShadow: '-8px 0 24px rgba(0, 0, 0, 0.25)',
+      display: 'flex',
+      flexDirection: 'column',
+      padding: '24px',
+      boxSizing: 'border-box',
+      overflowY: 'auto',
+    },
+    drawerHeader: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      borderBottom: isDark ? '1px solid #1e293b' : '1px solid #e2e8f0',
+      paddingBottom: '16px',
+    },
+    closeButton: {
+      background: 'none',
+      border: 'none',
+      color: isDark ? '#94a3b8' : '#64748b',
+      fontSize: '18px',
+      cursor: 'pointer',
+    },
+    drawerBody: {
+      marginTop: '20px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '16px',
+    },
+    detailRow: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    detailLabel: {
+      fontSize: '13px',
+      color: isDark ? '#94a3b8' : '#64748b',
+      fontWeight: 500,
+    },
+    reasonBox: {
+      backgroundColor: isDark ? '#090d16' : '#f8fafc',
+      border: isDark ? '1px solid #1e293b' : '1px solid #e2e8f0',
+      borderRadius: '6px',
+      padding: '12px',
+      fontSize: '13px',
+      color: isDark ? '#cbd5e1' : '#334155',
+      lineHeight: 1.5,
+      marginTop: '6px',
+    },
+    statusButton: {
+      padding: '6px 12px',
+      borderRadius: '6px',
+      border: isDark ? '1px solid #334155' : '1px solid #cbd5e1',
+      backgroundColor: isDark ? '#1e293b' : '#f1f5f9',
+      color: isDark ? '#cbd5e1' : '#475569',
+      fontSize: '12px',
+      cursor: 'pointer',
+    },
+    statusButtonActive: {
+      backgroundColor: '#4f46e5',
+      borderColor: '#6366f1',
+      color: '#ffffff',
+      fontWeight: 600,
+    },
+    chatShell: {
+      backgroundColor: isDark ? '#0f172a' : '#ffffff',
+      border: isDark ? '1px solid #1e293b' : '1px solid #e2e8f0',
+      borderRadius: '12px',
+      display: 'flex',
+      flexDirection: 'column',
+      height: '620px',
+      overflow: 'hidden',
+      boxShadow: isDark ? 'none' : '0 2px 8px rgba(0, 0, 0, 0.05)',
+    },
+    chatLog: {
+      flex: 1,
+      overflowY: 'auto',
+      padding: '20px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '16px',
+      backgroundColor: isDark ? '#0f172a' : '#f8fafc',
+    },
+    chatBubbleContainer: {
+      display: 'flex',
+      width: '100%',
+    },
+    chatBubble: {
+      maxWidth: '75%',
+      padding: '12px 16px',
+      borderRadius: '12px',
+      fontSize: '14px',
+      lineHeight: 1.5,
+    },
+    userBubble: {
+      backgroundColor: '#4f46e5',
+      color: '#ffffff',
+      borderBottomRightRadius: '2px',
+    },
+    botBubble: {
+      backgroundColor: isDark ? '#1e293b' : '#ffffff',
+      color: isDark ? '#f8fafc' : '#0f172a',
+      borderBottomLeftRadius: '2px',
+      border: isDark ? '1px solid #33415560' : '1px solid #e2e8f0',
+      boxShadow: isDark ? 'none' : '0 2px 4px rgba(0,0,0,0.05)',
+    },
+    chatBubbleHeader: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      gap: '12px',
+      marginBottom: '4px',
+    },
+    chatSender: {
+      fontSize: '11px',
+      fontWeight: 700,
+      opacity: 0.8,
+    },
+    chatTimestamp: {
+      fontSize: '10px',
+      opacity: 0.6,
+    },
+    chatText: {
+      fontSize: '14px',
+    },
+    sourceCitation: {
+      marginTop: '8px',
+      paddingTop: '6px',
+      borderTop: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
+      fontSize: '11px',
+      opacity: 0.8,
+    },
+    promptChips: {
+      display: 'flex',
+      gap: '8px',
+      alignItems: 'center',
+      padding: '8px 16px',
+      backgroundColor: isDark ? '#090d1650' : '#ffffff',
+      borderTop: isDark ? '1px solid #1e293b' : '1px solid #e2e8f0',
+      overflowX: 'auto',
+    },
+    chipButton: {
+      backgroundColor: isDark ? '#1e293b' : '#f1f5f9',
+      border: isDark ? '1px solid #334155' : '1px solid #cbd5e1',
+      color: isDark ? '#cbd5e1' : '#475569',
+      borderRadius: '16px',
+      padding: '4px 12px',
+      fontSize: '12px',
+      cursor: 'pointer',
+      whiteSpace: 'nowrap',
+    },
+    chatInputRow: {
+      display: 'flex',
+      gap: '10px',
+      padding: '14px 16px',
+      backgroundColor: isDark ? '#090d16' : '#ffffff',
+      borderTop: isDark ? '1px solid #1e293b' : '1px solid #e2e8f0',
+    },
+    chatInput: {
+      flex: 1,
+      backgroundColor: isDark ? '#0f172a' : '#f8fafc',
+      border: isDark ? '1px solid #334155' : '1px solid #cbd5e1',
+      borderRadius: '8px',
+      padding: '10px 14px',
+      color: isDark ? '#f8fafc' : '#0f172a',
+      fontSize: '14px',
+      outline: 'none',
+    },
+    chatSendButton: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '6px',
+      backgroundColor: '#4f46e5',
+      border: 'none',
+      color: '#ffffff',
+      padding: '10px 18px',
+      borderRadius: '8px',
+      fontWeight: 600,
+      fontSize: '13px',
+      cursor: 'pointer',
+    },
+  };
+}
 
 export default FemaApp;
