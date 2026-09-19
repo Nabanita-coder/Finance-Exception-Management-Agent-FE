@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import LandingPage from './components/LandingPage';
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -46,6 +47,8 @@ export interface DashboardSummary {
   total_exceptions: number;
   open_exceptions: number;
   overdue_exceptions: number;
+  total_budget: number;
+  total_actual: number;
   exceptions_by_severity: Record<Severity, number>;
   exceptions_by_status: Record<CaseStatus, number>;
 }
@@ -196,8 +199,36 @@ const Icons = {
 // MAIN APPLICATION COMPONENT
 // ============================================================================
 export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost:5000/api' }) => {
-  // Navigation
-  const [currentView, setCurrentView] = useState<'dashboard' | 'records' | 'exceptions' | 'chat'>('dashboard');
+  // Navigation & URL Routing Helper
+  const getViewFromPath = (): 'landing' | 'dashboard' | 'records' | 'exceptions' | 'chat' => {
+    const path = window.location.pathname.toLowerCase();
+    if (path.includes('record')) return 'records';
+    if (path.includes('exception')) return 'exceptions';
+    if (path.includes('chat')) return 'chat';
+    if (path.includes('dashboard') || path.includes('app')) return 'dashboard';
+    return 'landing';
+  };
+
+  const [currentView, setCurrentViewState] = useState<'landing' | 'dashboard' | 'records' | 'exceptions' | 'chat'>(getViewFromPath);
+
+  // Navigate and update browser URL address bar
+  const navigateTo = (view: 'landing' | 'dashboard' | 'records' | 'exceptions' | 'chat') => {
+    setCurrentViewState(view);
+    const targetPath = view === 'landing' ? '/' : view === 'dashboard' ? '/dashboard' : `/${view}`;
+    if (window.location.pathname !== targetPath) {
+      window.history.pushState({ view }, '', targetPath);
+    }
+  };
+
+  // Listen to browser Back/Forward navigation
+  useEffect(() => {
+    const handlePopState = () => {
+      setCurrentViewState(getViewFromPath());
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
 
@@ -297,6 +328,13 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
     let overdue = 0;
     const now = new Date().getTime();
 
+    let totalBudget = 0;
+    let totalActual = 0;
+    records.forEach((r) => {
+      totalBudget += r.budget_amount || 0;
+      totalActual += r.actual_amount || 0;
+    });
+
     exceptions.forEach((e) => {
       by_severity[e.severity] = (by_severity[e.severity] || 0) + 1;
       by_status[e.status] = (by_status[e.status] || 0) + 1;
@@ -310,6 +348,8 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
       total_exceptions: exceptions.length,
       open_exceptions: (by_status.OPEN || 0) + (by_status.IN_PROGRESS || 0) + (by_status.ESCALATED || 0),
       overdue_exceptions: overdue,
+      total_budget: totalBudget,
+      total_actual: totalActual,
       exceptions_by_severity: by_severity,
       exceptions_by_status: by_status,
     };
@@ -618,6 +658,17 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
     return status !== 'RESOLVED' && new Date(deadline).getTime() < Date.now();
   };
 
+  // If on Landing Page, render LandingPage component directly
+  if (currentView === 'landing') {
+    return (
+      <LandingPage
+        theme={theme}
+        setTheme={setTheme}
+        onLaunchApp={(targetView = 'dashboard') => navigateTo(targetView)}
+      />
+    );
+  }
+
   return (
     <div style={styles.appShell}>
       {/* ---------------------------------------------------------------- */}
@@ -635,14 +686,16 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
           {isSidebarCollapsed ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', width: '100%' }}>
               <div
+                onClick={() => navigateTo('landing')}
                 style={{
                   ...styles.brandBadge,
                   width: '42px',
                   height: '42px',
                   flexShrink: 0,
                   fontSize: '16px',
+                  cursor: 'pointer',
                 }}
-                title="FEMA - Finance Exception Agent"
+                title="Back to Landing Page"
               >
                 FE
               </div>
@@ -660,7 +713,11 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
             </div>
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', paddingLeft: '4px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', overflow: 'hidden' }}>
+              <div
+                onClick={() => navigateTo('landing')}
+                style={{ display: 'flex', alignItems: 'center', gap: '12px', overflow: 'hidden', cursor: 'pointer' }}
+                title="Back to Landing Page"
+              >
                 <div style={{ ...styles.brandBadge, flexShrink: 0 }} title="FEMA - Finance Exception Agent">
                   FE
                 </div>
@@ -687,7 +744,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
 
         <nav style={styles.navMenu}>
           <button
-            onClick={() => setCurrentView('dashboard')}
+            onClick={() => navigateTo('dashboard')}
             style={{
               ...styles.navButton,
               ...(currentView === 'dashboard' ? styles.navButtonActive : {}),
@@ -702,7 +759,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
           </button>
 
           <button
-            onClick={() => setCurrentView('records')}
+            onClick={() => navigateTo('records')}
             style={{
               ...styles.navButton,
               ...(currentView === 'records' ? styles.navButtonActive : {}),
@@ -717,7 +774,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
           </button>
 
           <button
-            onClick={() => setCurrentView('exceptions')}
+            onClick={() => navigateTo('exceptions')}
             style={{
               ...styles.navButton,
               ...(currentView === 'exceptions' ? styles.navButtonActive : {}),
@@ -750,7 +807,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
           </button>
 
           <button
-            onClick={() => setCurrentView('chat')}
+            onClick={() => navigateTo('chat')}
             style={{
               ...styles.navButton,
               ...(currentView === 'chat' ? styles.navButtonActive : {}),
@@ -785,7 +842,6 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
               )}
             </button>
           </div>
-
           <div
             style={{
               ...styles.statusIndicatorBox,
@@ -823,7 +879,16 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
       {/* ---------------------------------------------------------------- */}
       {/* MAIN VIEW AREA                                                   */}
       {/* ---------------------------------------------------------------- */}
-      <main style={styles.mainContent}>
+      <main
+        style={{
+          ...styles.mainContent,
+          height: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          overflowY: currentView === 'chat' ? 'hidden' : 'auto',
+          padding: currentView === 'chat' ? '20px 32px' : '32px 40px',
+        }}
+      >
         {/* ============================================================== */}
         {/* VIEW 1: DASHBOARD                                              */}
         {/* ============================================================== */}
@@ -836,53 +901,38 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
               </p>
             </header>
 
-            {/* Top Stat KPI Cards */}
+            {/* Top Stat KPI Cards (Original 4 Cards in 1 Row) */}
             <div style={styles.statGrid}>
               <div style={styles.statCard}>
-                <div style={styles.statLabel}>TOTAL BUDGETED SPEND</div>
-                <div style={styles.statValue}>{formatCurrency(summary.total_budget)}</div>
-                <div style={styles.statSub}>Across {summary.total_records} cost centers</div>
-              </div>
-
-              <div style={styles.statCard}>
-                <div style={styles.statLabel}>ACTUAL RECORDED REVENUE/SPEND</div>
-                <div style={styles.statValue}>{formatCurrency(summary.total_actual)}</div>
-                <div style={styles.statSub}>
-                  Net variance:{' '}
-                  <span
-                    style={{
-                      color: summary.total_actual > summary.total_budget ? '#f87171' : '#34d399',
-                      fontWeight: 600,
-                    }}
-                  >
-                    {summary.total_budget > 0
-                      ? (((summary.total_actual - summary.total_budget) / summary.total_budget) * 100).toFixed(1)
-                      : 0}
-                    %
-                  </span>
-                </div>
+                <div style={styles.statLabel}>TOTAL MONITORED RECORDS</div>
+                <div style={styles.statValue}>{summary.total_records}</div>
+                <div style={styles.statSub}>Budget vs Actual ledger items</div>
               </div>
 
               <div style={styles.statCard}>
                 <div style={styles.statLabel}>OPEN EXCEPTION CASES</div>
-                <div style={{ ...styles.statValue, color: summary.open_exceptions > 0 ? '#fbbf24' : '#34d399' }}>
+                <div style={{ ...styles.statValue, color: summary.open_exceptions > 0 ? '#f87171' : '#34d399' }}>
                   {summary.open_exceptions}
                 </div>
+                <div style={styles.statSub}>Requiring finance team resolution</div>
+              </div>
+
+              <div style={styles.statCard}>
+                <div style={styles.statLabel}>OVERDUE SLA BREACHES</div>
+                <div style={{ ...styles.statValue, color: summary.overdue_exceptions > 0 ? '#ef4444' : '#34d399' }}>
+                  {summary.overdue_exceptions}
+                </div>
                 <div style={styles.statSub}>
-                  {summary.overdue_exceptions > 0 ? (
-                    <span style={{ color: '#ef4444', fontWeight: 600 }}>
-                      ⚠️ {summary.overdue_exceptions} SLA deadline overdue
-                    </span>
-                  ) : (
-                    'All cases currently within SLA'
-                  )}
+                  {summary.overdue_exceptions > 0 ? 'Passed resolution timeline' : 'All within SLA'}
                 </div>
               </div>
 
               <div style={styles.statCard}>
-                <div style={styles.statLabel}>ACTIVE FINANCIAL OWNERS</div>
-                <div style={styles.statValue}>{owners.length}</div>
-                <div style={styles.statSub}>Level 1 to 4 escalation ladder</div>
+                <div style={styles.statLabel}>RESOLVED CASES</div>
+                <div style={{ ...styles.statValue, color: '#34d399' }}>
+                  {summary.exceptions_by_status.RESOLVED || 0}
+                </div>
+                <div style={styles.statSub}>Audit closed and verified</div>
               </div>
             </div>
 
@@ -940,7 +990,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                 </div>
                 <button
                   onClick={() => {
-                    setCurrentView('exceptions');
+                    navigateTo('exceptions');
                     setShowOverdueOnly(true);
                   }}
                   style={{ ...styles.secondaryButton, padding: '6px 12px', fontSize: '12px' }}
@@ -1093,7 +1143,12 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   </thead>
                   <tbody>
                     {records.map((r) => {
-                      const isHighRisk = Math.abs(r.variance_percent) >= 20;
+                      const variance = r.variance_percent !== undefined
+                        ? r.variance_percent
+                        : r.budget_amount > 0
+                        ? Number((((r.actual_amount - r.budget_amount) / r.budget_amount) * 100).toFixed(2))
+                        : 0;
+                      const isHighRisk = Math.abs(variance) >= 20;
 
                       return (
                         <tr key={r.id} style={styles.tr}>
@@ -1118,16 +1173,16 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                               style={{
                                 ...styles.varianceBadge,
                                 backgroundColor: isHighRisk
-                                  ? r.variance_percent < 0
+                                  ? variance < 0
                                     ? '#450a0a'
                                     : '#451a03'
                                   : '#0f172a',
-                                color: r.variance_percent < 0 ? '#f87171' : '#fbbf24',
+                                color: variance < 0 ? '#f87171' : '#fbbf24',
                                 border: isHighRisk ? '1px solid currentColor' : '1px solid #334155',
                               }}
                             >
-                              {r.variance_percent > 0 ? '+' : ''}
-                              {r.variance_percent}%
+                              {variance > 0 ? '+' : ''}
+                              {variance}%
                             </span>
                           </td>
                         </tr>
@@ -1419,15 +1474,15 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
         {/* VIEW 4: FINANCE CHAT (RAG AI)                                  */}
         {/* ============================================================== */}
         {currentView === 'chat' && (
-          <div style={styles.viewContainer}>
-            <header style={styles.viewHeader}>
-              <h1 style={styles.viewTitle}>FEMA Intelligence Chat</h1>
-              <p style={styles.viewDescription}>
+          <div style={{ ...styles.viewContainer, flex: 1, height: '100%', minHeight: 0, gap: '10px' }}>
+            <header style={{ ...styles.viewHeader, marginBottom: '0px', flexShrink: 0 }}>
+              <h1 style={{ ...styles.viewTitle, fontSize: '24px' }}>FEMA Intelligence Chat</h1>
+              <p style={{ ...styles.viewDescription, marginTop: '2px', fontSize: '13px' }}>
                 Query your company ledger and exceptions in plain English. Answers are strictly grounded in stored financial records.
               </p>
             </header>
 
-            <div style={styles.chatShell}>
+            <div style={{ ...styles.chatShell, flex: 1, height: 'auto', minHeight: 0 }}>
               {/* Message History */}
               <div style={styles.chatLog}>
                 {chatMessages.map((msg: ChatMessage) => (
@@ -1700,7 +1755,8 @@ function getStyles(theme: 'dark' | 'light'): Record<string, React.CSSProperties>
       transition: 'background-color 0.2s ease',
     },
     viewContainer: {
-      maxWidth: '1200px',
+      maxWidth: '1360px',
+      width: '100%',
       margin: '0 auto',
       display: 'flex',
       flexDirection: 'column',
@@ -1722,14 +1778,15 @@ function getStyles(theme: 'dark' | 'light'): Record<string, React.CSSProperties>
     },
     statGrid: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
       gap: '16px',
+      width: '100%',
     },
     statCard: {
       backgroundColor: isDark ? '#0f172a' : '#ffffff',
       border: isDark ? '1px solid #1e293b' : '1px solid #e2e8f0',
       borderRadius: '12px',
-      padding: '20px',
+      padding: '20px 22px',
       boxShadow: isDark ? '0 4px 6px -1px rgba(0, 0, 0, 0.2)' : '0 2px 4px rgba(0, 0, 0, 0.04)',
     },
     statLabel: {
