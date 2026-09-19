@@ -1528,7 +1528,12 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   </thead>
                   <tbody>
                     {records.map((r) => {
-                      const isHighRisk = Math.abs(r.variance_percent) >= 20;
+                      const variance = r.variance_percent !== undefined
+                        ? r.variance_percent
+                        : r.budget_amount > 0
+                        ? Number((((r.actual_amount - r.budget_amount) / r.budget_amount) * 100).toFixed(2))
+                        : 0;
+                      const isHighRisk = Math.abs(variance) >= 20;
 
                       return (
                         <tr key={r.id} style={styles.tr}>
@@ -1553,16 +1558,16 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                               style={{
                                 ...styles.varianceBadge,
                                 backgroundColor: isHighRisk
-                                  ? r.variance_percent < 0
+                                  ? variance < 0
                                     ? '#450a0a'
                                     : '#451a03'
                                   : '#0f172a',
-                                color: r.variance_percent < 0 ? '#f87171' : '#fbbf24',
+                                color: variance < 0 ? '#f87171' : '#fbbf24',
                                 border: isHighRisk ? '1px solid currentColor' : '1px solid #334155',
                               }}
                             >
-                              {r.variance_percent > 0 ? '+' : ''}
-                              {r.variance_percent}%
+                              {variance > 0 ? '+' : ''}
+                              {variance}%
                             </span>
                           </td>
                         </tr>
