@@ -52,29 +52,34 @@ export const LandingPage: React.FC<LandingPageProps> = ({ theme, setTheme, onLau
     onLaunchApp(pendingTargetView || 'dashboard');
   };
 
+  React.useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    document.body.setAttribute('data-theme', theme);
+  }, [theme]);
+
   const colors = {
-    bg: isDark ? '#060a12' : '#f8fafc',
-    surface: isDark ? '#0f172a' : '#ffffff',
-    surfaceSubtle: isDark ? '#141e33' : '#f1f5f9',
-    border: isDark ? '#1e293b' : '#e2e8f0',
-    borderHighlight: isDark ? '#334155' : '#cbd5e1',
-    textPrimary: isDark ? '#f8fafc' : '#0f172a',
-    textSecondary: isDark ? '#94a3b8' : '#64748b',
-    textMuted: isDark ? '#64748b' : '#94a3b8',
-    primary: '#4f46e5',
-    primaryHover: '#4338ca',
-    primaryGlow: 'rgba(79, 70, 229, 0.25)',
-    accentCyan: '#06b6d4',
-    accentRose: '#f43f5e',
-    accentEmerald: '#10b981',
-    accentAmber: '#f59e0b',
+    bg: 'var(--fema-bg)',
+    surface: 'var(--fema-surface)',
+    surfaceSubtle: 'var(--fema-surface-subtle)',
+    border: 'var(--fema-border)',
+    borderHighlight: 'var(--fema-border-highlight)',
+    textPrimary: 'var(--fema-text-primary)',
+    textSecondary: 'var(--fema-text-secondary)',
+    textMuted: 'var(--fema-text-muted)',
+    primary: 'var(--fema-primary)',
+    primaryHover: 'var(--fema-primary-hover)',
+    primaryGlow: 'var(--fema-primary-glow)',
+    accentCyan: 'var(--fema-accent-cyan)',
+    accentRose: 'var(--fema-accent-rose)',
+    accentEmerald: 'var(--fema-accent-emerald)',
+    accentAmber: 'var(--fema-accent-amber)',
   };
 
   const styles: Record<string, React.CSSProperties> = {
     page: {
       minHeight: '100vh',
-      backgroundColor: colors.bg,
-      color: colors.textPrimary,
+      backgroundColor: 'var(--fema-bg)',
+      color: 'var(--fema-text-primary)',
       fontFamily: '"Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       display: 'flex',
       flexDirection: 'column',
@@ -86,8 +91,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ theme, setTheme, onLau
       top: 0,
       zIndex: 50,
       backdropFilter: 'blur(16px)',
-      backgroundColor: isDark ? 'rgba(6, 10, 18, 0.85)' : 'rgba(255, 255, 255, 0.85)',
-      borderBottom: `1px solid ${colors.border}`,
+      WebkitBackdropFilter: 'blur(16px)',
+      backgroundColor: 'var(--fema-navbar-bg)',
+      borderBottom: '1px solid var(--fema-border)',
       padding: '0 32px',
       height: '70px',
       display: 'flex',
@@ -104,24 +110,24 @@ export const LandingPage: React.FC<LandingPageProps> = ({ theme, setTheme, onLau
       width: '38px',
       height: '38px',
       borderRadius: '10px',
-      background: 'linear-gradient(135deg, #6366f1, #3b82f6)',
+      background: 'var(--fema-btn-gradient)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       fontWeight: 800,
       fontSize: '15px',
       color: '#ffffff',
-      boxShadow: '0 4px 14px rgba(99, 102, 241, 0.4)',
+      boxShadow: 'var(--fema-btn-gradient-shadow)',
     },
     brandTitle: {
       fontSize: '18px',
       fontWeight: 800,
       letterSpacing: '0.02em',
-      color: colors.textPrimary,
+      color: 'var(--fema-text-primary)',
     },
     brandSubtitle: {
       fontSize: '11px',
-      color: colors.textSecondary,
+      color: 'var(--fema-text-secondary)',
       fontWeight: 500,
     },
     navLinks: {
@@ -132,7 +138,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ theme, setTheme, onLau
     navLink: {
       fontSize: '14px',
       fontWeight: 500,
-      color: colors.textSecondary,
+      color: 'var(--fema-text-secondary)',
       textDecoration: 'none',
       cursor: 'pointer',
       transition: 'color 0.15s ease',
@@ -145,22 +151,23 @@ export const LandingPage: React.FC<LandingPageProps> = ({ theme, setTheme, onLau
     themeToggle: {
       width: '36px',
       height: '36px',
-      borderRadius: '8px',
-      border: `1px solid ${colors.border}`,
-      backgroundColor: colors.surfaceSubtle,
-      color: colors.textPrimary,
+      borderRadius: '10px',
+      border: '1px solid var(--fema-border)',
+      backgroundColor: 'var(--fema-surface-subtle)',
+      color: 'var(--fema-text-primary)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       cursor: 'pointer',
       padding: 0,
+      transition: 'all 0.15s ease',
     },
     loginBtn: {
       padding: '8px 18px',
-      borderRadius: '8px',
-      border: `1px solid ${colors.borderHighlight}`,
+      borderRadius: '10px',
+      border: '1px solid var(--fema-border-highlight)',
       backgroundColor: 'transparent',
-      color: colors.textPrimary,
+      color: 'var(--fema-text-primary)',
       fontSize: '13px',
       fontWeight: 600,
       cursor: 'pointer',
@@ -168,14 +175,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ theme, setTheme, onLau
     },
     signupBtn: {
       padding: '8px 20px',
-      borderRadius: '8px',
+      borderRadius: '10px',
       border: 'none',
-      background: 'linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)',
+      background: 'var(--fema-btn-gradient)',
       color: '#ffffff',
       fontSize: '13px',
       fontWeight: 600,
       cursor: 'pointer',
-      boxShadow: '0 4px 14px rgba(79, 70, 229, 0.35)',
+      boxShadow: 'var(--fema-btn-gradient-shadow)',
       transition: 'all 0.15s ease',
     },
     // Hero
@@ -194,11 +201,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ theme, setTheme, onLau
       display: 'inline-flex',
       alignItems: 'center',
       gap: '8px',
-      padding: '6px 14px',
+      padding: '6px 16px',
       borderRadius: '20px',
-      border: `1px solid ${isDark ? '#312e81' : '#c7d2fe'}`,
-      backgroundColor: isDark ? 'rgba(79, 70, 229, 0.15)' : 'rgba(79, 70, 229, 0.08)',
-      color: isDark ? '#a5b4fc' : '#4338ca',
+      border: '1px solid var(--fema-hero-badge-border)',
+      backgroundColor: 'var(--fema-hero-badge-bg)',
+      color: 'var(--fema-hero-badge-color)',
       fontSize: '12px',
       fontWeight: 600,
       marginBottom: '20px',
@@ -213,7 +220,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ theme, setTheme, onLau
       marginBottom: '20px',
     },
     heroGradientText: {
-      background: 'linear-gradient(135deg, #6366f1 0%, #38bdf8 50%, #818cf8 100%)',
+      background: isDark
+        ? 'linear-gradient(135deg, #6366f1 0%, #38bdf8 50%, #818cf8 100%)'
+        : 'linear-gradient(135deg, #1e293b 0%, #3b82f6 50%, #1e293b 100%)',
       WebkitBackgroundClip: 'text',
       WebkitTextFillColor: 'transparent',
     },
@@ -236,14 +245,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ theme, setTheme, onLau
       alignItems: 'center',
       gap: '8px',
       padding: '14px 28px',
-      borderRadius: '10px',
+      borderRadius: '12px',
       border: 'none',
-      background: 'linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)',
+      background: 'var(--fema-btn-gradient)',
       color: '#ffffff',
       fontSize: '15px',
       fontWeight: 700,
       cursor: 'pointer',
-      boxShadow: '0 8px 24px rgba(79, 70, 229, 0.4)',
+      boxShadow: 'var(--fema-btn-gradient-shadow)',
       transition: 'transform 0.15s ease, box-shadow 0.15s ease',
     },
     secondaryCta: {
@@ -251,14 +260,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ theme, setTheme, onLau
       alignItems: 'center',
       gap: '8px',
       padding: '14px 28px',
-      borderRadius: '10px',
+      borderRadius: '12px',
       border: `1px solid ${colors.borderHighlight}`,
       backgroundColor: colors.surface,
       color: colors.textPrimary,
       fontSize: '15px',
       fontWeight: 600,
       cursor: 'pointer',
-      boxShadow: isDark ? 'none' : '0 2px 8px rgba(0,0,0,0.05)',
+      boxShadow: 'var(--fema-card-shadow)',
       transition: 'all 0.15s ease',
     },
     // Metrics Grid Preview
@@ -276,7 +285,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ theme, setTheme, onLau
       borderRadius: '16px',
       padding: '24px',
       textAlign: 'left',
-      boxShadow: isDark ? '0 10px 30px -10px rgba(0,0,0,0.5)' : '0 10px 25px -5px rgba(0,0,0,0.05)',
+      boxShadow: 'var(--fema-card-shadow)',
       position: 'relative',
       overflow: 'hidden',
     },
@@ -312,7 +321,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ theme, setTheme, onLau
       fontSize: '12px',
       fontWeight: 700,
       letterSpacing: '0.08em',
-      color: '#6366f1',
+      color: isDark ? '#818cf8' : '#2563eb',
       textTransform: 'uppercase',
       marginBottom: '8px',
     },
@@ -338,7 +347,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ theme, setTheme, onLau
       border: `1px solid ${colors.border}`,
       borderRadius: '16px',
       padding: '28px',
-      transition: 'transform 0.2s ease, border-color 0.2s ease',
+      boxShadow: 'var(--fema-card-shadow)',
+      transition: 'transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease',
       display: 'flex',
       flexDirection: 'column',
     },
@@ -351,6 +361,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ theme, setTheme, onLau
       justifyContent: 'center',
       marginBottom: '20px',
       fontSize: '20px',
+      backgroundColor: isDark ? 'rgba(99, 102, 241, 0.15)' : 'rgba(30, 41, 59, 0.06)',
+      color: isDark ? '#818cf8' : '#1e293b',
     },
     capTitle: {
       fontSize: '18px',
@@ -368,7 +380,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ theme, setTheme, onLau
       marginTop: '16px',
       fontSize: '13px',
       fontWeight: 600,
-      color: '#6366f1',
+      color: isDark ? '#818cf8' : '#2563eb',
       display: 'inline-flex',
       alignItems: 'center',
       gap: '4px',
@@ -376,7 +388,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ theme, setTheme, onLau
     },
     // Multi-Agent Architecture
     archContainer: {
-      backgroundColor: isDark ? '#090e1a' : '#f1f5f9',
+      backgroundColor: 'var(--fema-surface-muted)',
       border: `1px solid ${colors.border}`,
       borderRadius: '24px',
       padding: '40px',
@@ -393,11 +405,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ theme, setTheme, onLau
       display: 'flex',
       flexDirection: 'column',
       gap: '8px',
+      boxShadow: 'var(--fema-card-shadow)',
     },
     archStepNum: {
       fontSize: '11px',
       fontWeight: 800,
-      color: '#6366f1',
+      color: isDark ? '#818cf8' : '#2563eb',
       letterSpacing: '0.05em',
     },
     archStepTitle: {
@@ -412,13 +425,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({ theme, setTheme, onLau
     },
     // Banner CTA
     ctaBanner: {
-      background: 'linear-gradient(135deg, #312e81 0%, #1e1b4b 50%, #0f172a 100%)',
+      background: isDark
+        ? 'linear-gradient(135deg, #312e81 0%, #1e1b4b 50%, #0f172a 100%)'
+        : 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
       borderRadius: '24px',
       padding: '60px 40px',
       textAlign: 'center',
       color: '#ffffff',
-      border: '1px solid #4338ca',
-      boxShadow: '0 20px 40px -15px rgba(79, 70, 229, 0.4)',
+      border: isDark ? '1px solid #4338ca' : '1px solid #1e293b',
+      boxShadow: isDark
+        ? '0 20px 40px -15px rgba(79, 70, 229, 0.4)'
+        : '0 20px 40px -15px rgba(30, 41, 59, 0.25)',
       margin: '40px 32px 80px',
       maxWidth: '1216px',
       marginLeft: 'auto',
@@ -427,7 +444,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ theme, setTheme, onLau
     },
     // Footer
     footer: {
-      backgroundColor: isDark ? '#04070d' : '#f8fafc',
+      backgroundColor: colors.surface,
       borderTop: `1px solid ${colors.border}`,
       padding: '60px 32px 30px',
       marginTop: 'auto',
@@ -486,8 +503,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ theme, setTheme, onLau
       left: 0,
       right: 0,
       bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.65)',
+      backgroundColor: 'rgba(15, 23, 42, 0.45)',
       backdropFilter: 'blur(6px)',
+      WebkitBackdropFilter: 'blur(6px)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -501,7 +519,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ theme, setTheme, onLau
       width: '100%',
       maxWidth: '420px',
       padding: '32px',
-      boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+      boxShadow: 'var(--fema-card-shadow-hover)',
       position: 'relative',
     },
     modalHeader: {
@@ -537,9 +555,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ theme, setTheme, onLau
     },
     inputField: {
       padding: '10px 14px',
-      borderRadius: '8px',
+      borderRadius: '10px',
       border: `1px solid ${colors.border}`,
-      backgroundColor: isDark ? '#0b111e' : '#ffffff',
+      backgroundColor: colors.surfaceSubtle,
       color: colors.textPrimary,
       fontSize: '14px',
       outline: 'none',
@@ -547,15 +565,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ theme, setTheme, onLau
     submitAuthBtn: {
       width: '100%',
       padding: '12px',
-      borderRadius: '8px',
+      borderRadius: '10px',
       border: 'none',
-      background: 'linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)',
+      background: 'var(--fema-btn-gradient)',
       color: '#ffffff',
       fontSize: '14px',
       fontWeight: 600,
       cursor: 'pointer',
       marginTop: '8px',
-      boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
+      boxShadow: 'var(--fema-btn-gradient-shadow)',
     },
   };
 
@@ -617,7 +635,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ theme, setTheme, onLau
         </div>
 
         <h1 style={styles.heroHeading}>
-          Autonomous Financial Exception Monitoring & <span style={styles.heroGradientText}>Multi-Agent Resolution</span>
+          Autonomous Financial Exception Monitoring & <span className="landing-hero-gradient">Multi-Agent Resolution</span>
         </h1>
 
         <p style={styles.heroParagraph}>
