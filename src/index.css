@@ -701,6 +701,25 @@ body[data-theme="light"] .landing-hero-gradient {
   margin-bottom: 28px;
 }
 
+.fema-stats-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+@media (max-width: 1024px) {
+  .fema-stats-grid-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .fema-stats-grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
 .fema-stat-card {
   background-color: var(--fema-surface);
   border: 1px solid var(--fema-border);
@@ -853,114 +872,836 @@ body[data-theme="light"] .landing-hero-gradient {
   color: #10b981;
 }
 
-/* Integrations Grid */
-.fema-integrations-grid {
+/* ==========================================================================
+   SYSTEM HEALTH & INTEGRATION TELEMETRY (ENTERPRISE REDESIGN)
+   ========================================================================== */
+
+/* Top KPI summary strip */
+.fema-health-kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
+  margin-bottom: 24px;
 }
 
-.fema-integration-box {
-  background-color: var(--fema-surface-subtle);
+@media (max-width: 1024px) {
+  .fema-health-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .fema-health-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fema-health-kpi-card {
+  background: var(--fema-surface-subtle);
   border: 1px solid var(--fema-border);
   border-radius: 12px;
-  padding: 16px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-.fema-int-top {
+.fema-health-kpi-card:hover {
+  border-color: var(--fema-border-hover);
+  background: var(--fema-surface-muted);
+  transform: translateY(-2px);
+}
+
+.fema-health-kpi-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fema-health-kpi-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fema-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.fema-health-kpi-val {
+  font-size: 26px;
+  font-weight: 800;
+  font-family: "IBM Plex Mono", monospace;
+  color: var(--fema-text-primary);
+  line-height: 1.1;
+}
+
+.fema-health-kpi-sub {
+  font-size: 11px;
+  color: var(--fema-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Balanced 2x2 Grid for Integration Connectors */
+.fema-health-grid-2x2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 900px) {
+  .fema-health-grid-2x2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fema-health-card {
+  background: var(--fema-surface-subtle);
+  border: 1px solid var(--fema-border);
+  border-radius: 14px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.fema-health-card:hover {
+  border-color: rgba(99, 102, 241, 0.4);
+  box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.35);
+  transform: translateY(-2px);
+}
+
+.fema-health-card-top {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 12px;
+  gap: 16px;
 }
 
-.fema-int-name {
-  font-size: 15px;
+.fema-health-card-title-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.fema-health-sys-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.fema-health-sys-name {
+  font-size: 16px;
   font-weight: 700;
   color: var(--fema-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.fema-int-type {
+.fema-health-sys-type {
   font-size: 12px;
   color: var(--fema-text-muted);
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.fema-int-metrics {
+.fema-health-protocol-badge {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  background: var(--fema-surface-muted);
+  border: 1px solid var(--fema-border);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--fema-text-secondary);
+}
+
+/* Latency Bar Meter */
+.fema-health-latency-gauge {
+  background: var(--fema-surface-muted);
+  border-radius: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--fema-border);
+}
+
+.fema-health-gauge-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.fema-health-gauge-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--fema-text-secondary);
+  letter-spacing: 0.03em;
+}
+
+.fema-health-gauge-val {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.fema-health-track {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.fema-health-bar {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.fema-health-gauge-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--fema-text-muted);
+  margin-top: 6px;
+}
+
+/* 3-Column Metrics Inside Card */
+.fema-health-metrics-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  padding: 10px 0;
-  border-top: 1px solid var(--fema-border);
-  border-bottom: 1px solid var(--fema-border);
-  margin-bottom: 10px;
+  gap: 12px;
+  background: rgba(15, 23, 42, 0.4);
+  border-radius: 10px;
+  padding: 12px;
+  border: 1px solid var(--fema-border);
 }
 
-.fema-int-metric-col .label {
+.fema-health-metric-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fema-health-metric-label {
   font-size: 11px;
   color: var(--fema-text-muted);
-  display: block;
 }
 
-.fema-int-metric-col .val {
-  font-size: 14px;
+.fema-health-metric-value {
+  font-size: 15px;
   font-weight: 700;
+  font-family: "IBM Plex Mono", monospace;
   color: var(--fema-text-primary);
 }
 
-.fema-int-foot {
-  font-size: 11px;
-  color: var(--fema-text-muted);
-}
-
-/* Thresholds */
-.fema-thresholds-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.fema-threshold-row {
+.fema-health-card-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 18px;
-  background-color: var(--fema-surface-subtle);
-  border: 1px solid var(--fema-border);
-  border-radius: 10px;
-}
-
-.fema-th-label {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--fema-text-primary);
-}
-
-.fema-th-desc {
-  font-size: 12px;
-  color: var(--fema-text-secondary);
-  margin-top: 2px;
-}
-
-.fema-th-meta {
+  padding-top: 12px;
+  border-top: 1px solid var(--fema-border);
   font-size: 11px;
   color: var(--fema-text-muted);
-  margin-top: 4px;
 }
 
-.fema-th-action {
+.fema-ping-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid var(--fema-border);
+  border-radius: 6px;
+  color: var(--fema-text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.fema-ping-btn:hover {
+  background: rgba(99, 102, 241, 0.12);
+  border-color: #6366f1;
+  color: #818cf8;
+}
+
+.fema-ping-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Benchmark comparison section */
+.fema-health-benchmark-panel {
+  background: var(--fema-surface-subtle);
+  border: 1px solid var(--fema-border);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.fema-benchmark-row {
+  display: grid;
+  grid-template-columns: 200px 1fr 100px;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--fema-border);
+}
+
+.fema-benchmark-row:last-child {
+  border-bottom: none;
+}
+
+@media (max-width: 768px) {
+  .fema-benchmark-row {
+    grid-template-columns: 140px 1fr 70px;
+  }
+}
+
+.fema-benchmark-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fema-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fema-benchmark-track {
+  position: relative;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.fema-benchmark-sla-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  background: #f59e0b;
+  z-index: 2;
+  box-shadow: 0 0 6px #f59e0b;
+}
+
+.fema-benchmark-bar {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.5s ease;
+}
+
+.fema-benchmark-value {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: right;
+  color: var(--fema-text-secondary);
+}
+
+/* Sync Stream Terminal Feed */
+.fema-sync-stream-card {
+  background: var(--fema-surface-subtle);
+  border: 1px solid var(--fema-border);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.fema-sync-stream-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.fema-sync-stream-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fema-sync-stream-item {
+  display: grid;
+  grid-template-columns: 80px 180px 1fr 150px 150px;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  background: rgba(15, 23, 42, 0.45);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 12px;
+}
+
+@media (max-width: 960px) {
+  .fema-sync-stream-item {
+    grid-template-columns: 70px 1fr 120px;
+  }
+  .fema-stream-endpoint, .fema-stream-vol {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   AI ANOMALY THRESHOLDS & GOVERNANCE RULES (EXECUTIVE REDESIGN)
+   ========================================================================== */
+
+/* Compact Threshold Cards Grid (3 Columns x 2 Rows) */
+.fema-rule-cards-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.fema-rule-cards-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 1024px) {
+  .fema-rule-cards-grid-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .fema-rule-cards-grid-3,
+  .fema-rule-cards-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Compact Rule Card */
+.fema-rule-card-compact {
+  background: var(--fema-surface-subtle);
+  border: 1px solid var(--fema-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  transition: all 0.2s ease;
+}
+
+.fema-rule-card-compact:hover {
+  border-color: rgba(99, 102, 241, 0.4);
+  background: var(--fema-surface-muted);
+  transform: translateY(-1px);
+}
+
+.fema-rule-compact-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.fema-rule-compact-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.fema-rule-compact-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.fema-rule-compact-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--fema-text-primary);
+  line-height: 1.3;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fema-rule-compact-desc {
+  font-size: 11px;
+  color: var(--fema-text-secondary);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.fema-rule-compact-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.fema-rule-compact-val-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.fema-rule-compact-val {
+  font-size: 20px;
+  font-weight: 800;
+  font-family: "IBM Plex Mono", monospace;
+  line-height: 1;
+}
+
+.fema-rule-compact-unit {
+  font-size: 11px;
+  color: var(--fema-text-muted);
+  font-weight: 500;
+}
+
+.fema-rule-compact-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fema-rule-compact-author {
+  font-size: 10px;
+  color: var(--fema-text-muted);
+}
+
+/* Compact Top KPI Strip for Thresholds */
+.fema-kpi-strip-compact {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 1024px) {
+  .fema-kpi-strip-compact {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.fema-kpi-card-compact {
+  background: var(--fema-surface-subtle);
+  border: 1px solid var(--fema-border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.fema-kpi-compact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.fema-kpi-compact-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--fema-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.fema-kpi-compact-val {
+  font-size: 18px;
+  font-weight: 800;
+  font-family: "IBM Plex Mono", monospace;
+  color: var(--fema-text-primary);
+  line-height: 1.1;
+}
+
+.fema-kpi-compact-sub {
+  font-size: 10px;
+  color: var(--fema-text-muted);
+}
+
+/* ==========================================================================
+   ENTERPRISE DATA TABLE STYLES (USERS, DIRECTORY & LOGS)
+   ========================================================================== */
+
+.fema-table-container {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--fema-border);
+  border-radius: 12px;
+  background: var(--fema-surface-subtle);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.fema-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13px;
+}
+
+.fema-table thead {
+  background: rgba(15, 23, 42, 0.75);
+  border-bottom: 1px solid var(--fema-border);
+}
+
+.fema-table th {
+  padding: 14px 18px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--fema-text-secondary);
+  white-space: nowrap;
+}
+
+.fema-table tbody tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.2s ease;
+}
+
+.fema-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.fema-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.fema-table td {
+  padding: 14px 18px;
+  color: var(--fema-text-primary);
+  vertical-align: middle;
+}
+
+/* User Profile Cell */
+.fema-user-cell {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.fema-th-value-badge {
-  font-size: 14px;
-  font-weight: 800;
-  padding: 4px 12px;
-  background-color: var(--fema-surface);
+.fema-user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  color: #ffffff;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
+}
+
+.fema-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.fema-user-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--fema-text-primary);
+}
+
+.fema-user-handle {
+  font-size: 11px;
+  color: var(--fema-text-muted);
+}
+
+/* User ID Pill Badge */
+.fema-id-pill {
+  display: inline-block;
+  padding: 3px 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--fema-border);
+  border-radius: 6px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: #93c5fd;
+}
+
+/* User Email Cell */
+.fema-email-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--fema-text-secondary);
+  font-size: 12.5px;
+}
+
+/* Status Pill */
+.fema-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.fema-status-pill.active {
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.fema-status-pill.inactive {
+  background: rgba(148, 163, 184, 0.12);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.fema-status-dot-pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
+}
+
+/* Table Toolbar */
+.fema-table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.fema-table-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.6);
   border: 1px solid var(--fema-border);
   border-radius: 8px;
-  color: var(--fema-accent-indigo);
+  padding: 8px 12px;
+  flex: 1;
+  max-width: 340px;
+}
+
+.fema-table-search-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--fema-text-primary);
+  font-size: 13px;
+  width: 100%;
+}
+
+
+
+/* Governance Zones 3-Tier Visualizer */
+.fema-zones-panel {
+  background: var(--fema-surface-subtle);
+  border: 1px solid var(--fema-border);
+  border-radius: 14px;
+  padding: 22px;
+  margin-bottom: 24px;
+}
+
+.fema-zones-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+@media (max-width: 840px) {
+  .fema-zones-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fema-zone-card {
+  border-radius: 12px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+}
+
+.fema-zone-card-green {
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.12) 0%, rgba(16, 185, 129, 0.03) 100%);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.fema-zone-card-amber {
+  background: linear-gradient(180deg, rgba(245, 158, 11, 0.12) 0%, rgba(245, 158, 11, 0.03) 100%);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.fema-zone-card-rose {
+  background: linear-gradient(180deg, rgba(244, 63, 94, 0.12) 0%, rgba(244, 63, 94, 0.03) 100%);
+  border-color: rgba(244, 63, 94, 0.3);
+}
+
+.fema-zone-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fema-zone-name {
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fema-zone-range {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.fema-zone-body {
+  font-size: 12px;
+  color: var(--fema-text-secondary);
+  line-height: 1.4;
+}
+
+.fema-zone-metric {
+  font-size: 11px;
+  font-weight: 600;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 /* Terminal logs */
@@ -1869,5 +2610,342 @@ body[data-theme="light"] .landing-hero-gradient {
 .fema-query-chip:hover {
   border-color: var(--fema-accent-indigo);
   background-color: var(--fema-surface-muted);
+}
+
+/* ==========================================================================
+   ADMIN TELEMETRY & CHARTS OVERVIEW STYLES
+   ========================================================================== */
+
+.fema-admin-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 768px) {
+  .fema-admin-overview-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fema-chart-card {
+  background-color: var(--fema-surface);
+  border: 1px solid var(--fema-border);
+  border-radius: var(--fema-card-radius);
+  padding: 22px;
+  box-shadow: var(--fema-card-shadow);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.fema-chart-card:hover {
+  border-color: var(--fema-border-highlight);
+  box-shadow: var(--fema-card-shadow-hover);
+}
+
+.fema-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.fema-chart-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--fema-text-primary);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fema-chart-sub {
+  font-size: 12px;
+  color: var(--fema-text-secondary);
+}
+
+.fema-chart-legend {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 11px;
+  color: var(--fema-text-secondary);
+}
+
+.fema-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fema-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.fema-chart-body {
+  position: relative;
+  width: 100%;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fema-int-perf-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
+
+.fema-int-perf-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fema-int-perf-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.fema-int-perf-name {
+  font-weight: 600;
+  color: var(--fema-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fema-int-perf-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background-color: var(--fema-surface-muted);
+  color: var(--fema-text-muted);
+}
+
+.fema-int-perf-metrics {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+}
+
+.fema-int-perf-latency {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 600;
+  color: var(--fema-accent-emerald);
+}
+
+.fema-int-perf-uptime {
+  color: var(--fema-text-secondary);
+}
+
+.fema-bar-track {
+  width: 100%;
+  height: 7px;
+  background-color: var(--fema-surface-muted);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.fema-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* FEMA Core Project Charts: Departmental Variance & Exception Lifecycle */
+
+/* FEMA Core Project Charts: Departmental Grouped Column Chart */
+
+.fema-grouped-chart-wrap {
+  width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.fema-dept-summary-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  width: 100%;
+  padding-top: 14px;
+  border-top: 1px solid var(--fema-border);
+}
+
+@media (max-width: 640px) {
+  .fema-dept-summary-strip {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fema-dept-summary-box {
+  background-color: var(--fema-surface-subtle);
+  border: 1px solid var(--fema-border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fema-dept-summary-lbl {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--fema-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.fema-dept-summary-val {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--fema-text-primary);
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+/* Exception Status Lifecycle Pills */
+.fema-lifecycle-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 10px;
+  width: 100%;
+}
+
+.fema-lifecycle-card {
+  background-color: var(--fema-surface-subtle);
+  border: 1px solid var(--fema-border);
+  border-radius: 10px;
+  padding: 12px 10px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fema-lifecycle-count {
+  font-size: 20px;
+  font-weight: 800;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.fema-lifecycle-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--fema-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* AI Threshold Zone Visualization */
+.fema-zone-visualizer {
+  background-color: var(--fema-surface-subtle);
+  border: 1px solid var(--fema-border);
+  border-radius: 12px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fema-zone-bar {
+  position: relative;
+  width: 100%;
+  height: 24px;
+  border-radius: 6px;
+  background: linear-gradient(to right, #10b981 0%, #10b981 35%, #f59e0b 35%, #f59e0b 65%, #ef4444 65%, #ef4444 100%);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.fema-zone-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--fema-text-secondary);
+}
+
+.fema-zone-cutoff-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: #ffffff;
+  box-shadow: 0 0 6px #ffffff;
+}
+
+.fema-shortcuts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.fema-shortcut-card {
+  background-color: var(--fema-surface);
+  border: 1px solid var(--fema-border);
+  border-radius: var(--fema-card-radius);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: var(--fema-card-shadow);
+  transition: all 0.2s ease;
+}
+
+.fema-shortcut-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--fema-accent-indigo);
+  box-shadow: var(--fema-card-shadow-hover);
+}
+
+.fema-shortcut-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fema-shortcut-icon {
+  font-size: 22px;
+}
+
+.fema-shortcut-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--fema-text-primary);
+}
+
+.fema-shortcut-desc {
+  font-size: 12px;
+  color: var(--fema-text-secondary);
+  line-height: 1.4;
+}
+
+.fema-shortcut-action {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fema-accent-indigo);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: auto;
 }
 

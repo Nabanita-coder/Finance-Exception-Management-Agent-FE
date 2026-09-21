@@ -335,6 +335,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
   const handleRoleChange = (newRole: number) => {
     setActiveRole(newRole);
     localStorage.setItem('fema_active_role', String(newRole));
+    navigateTo('dashboard');
   };
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
@@ -813,12 +814,19 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
       <aside
         style={{
           ...styles.sidebar,
-          width: isSidebarCollapsed ? '80px' : '270px',
-          padding: isSidebarCollapsed ? '20px 8px' : '24px 16px',
+          width: isSidebarCollapsed ? '76px' : '260px',
+          height: '100vh',
+          maxHeight: '100vh',
+          overflow: 'hidden',
+          padding: isSidebarCollapsed ? '16px 8px' : '18px 14px',
           transition: 'width 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+          boxSizing: 'border-box',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
         }}
       >
-        <div style={{ ...styles.brandContainer, paddingLeft: 0, marginBottom: '24px' }}>
+        <div style={{ ...styles.brandContainer, paddingLeft: 0, marginBottom: '16px' }}>
           {isSidebarCollapsed ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', width: '100%' }}>
               <div
@@ -911,10 +919,10 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
                   padding: isSidebarCollapsed ? '12px' : '10px 14px',
                 }}
-                title={isSidebarCollapsed ? 'System Health & APIs' : undefined}
+                title={isSidebarCollapsed ? 'Financial Integrations' : undefined}
               >
                 <span>🔌</span>
-                {!isSidebarCollapsed && <span>System Health & APIs</span>}
+                {!isSidebarCollapsed && <span>Financial Integrations</span>}
               </button>
               <button
                 onClick={() => navigateTo('admin-thresholds')}
@@ -1134,80 +1142,87 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
             </>
           )}
 
-          {/* Common General Ledger & Tools */}
-          {!isSidebarCollapsed && (
-            <div style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', letterSpacing: '0.06em', padding: '16px 14px 4px', textTransform: 'uppercase' }}>
-              General Ledger
-            </div>
+          {/* Role 1 (Finance Analyst) Only: General Ledger & Exceptions */}
+          {activeRole === 1 && (
+            <>
+              {!isSidebarCollapsed && (
+                <div style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', letterSpacing: '0.06em', padding: '12px 14px 4px', textTransform: 'uppercase' }}>
+                  General Ledger
+                </div>
+              )}
+
+              <button
+                onClick={() => navigateTo('records')}
+                style={{
+                  ...styles.navButton,
+                  ...(currentView === 'records' ? styles.navButtonActive : {}),
+                  justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                  padding: isSidebarCollapsed ? '10px' : '9px 14px',
+                  position: 'relative',
+                }}
+                title={isSidebarCollapsed ? 'Financial Records' : undefined}
+              >
+                <Icons.Records />
+                {!isSidebarCollapsed && <span>Financial Records</span>}
+              </button>
+
+              <button
+                onClick={() => navigateTo('exceptions')}
+                style={{
+                  ...styles.navButton,
+                  ...(currentView === 'exceptions' ? styles.navButtonActive : {}),
+                  justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                  padding: isSidebarCollapsed ? '10px' : '9px 14px',
+                  position: 'relative',
+                }}
+                title={isSidebarCollapsed ? `Exception Cases (${summary.open_exceptions})` : undefined}
+              >
+                <Icons.Exceptions />
+                {!isSidebarCollapsed && <span>All Exceptions</span>}
+                {summary.open_exceptions > 0 && (
+                  isSidebarCollapsed ? (
+                    <span
+                      style={{
+                        position: 'absolute',
+                        top: '6px',
+                        right: '10px',
+                        width: '8px',
+                        height: '8px',
+                        backgroundColor: '#ef4444',
+                        borderRadius: '50%',
+                        border: '2px solid #0f172a',
+                      }}
+                    />
+                  ) : (
+                    <span style={styles.counterPill}>{summary.open_exceptions}</span>
+                  )
+                )}
+              </button>
+            </>
           )}
 
-          <button
-            onClick={() => navigateTo('records')}
-            style={{
-              ...styles.navButton,
-              ...(currentView === 'records' ? styles.navButtonActive : {}),
-              justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-              padding: isSidebarCollapsed ? '12px' : '11px 14px',
-              position: 'relative',
-            }}
-            title={isSidebarCollapsed ? 'Financial Records' : undefined}
-          >
-            <Icons.Records />
-            {!isSidebarCollapsed && <span>Financial Records</span>}
-          </button>
-
-          <button
-            onClick={() => navigateTo('exceptions')}
-            style={{
-              ...styles.navButton,
-              ...(currentView === 'exceptions' ? styles.navButtonActive : {}),
-              justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-              padding: isSidebarCollapsed ? '12px' : '11px 14px',
-              position: 'relative',
-            }}
-            title={isSidebarCollapsed ? `Exception Cases (${summary.open_exceptions})` : undefined}
-          >
-            <Icons.Exceptions />
-            {!isSidebarCollapsed && <span>All Exceptions</span>}
-            {summary.open_exceptions > 0 && (
-              isSidebarCollapsed ? (
-                <span
-                  style={{
-                    position: 'absolute',
-                    top: '6px',
-                    right: '10px',
-                    width: '10px',
-                    height: '10px',
-                    backgroundColor: '#ef4444',
-                    borderRadius: '50%',
-                    border: '2px solid #0f172a',
-                  }}
-                />
-              ) : (
-                <span style={styles.counterPill}>{summary.open_exceptions}</span>
-              )
-            )}
-          </button>
-
-          <button
-            onClick={() => navigateTo('chat')}
-            style={{
-              ...styles.navButton,
-              ...(currentView === 'chat' ? styles.navButtonActive : {}),
-              justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-              padding: isSidebarCollapsed ? '12px' : '11px 14px',
-              position: 'relative',
-            }}
-            title={isSidebarCollapsed ? 'Finance AI Copilot' : undefined}
-          >
-            <Icons.Chat />
-            {!isSidebarCollapsed && <span>Finance AI Copilot</span>}
-          </button>
+          {/* AI Copilot: Only for Analyst (Role 1) and CFO (Role 2) */}
+          {(activeRole === 1 || activeRole === 2) && (
+            <button
+              onClick={() => navigateTo('chat')}
+              style={{
+                ...styles.navButton,
+                ...(currentView === 'chat' ? styles.navButtonActive : {}),
+                justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                padding: isSidebarCollapsed ? '10px' : '9px 14px',
+                position: 'relative',
+              }}
+              title={isSidebarCollapsed ? 'Finance AI Copilot' : undefined}
+            >
+              <Icons.Chat />
+              {!isSidebarCollapsed && <span>Finance AI Copilot</span>}
+            </button>
+          )}
         </nav>
 
         <div style={styles.sidebarFooter}>
           {/* Light / Dark Mode Toggle */}
-          <div style={{ marginBottom: '10px' }}>
+          <div>
             <button
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
               style={{
@@ -1224,37 +1239,6 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                 </span>
               )}
             </button>
-          </div>
-          <div
-            style={{
-              ...styles.statusIndicatorBox,
-              justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-              padding: isSidebarCollapsed ? '8px' : '8px 12px',
-            }}
-            title={
-              isBackendConnected === null
-                ? 'Checking API...'
-                : isBackendConnected
-                  ? 'Backend Connected (5000)'
-                  : 'Standalone UI (Mock Mode)'
-            }
-          >
-            <span
-              style={{
-                ...styles.statusDot,
-                backgroundColor: isBackendConnected ? '#10b981' : '#f59e0b',
-                boxShadow: isBackendConnected ? '0 0 8px #10b981' : '0 0 8px #f59e0b',
-              }}
-            />
-            {!isSidebarCollapsed && (
-              <span style={styles.statusText}>
-                {isBackendConnected === null
-                  ? 'Checking API...'
-                  : isBackendConnected
-                    ? 'Backend Connected (5000)'
-                    : 'Standalone UI (Mock Mode)'}
-              </span>
-            )}
           </div>
         </div>
       </aside>
@@ -1278,7 +1262,12 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
         {/* ============================================================== */}
         {currentView === 'dashboard' && (
           <div style={{ width: '100%' }}>
-            {activeRole === 0 && <AdminDashboard activeSection="all" />}
+            {activeRole === 0 && (
+              <AdminDashboard
+                activeSection="all"
+                onNavigateSection={(sec) => navigateTo(`admin-${sec}` as AppView)}
+              />
+            )}
             {activeRole === 1 && <AnalystDashboard activeSection="all" />}
             {activeRole === 2 && <CfoDashboard activeSection="all" />}
             {activeRole === 3 && <AuditorDashboard activeSection="all" />}
@@ -1286,27 +1275,35 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
         )}
 
         {/* Role 0: System Administrator Sub-pages */}
-        {currentView === 'admin-health' && <AdminDashboard activeSection="health" />}
-        {currentView === 'admin-thresholds' && <AdminDashboard activeSection="thresholds" />}
-        {currentView === 'admin-users' && <AdminDashboard activeSection="users" />}
-        {currentView === 'admin-logs' && <AdminDashboard activeSection="logs" />}
+        {activeRole === 0 && currentView === 'admin-health' && (
+          <AdminDashboard activeSection="health" onNavigateSection={(sec) => navigateTo(`admin-${sec}` as AppView)} />
+        )}
+        {activeRole === 0 && currentView === 'admin-thresholds' && (
+          <AdminDashboard activeSection="thresholds" onNavigateSection={(sec) => navigateTo(`admin-${sec}` as AppView)} />
+        )}
+        {activeRole === 0 && currentView === 'admin-users' && (
+          <AdminDashboard activeSection="users" onNavigateSection={(sec) => navigateTo(`admin-${sec}` as AppView)} />
+        )}
+        {activeRole === 0 && currentView === 'admin-logs' && (
+          <AdminDashboard activeSection="logs" onNavigateSection={(sec) => navigateTo(`admin-${sec}` as AppView)} />
+        )}
 
         {/* Role 1: Finance Analyst Sub-pages */}
-        {currentView === 'analyst-tasks' && <AnalystDashboard activeSection="tasks" />}
-        {currentView === 'analyst-sla' && <AnalystDashboard activeSection="sla" />}
-        {currentView === 'analyst-insights' && <AnalystDashboard activeSection="insights" />}
+        {activeRole === 1 && currentView === 'analyst-tasks' && <AnalystDashboard activeSection="tasks" />}
+        {activeRole === 1 && currentView === 'analyst-sla' && <AnalystDashboard activeSection="sla" />}
+        {activeRole === 1 && currentView === 'analyst-insights' && <AnalystDashboard activeSection="insights" />}
 
         {/* Role 2: Executive (CFO) Sub-pages */}
-        {currentView === 'cfo-kpis' && <CfoDashboard activeSection="kpis" />}
-        {currentView === 'cfo-warnings' && <CfoDashboard activeSection="warnings" />}
-        {currentView === 'cfo-risks' && <CfoDashboard activeSection="risks" />}
-        {currentView === 'cfo-brief' && <CfoDashboard activeSection="brief" />}
+        {activeRole === 2 && currentView === 'cfo-kpis' && <CfoDashboard activeSection="kpis" />}
+        {activeRole === 2 && currentView === 'cfo-warnings' && <CfoDashboard activeSection="warnings" />}
+        {activeRole === 2 && currentView === 'cfo-risks' && <CfoDashboard activeSection="risks" />}
+        {activeRole === 2 && currentView === 'cfo-brief' && <CfoDashboard activeSection="brief" />}
 
         {/* Role 3: Auditor Sub-pages */}
-        {currentView === 'auditor-trail' && <AuditorDashboard activeSection="trail" />}
-        {currentView === 'auditor-sla' && <AuditorDashboard activeSection="compliance" />}
-        {currentView === 'auditor-hitl' && <AuditorDashboard activeSection="hitl" />}
-        {currentView === 'auditor-export' && <AuditorDashboard activeSection="export" />}
+        {activeRole === 3 && currentView === 'auditor-trail' && <AuditorDashboard activeSection="trail" />}
+        {activeRole === 3 && currentView === 'auditor-sla' && <AuditorDashboard activeSection="compliance" />}
+        {activeRole === 3 && currentView === 'auditor-hitl' && <AuditorDashboard activeSection="hitl" />}
+        {activeRole === 3 && currentView === 'auditor-export' && <AuditorDashboard activeSection="export" />}
 
         {/* ============================================================== */}
         {/* VIEW 2: FINANCIAL RECORDS                                      */}
