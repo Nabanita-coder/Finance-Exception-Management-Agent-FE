@@ -642,7 +642,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     });
 
     exceptions.forEach((e) => {
-      const d = e.financial_record?.department || "General Finance";
+      const d = e.record?.department || "General Finance";
       if (deptMap[d]) {
         deptMap[d].exceptions += 1;
       }
