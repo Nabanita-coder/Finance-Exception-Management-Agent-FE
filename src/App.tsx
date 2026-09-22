@@ -216,7 +216,7 @@ export type AppView =
 
 // MAIN APPLICATION COMPONENT
 // ============================================================================
-export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost:5000/api' }) => {
+export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = '/api' }) => {
   // Navigation & URL Routing Helper
   const getViewFromPath = (): AppView => {
     const path = window.location.pathname.toLowerCase();
