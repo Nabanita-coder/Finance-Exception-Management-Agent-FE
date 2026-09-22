@@ -15,7 +15,7 @@ export type CaseStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'ESCALATED';
 
 export interface FinancialRecord {
   id: number;
-  category: 'Revenue' | 'Expense';
+  category: string;
   period: string;
   department: string;
   budget_amount: number;
@@ -72,77 +72,12 @@ interface FemaAppProps {
 }
 
 // ============================================================================
-// INITIAL MOCK DATA (Enables standalone execution anywhere without backend)
 // ============================================================================
-const INITIAL_RECORDS: FinancialRecord[] = [
-  { id: 1, category: 'Revenue', period: '2026-09', department: 'Enterprise Sales', budget_amount: 1200000, actual_amount: 720000, variance_percent: -40.0, created_at: '2026-09-15 10:00:00' },
-  { id: 2, category: 'Expense', period: '2026-09', department: 'Cloud Infrastructure', budget_amount: 350000, actual_amount: 490000, variance_percent: 40.0, created_at: '2026-09-16 11:30:00' },
-  { id: 3, category: 'Expense', period: '2026-09', department: 'Talent Acquisition', budget_amount: 150000, actual_amount: 185000, variance_percent: 23.33, created_at: '2026-09-17 09:15:00' },
-  { id: 4, category: 'Revenue', period: '2026-08', department: 'SMB Operations', budget_amount: 800000, actual_amount: 820000, variance_percent: 2.5, created_at: '2026-08-31 16:00:00' },
-  { id: 5, category: 'Expense', period: '2026-09', department: 'Marketing & Growth', budget_amount: 250000, actual_amount: 285000, variance_percent: 14.0, created_at: '2026-09-18 08:45:00' },
-];
-
-const INITIAL_OWNERS: Owner[] = [
-  { id: 1, name: 'Asha Verma', email: 'asha@company.com', role: 'Finance Executive', level: 1 },
-  { id: 2, name: 'Rohit Sharma', email: 'rohit@company.com', role: 'Finance Manager', level: 2 },
-  { id: 3, name: 'Neha Kapoor', email: 'neha@company.com', role: 'Senior Finance Manager', level: 3 },
-  { id: 4, name: 'CFO Office', email: 'cfo@company.com', role: 'CFO', level: 4 },
-];
-
-const INITIAL_EXCEPTIONS: ExceptionCase[] = [
-  {
-    id: 101,
-    financial_record_id: 1,
-    variance_percent: -40.0,
-    severity: 'CRITICAL',
-    possible_reason: 'Enterprise contract deferred to Q4; renewal rate slipped by 18%.',
-    status: 'OPEN',
-    owner: INITIAL_OWNERS[2],
-    owner_id: 3,
-    sla_deadline: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
-    escalation_level: 0,
-    created_at: '2026-09-15 10:05:00',
-  },
-  {
-    id: 102,
-    financial_record_id: 2,
-    variance_percent: 40.0,
-    severity: 'CRITICAL',
-    possible_reason: 'Unbudgeted compute cluster spun up for AI workload testing in us-east.',
-    status: 'IN_PROGRESS',
-    owner: INITIAL_OWNERS[2],
-    owner_id: 3,
-    sla_deadline: new Date(Date.now() - 12 * 3600 * 1000).toISOString(), // Overdue
-    escalation_level: 1,
-    created_at: '2026-09-16 11:35:00',
-  },
-  {
-    id: 103,
-    financial_record_id: 3,
-    variance_percent: 23.33,
-    severity: 'HIGH',
-    possible_reason: 'External recruiter success fees booked ahead of schedule.',
-    status: 'OPEN',
-    owner: INITIAL_OWNERS[1],
-    owner_id: 2,
-    sla_deadline: new Date(Date.now() + 2 * 24 * 3600 * 1000).toISOString(),
-    escalation_level: 0,
-    created_at: '2026-09-17 09:20:00',
-  },
-  {
-    id: 104,
-    financial_record_id: 5,
-    variance_percent: 14.0,
-    severity: 'MEDIUM',
-    possible_reason: 'Paid search spend increased for seasonal conversion promo.',
-    status: 'RESOLVED',
-    owner: INITIAL_OWNERS[0],
-    owner_id: 1,
-    sla_deadline: new Date(Date.now() + 4 * 24 * 3600 * 1000).toISOString(),
-    escalation_level: 0,
-    created_at: '2026-09-18 09:00:00',
-  },
-];
+// DYNAMIC DATA (Loaded directly from live backend database)
+// ============================================================================
+const INITIAL_RECORDS: FinancialRecord[] = [];
+const INITIAL_OWNERS: Owner[] = [];
+const INITIAL_EXCEPTIONS: ExceptionCase[] = [];
 
 // ============================================================================
 // ICONS (Clean, zero-dependency inline SVGs)
@@ -218,6 +153,10 @@ export type AppView =
   | 'admin-thresholds'
   | 'admin-users'
   | 'admin-logs'
+  | 'admin-trail'
+  | 'admin-sla'
+  | 'admin-hitl'
+  | 'admin-export'
   | 'analyst-tasks'
   | 'analyst-sla'
   | 'analyst-insights'
@@ -240,6 +179,10 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
     if (path.includes('admin-threshold')) return 'admin-thresholds';
     if (path.includes('admin-user')) return 'admin-users';
     if (path.includes('admin-log')) return 'admin-logs';
+    if (path.includes('admin-trail') || path.includes('auditor-trail')) return 'admin-trail';
+    if (path.includes('admin-sla') || path.includes('auditor-sla')) return 'admin-sla';
+    if (path.includes('admin-hitl') || path.includes('auditor-hitl')) return 'admin-hitl';
+    if (path.includes('admin-export') || path.includes('auditor-export')) return 'admin-export';
 
     if (path.includes('analyst-task')) return 'analyst-tasks';
     if (path.includes('analyst-sla')) return 'analyst-sla';
@@ -249,11 +192,6 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
     if (path.includes('cfo-warning')) return 'cfo-warnings';
     if (path.includes('cfo-risk')) return 'cfo-risks';
     if (path.includes('cfo-brief')) return 'cfo-brief';
-
-    if (path.includes('auditor-trail')) return 'auditor-trail';
-    if (path.includes('auditor-sla')) return 'auditor-sla';
-    if (path.includes('auditor-hitl')) return 'auditor-hitl';
-    if (path.includes('auditor-export')) return 'auditor-export';
 
     if (path.includes('record')) return 'records';
     if (path.includes('exception')) return 'exceptions';
@@ -286,14 +224,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
   const [user, setUser] = useState<UserSession | null>(() => {
     try {
       const saved = localStorage.getItem('fema_user');
-      return saved ? JSON.parse(saved) : {
-        id: 2,
-        username: 'analyst',
-        email: 'analyst@fema.local',
-        role_id: 1,
-        role: 'analyst',
-        full_name: 'Finance Analyst (Owner)',
-      };
+      return saved ? JSON.parse(saved) : null;
     } catch {
       return null;
     }
@@ -308,13 +239,13 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
     if (savedRole !== null) return Number(savedRole);
     try {
       const savedUser = localStorage.getItem('fema_user');
-      if (savedUser) return JSON.parse(savedUser).role_id ?? 1;
+      if (savedUser) return JSON.parse(savedUser).role_id ?? 0;
     } catch {}
-    return 1; // Default to Analyst
+    return 0; // Default to Admin
   });
 
   const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [authModalMode] = useState<'login' | 'register'>('login');
+  const [authModalMode, setAuthModalMode] = useState<'login' | 'register'>('login');
 
   const handleAuthSuccess = (newToken: string, newUser: UserSession) => {
     setToken(newToken);
@@ -359,7 +290,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
   // Core Data
   const [records, setRecords] = useState<FinancialRecord[]>(INITIAL_RECORDS);
   const [exceptions, setExceptions] = useState<ExceptionCase[]>(INITIAL_EXCEPTIONS);
-  const [owners] = useState<Owner[]>(INITIAL_OWNERS);
+  const [_owners, setOwners] = useState<Owner[]>(INITIAL_OWNERS);
 
   // Modals & Panels
   const [selectedCase, setSelectedCase] = useState<ExceptionCase | null>(null);
@@ -369,16 +300,32 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
   const [filterStatus, setFilterStatus] = useState<string>('');
   const [showOverdueOnly, setShowOverdueOnly] = useState<boolean>(false);
 
+  // Dynamic period default (current YYYY-MM)
+  const currentPeriod = useMemo(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  }, []);
+
   // Forms
   const [formData, setFormData] = useState({
-    category: 'Revenue' as 'Revenue' | 'Expense',
-    period: '2026-09',
+    category: 'Revenue',
+    customCategory: '',
+    period: currentPeriod,
     department: '',
     budget_amount: '',
     actual_amount: '',
   });
   const [formFeedback, setFormFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [isMonitoring, setIsMonitoring] = useState(false);
+
+  // Dynamic unique existing departments for datalist autocompletion
+  const existingDepartments = useMemo(() => {
+    const set = new Set<string>();
+    records.forEach((r) => {
+      if (r.department && r.department.trim()) set.add(r.department.trim());
+    });
+    return Array.from(set);
+  }, [records]);
 
   // Chat State
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
@@ -420,9 +367,10 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
 
   const fetchBackendData = async () => {
     try {
-      const [recordsRes, exceptionsRes] = await Promise.all([
+      const [recordsRes, exceptionsRes, ownersRes] = await Promise.all([
         fetch(`${apiBaseUrl}/financial-records`),
         fetch(`${apiBaseUrl}/exceptions`),
+        fetch(`${apiBaseUrl}/owners`),
       ]);
       if (recordsRes.ok) {
         const data = await recordsRes.json();
@@ -431,6 +379,12 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
       if (exceptionsRes.ok) {
         const data = await exceptionsRes.json();
         setExceptions(data);
+      }
+      if (ownersRes.ok) {
+        const data = await ownersRes.json();
+        if (Array.isArray(data) && data.length > 0) {
+          setOwners(data);
+        }
       }
     } catch (err) {
       console.warn('Using local fallback state:', err);
@@ -500,10 +454,13 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
     }
 
     const variance = budget !== 0 ? ((actual - budget) / budget) * 100 : 0;
+    const finalCategory = formData.category === 'Custom' 
+      ? (formData.customCategory.trim() || 'General Expense')
+      : formData.category;
 
     const newRecord: FinancialRecord = {
       id: records.length ? Math.max(...records.map((r) => r.id)) + 1 : 1,
-      category: formData.category,
+      category: finalCategory,
       period: formData.period,
       department: formData.department || 'General Finance',
       budget_amount: budget,
@@ -527,21 +484,22 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
         });
         if (res.ok) {
           await fetchBackendData();
+          setFormFeedback({ type: 'success', message: `Record successfully recorded (${variance > 0 ? '+' : ''}${variance.toFixed(1)}% variance).` });
         } else {
-          setRecords((prev) => [newRecord, ...prev]);
+          const errData = await res.json().catch(() => ({}));
+          setFormFeedback({ type: 'error', message: errData.error || 'Failed to post financial record to database.' });
         }
-      } catch (err) {
-        console.error('Backend save error, fallback to local', err);
-        setRecords((prev) => [newRecord, ...prev]);
+      } catch (err: any) {
+        setFormFeedback({ type: 'error', message: 'Backend connection error: ' + err.message });
       }
     } else {
-      setRecords((prev) => [newRecord, ...prev]);
+      setFormFeedback({ type: 'error', message: '⚠️ Backend API is offline. Connect to backend to post financial records.' });
     }
 
-    setFormFeedback({ type: 'success', message: `Record #${newRecord.id} successfully recorded (${variance > 0 ? '+' : ''}${variance.toFixed(1)}% variance).` });
     setFormData({
       category: 'Revenue',
-      period: '2026-09',
+      customCategory: '',
+      period: currentPeriod,
       department: '',
       budget_amount: '',
       actual_amount: '',
@@ -572,130 +530,52 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
         setTimeout(() => setFormFeedback(null), 6000);
         return;
       } catch (err) {
-        console.warn('Backend monitor failed, running local detector', err);
+        console.warn('Backend monitor failed:', err);
       }
     }
 
-    // Local client-side detection simulation
-    setTimeout(() => {
-      const existingRecordIds = new Set(exceptions.map((e) => e.financial_record_id));
-      const newFoundCases: ExceptionCase[] = [];
-
-      records.forEach((r) => {
-        if (!existingRecordIds.has(r.id)) {
-          const variance = r.budget_amount !== 0 ? ((r.actual_amount - r.budget_amount) / r.budget_amount) * 100 : 0;
-          const absVar = Math.abs(variance);
-
-          if (absVar >= 10) {
-            let severity: Severity = 'LOW';
-            let slaDays = 7;
-            let assignedOwner = owners[0];
-
-            if (absVar > 30) {
-              severity = 'CRITICAL';
-              slaDays = 1;
-              assignedOwner = owners[2];
-            } else if (absVar > 20) {
-              severity = 'HIGH';
-              slaDays = 3;
-              assignedOwner = owners[1];
-            } else {
-              severity = 'MEDIUM';
-              slaDays = 5;
-            }
-
-            const deadline = new Date(Date.now() + slaDays * 24 * 3600 * 1000).toISOString();
-
-            newFoundCases.push({
-              id: 100 + exceptions.length + newFoundCases.length + 1,
-              financial_record_id: r.id,
-              record: r,
-              variance_percent: parseFloat(variance.toFixed(2)),
-              severity,
-              possible_reason: `Discrepancy detected in ${r.category} (${r.department || 'Operations'}) with ${variance > 0 ? '+' : ''}${variance.toFixed(1)}% variance.`,
-              status: 'OPEN',
-              owner: assignedOwner,
-              owner_id: assignedOwner.id,
-              sla_deadline: deadline,
-              escalation_level: 0,
-              created_at: new Date().toISOString().replace('T', ' ').substring(0, 19),
-            });
-          }
-        }
-      });
-
-      if (newFoundCases.length > 0) {
-        setExceptions((prev) => [...newFoundCases, ...prev]);
-        setFormFeedback({
-          type: 'success',
-          message: `✅ Monitoring complete: ${newFoundCases.length} new exception case${newFoundCases.length > 1 ? 's' : ''} detected!`,
-        });
-      } else {
-        setFormFeedback({
-          type: 'success',
-          message: '✅ Monitoring complete: No new exception cases detected (all records within threshold).',
-        });
-      }
-      setTimeout(() => setFormFeedback(null), 6000);
-      setIsMonitoring(false);
-    }, 600);
+    setIsMonitoring(false);
+    setFormFeedback({
+      type: 'error',
+      message: '⚠️ Backend API is offline. Start the FEMA backend server (python app.py) to execute AI exception monitoring.',
+    });
+    setTimeout(() => setFormFeedback(null), 6000);
   };
 
   const handleEscalateCase = async (caseId: number) => {
-    if (isBackendConnected) {
-      try {
-        await fetch(`${apiBaseUrl}/exceptions/${caseId}/escalate`, { method: 'POST' });
-        await fetchBackendData();
-      } catch (err) {
-        console.warn('API escalation fallback', err);
-      }
+    if (!isBackendConnected) {
+      setFormFeedback({ type: 'error', message: '⚠️ Backend is offline. Connect to backend to escalate exception cases.' });
+      return;
     }
-
-    setExceptions((prev) =>
-      prev.map((c) => {
-        if (c.id === caseId) {
-          const nextLevel = Math.min(4, c.escalation_level + 1);
-          const nextOwner = owners.find((o) => o.level === nextLevel) || owners[owners.length - 1];
-          const updated = {
-            ...c,
-            status: 'ESCALATED' as CaseStatus,
-            escalation_level: nextLevel,
-            owner: nextOwner,
-            owner_id: nextOwner.id,
-            updated_at: new Date().toISOString().replace('T', ' ').substring(0, 19),
-          };
-          if (selectedCase?.id === caseId) setSelectedCase(updated);
-          return updated;
-        }
-        return c;
-      })
-    );
+    try {
+      const res = await fetch(`${apiBaseUrl}/exceptions/${caseId}/escalate`, { method: 'POST' });
+      if (res.ok) {
+        await fetchBackendData();
+        setFormFeedback({ type: 'success', message: `Case #${caseId} escalated to higher seniority owner.` });
+      }
+    } catch (err) {
+      console.warn('API escalation error:', err);
+    }
   };
 
   const handleStatusUpdate = async (caseId: number, newStatus: CaseStatus) => {
-    if (isBackendConnected) {
-      try {
-        await fetch(`${apiBaseUrl}/exceptions/${caseId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: newStatus }),
-        });
-        await fetchBackendData();
-      } catch (err) {
-        console.warn('Status update API error', err);
-      }
+    if (!isBackendConnected) {
+      setFormFeedback({ type: 'error', message: '⚠️ Backend is offline. Connect to backend to update case status.' });
+      return;
     }
-
-    setExceptions((prev) =>
-      prev.map((c) => {
-        if (c.id === caseId) {
-          const updated = { ...c, status: newStatus, updated_at: new Date().toISOString() };
-          if (selectedCase?.id === caseId) setSelectedCase(updated);
-          return updated;
-        }
-        return c;
-      })
-    );
+    try {
+      const res = await fetch(`${apiBaseUrl}/exceptions/${caseId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (res.ok) {
+        await fetchBackendData();
+        setFormFeedback({ type: 'success', message: `Case #${caseId} status changed to ${newStatus}.` });
+      }
+    } catch (err) {
+      console.warn('Status update API error:', err);
+    }
   };
 
   const handleSendChat = async (e: React.FormEvent) => {
@@ -746,11 +626,25 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
 
       if (qLower.includes('revenue')) {
         const revRecords = records.filter((r) => r.category === 'Revenue');
-        botResponse = `Revenue Analysis: You have ${revRecords.length} revenue entries. The biggest variance is in Enterprise Sales with an actual of ₹720,000 vs budget of ₹1,200,000 (-40.0% variance). Case #101 is actively open with Senior Finance Manager Neha Kapoor.`;
+        if (revRecords.length > 0) {
+          const getVar = (r: FinancialRecord) => Math.abs(r.variance_percent ?? 0);
+          const maxVar = revRecords.reduce((prev, curr) => getVar(curr) > getVar(prev) ? curr : prev, revRecords[0]);
+          const vp = maxVar.variance_percent ?? 0;
+          botResponse = `Revenue Analysis: You have ${revRecords.length} revenue entries. The biggest variance is in ${maxVar.department} with an actual of ₹${Number(maxVar.actual_amount).toLocaleString()} vs budget of ₹${Number(maxVar.budget_amount).toLocaleString()} (${vp > 0 ? '+' : ''}${vp.toFixed(1)}% variance).`;
+        } else {
+          botResponse = `Revenue Analysis: No revenue entries currently recorded in the active ledger.`;
+        }
       } else if (qLower.includes('critical') || qLower.includes('severity')) {
         botResponse = `Severity Breakdown: There are currently ${summary.exceptions_by_severity.CRITICAL} CRITICAL, ${summary.exceptions_by_severity.HIGH} HIGH, and ${summary.exceptions_by_severity.MEDIUM} MEDIUM cases. Critical items require resolution within 24 hours under SLA policy.`;
       } else if (qLower.includes('overdue') || qLower.includes('sla')) {
-        botResponse = `SLA Alert: ${summary.overdue_exceptions} exception case is past its SLA deadline (Cloud Infrastructure, Case #102). It has already been escalated to Level 1.`;
+        const overdueList = exceptions.filter((e) => isCaseOverdue(e.sla_deadline, e.status));
+        if (overdueList.length > 0) {
+          const first = overdueList[0];
+          const linkedRecord = records.find((r) => r.id === first.financial_record_id);
+          botResponse = `SLA Alert: ${overdueList.length} exception case(s) past SLA deadline (e.g. Case #${first.id} in ${linkedRecord?.department || 'Operations'}). Escalation recommended.`;
+        } else {
+          botResponse = `SLA Status: All exception cases are currently within compliance tolerances. Zero overdue SLA cases.`;
+        }
       }
 
       setChatMessages((prev) => [
@@ -783,8 +677,18 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
         <LandingPage
           theme={theme}
           setTheme={setTheme}
+          user={user}
+          onOpenAuth={(mode = 'login') => {
+            setAuthModalMode(mode);
+            setAuthModalOpen(true);
+          }}
           onLaunchApp={(targetView = 'dashboard') => {
-            navigateTo(targetView);
+            if (!user) {
+              setAuthModalMode('login');
+              setAuthModalOpen(true);
+            } else {
+              navigateTo(targetView);
+            }
           }}
         />
         <AuthModal
@@ -905,10 +809,14 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
             {!isSidebarCollapsed && <span>Dashboard Overview</span>}
           </button>
 
-          {/* Role 0: System Administrator Specific Page Buttons */}
+          {/* Role 0: Admin & Compliance Officer Sub-pages */}
           {activeRole === 0 && (
             <>
-
+              {!isSidebarCollapsed && (
+                <div style={{ fontSize: '10px', fontWeight: 800, color: '#ef4444', letterSpacing: '0.06em', padding: '12px 14px 4px', textTransform: 'uppercase' }}>
+                  Infrastructure & Ops
+                </div>
+              )}
               <button
                 onClick={() => navigateTo('admin-health')}
                 style={{
@@ -958,8 +866,66 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                 }}
                 title={isSidebarCollapsed ? 'System Logs & Sync' : undefined}
               >
-                <span>📜</span>
+                <span>💻</span>
                 {!isSidebarCollapsed && <span>System Sync Logs</span>}
+              </button>
+
+              {!isSidebarCollapsed && (
+                <div style={{ fontSize: '10px', fontWeight: 800, color: '#f59e0b', letterSpacing: '0.06em', padding: '12px 14px 4px', textTransform: 'uppercase' }}>
+                  Compliance & Governance
+                </div>
+              )}
+              <button
+                onClick={() => navigateTo('admin-trail')}
+                style={{
+                  ...styles.navButton,
+                  ...(currentView === 'admin-trail' || currentView === 'auditor-trail' ? styles.navButtonActive : {}),
+                  justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                  padding: isSidebarCollapsed ? '12px' : '10px 14px',
+                }}
+                title={isSidebarCollapsed ? 'Audit Trail Feed' : undefined}
+              >
+                <span>📜</span>
+                {!isSidebarCollapsed && <span>Audit Trail Feed</span>}
+              </button>
+              <button
+                onClick={() => navigateTo('admin-sla')}
+                style={{
+                  ...styles.navButton,
+                  ...(currentView === 'admin-sla' || currentView === 'auditor-sla' ? styles.navButtonActive : {}),
+                  justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                  padding: isSidebarCollapsed ? '12px' : '10px 14px',
+                }}
+                title={isSidebarCollapsed ? 'SLA Compliance Stats' : undefined}
+              >
+                <span>🎯</span>
+                {!isSidebarCollapsed && <span>SLA Compliance Stats</span>}
+              </button>
+              <button
+                onClick={() => navigateTo('admin-hitl')}
+                style={{
+                  ...styles.navButton,
+                  ...(currentView === 'admin-hitl' || currentView === 'auditor-hitl' ? styles.navButtonActive : {}),
+                  justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                  padding: isSidebarCollapsed ? '12px' : '10px 14px',
+                }}
+                title={isSidebarCollapsed ? 'HITL Governance Ratio' : undefined}
+              >
+                <span>⚖️</span>
+                {!isSidebarCollapsed && <span>HITL Governance Ratio</span>}
+              </button>
+              <button
+                onClick={() => navigateTo('admin-export')}
+                style={{
+                  ...styles.navButton,
+                  ...(currentView === 'admin-export' || currentView === 'auditor-export' ? styles.navButtonActive : {}),
+                  justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                  padding: isSidebarCollapsed ? '12px' : '10px 14px',
+                }}
+                title={isSidebarCollapsed ? 'Export Compliance Reports' : undefined}
+              >
+                <span>📥</span>
+                {!isSidebarCollapsed && <span>Export Reports</span>}
               </button>
             </>
           )}
@@ -1266,14 +1232,19 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
             {activeRole === 0 && (
               <AdminDashboard
                 activeSection="all"
-                onNavigateSection={(sec) => navigateTo(`admin-${sec}` as AppView)}
+                onNavigateSection={(sec) => {
+                  if (sec === 'trail' || sec === 'compliance' || sec === 'hitl' || sec === 'export') {
+                    navigateTo(`admin-${sec === 'compliance' ? 'sla' : sec}` as AppView);
+                  } else {
+                    navigateTo(`admin-${sec}` as AppView);
+                  }
+                }}
                 records={records}
                 exceptions={exceptions}
               />
             )}
             {activeRole === 1 && <AnalystDashboard activeSection="all" records={records} exceptions={exceptions} />}
             {activeRole === 2 && <CfoDashboard activeSection="all" records={records} exceptions={exceptions} />}
-            {activeRole === 3 && <AuditorDashboard activeSection="all" records={records} exceptions={exceptions} />}
           </div>
         )}
 
@@ -1291,6 +1262,20 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
           <AdminDashboard activeSection="logs" onNavigateSection={(sec) => navigateTo(`admin-${sec}` as AppView)} records={records} exceptions={exceptions} />
         )}
 
+        {/* Role 0: Audit & Compliance Sub-pages (Consolidated from Role 3) */}
+        {activeRole === 0 && (currentView === 'admin-trail' || (currentView as string) === 'auditor-trail') && (
+          <AuditorDashboard activeSection="trail" />
+        )}
+        {activeRole === 0 && (currentView === 'admin-sla' || (currentView as string) === 'auditor-sla') && (
+          <AuditorDashboard activeSection="compliance" />
+        )}
+        {activeRole === 0 && (currentView === 'admin-hitl' || (currentView as string) === 'auditor-hitl') && (
+          <AuditorDashboard activeSection="hitl" />
+        )}
+        {activeRole === 0 && (currentView === 'admin-export' || (currentView as string) === 'auditor-export') && (
+          <AuditorDashboard activeSection="export" />
+        )}
+
         {/* Role 1: Finance Analyst Sub-pages */}
         {activeRole === 1 && currentView === 'analyst-tasks' && <AnalystDashboard activeSection="tasks" records={records} exceptions={exceptions} />}
         {activeRole === 1 && currentView === 'analyst-sla' && <AnalystDashboard activeSection="sla" records={records} exceptions={exceptions} />}
@@ -1302,11 +1287,6 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
         {activeRole === 2 && currentView === 'cfo-risks' && <CfoDashboard activeSection="risks" records={records} exceptions={exceptions} />}
         {activeRole === 2 && currentView === 'cfo-brief' && <CfoDashboard activeSection="brief" records={records} exceptions={exceptions} />}
 
-        {/* Role 3: Auditor Sub-pages */}
-        {activeRole === 3 && currentView === 'auditor-trail' && <AuditorDashboard activeSection="trail" records={records} exceptions={exceptions} />}
-        {activeRole === 3 && currentView === 'auditor-sla' && <AuditorDashboard activeSection="compliance" records={records} exceptions={exceptions} />}
-        {activeRole === 3 && currentView === 'auditor-hitl' && <AuditorDashboard activeSection="hitl" records={records} exceptions={exceptions} />}
-        {activeRole === 3 && currentView === 'auditor-export' && <AuditorDashboard activeSection="export" records={records} exceptions={exceptions} />}
 
         {/* ============================================================== */}
         {/* VIEW 2: FINANCIAL RECORDS                                      */}
@@ -1330,21 +1310,41 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                     <label style={styles.label}>Category</label>
                     <select
                       value={formData.category}
-                      onChange={(e) => setFormData({ ...formData, category: e.target.value as 'Revenue' | 'Expense' })}
+                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                       style={styles.select}
                     >
-                      <option value="Revenue">Revenue</option>
-                      <option value="Expense">Expense</option>
+                      <option value="Revenue">Revenue (Inflow)</option>
+                      <option value="Operating Expense">Operating Expense (OpEx)</option>
+                      <option value="Capital Expenditure">Capital Expenditure (CapEx)</option>
+                      <option value="Cost of Goods Sold">Cost of Goods Sold (COGS)</option>
+                      <option value="Payroll & Talent">Payroll & Talent</option>
+                      <option value="Cloud Infrastructure">Cloud Infrastructure</option>
+                      <option value="Marketing & Growth">Marketing & Growth</option>
+                      <option value="Treasury & Finance">Treasury & Finance</option>
+                      <option value="Custom">Custom Category...</option>
                     </select>
                   </div>
 
+                  {formData.category === 'Custom' && (
+                    <div style={styles.fieldGroup}>
+                      <label style={styles.label}>Custom Category Name</label>
+                      <input
+                        type="text"
+                        value={formData.customCategory}
+                        onChange={(e) => setFormData({ ...formData, customCategory: e.target.value })}
+                        placeholder="e.g. Legal & Compliance, Logistics"
+                        required
+                        style={styles.input}
+                      />
+                    </div>
+                  )}
+
                   <div style={styles.fieldGroup}>
-                    <label style={styles.label}>Period (YYYY-MM)</label>
+                    <label style={styles.label}>Period (Month / YYYY-MM)</label>
                     <input
-                      type="text"
+                      type="month"
                       value={formData.period}
                       onChange={(e) => setFormData({ ...formData, period: e.target.value })}
-                      placeholder="e.g. 2026-09"
                       required
                       style={styles.input}
                     />
@@ -1354,12 +1354,18 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                     <label style={styles.label}>Department / Cost Center</label>
                     <input
                       type="text"
+                      list="departments-autocomplete"
                       value={formData.department}
                       onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                      placeholder="e.g. Marketing, DevOps"
+                      placeholder="e.g. Marketing, DevOps, Sales"
                       required
                       style={styles.input}
                     />
+                    <datalist id="departments-autocomplete">
+                      {existingDepartments.map((dept) => (
+                        <option key={dept} value={dept} />
+                      ))}
+                    </datalist>
                   </div>
 
                   <div style={styles.fieldGroup}>
@@ -1448,7 +1454,14 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                     </tr>
                   </thead>
                   <tbody>
-                    {records.map((r) => {
+                    {records.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} style={{ textAlign: 'center', padding: '36px', color: 'var(--fema-text-muted)', fontSize: '13px' }}>
+                          No financial ledger records found in database. Use the form above to add a new record.
+                        </td>
+                      </tr>
+                    ) : (
+                      records.map((r) => {
                       const variance = r.variance_percent !== undefined
                         ? r.variance_percent
                         : r.budget_amount > 0
@@ -1504,7 +1517,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                           </td>
                         </tr>
                       );
-                    })}
+                    }))}
                   </tbody>
                 </table>
               </div>
@@ -1603,7 +1616,14 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredExceptions.map((c) => {
+                    {filteredExceptions.length === 0 ? (
+                      <tr>
+                        <td colSpan={8} style={{ textAlign: 'center', padding: '36px', color: 'var(--fema-text-muted)', fontSize: '13px' }}>
+                          No exception cases found. Post financial records and run monitoring to detect anomalies.
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredExceptions.map((c) => {
                       const overdue = isCaseOverdue(c.sla_deadline, c.status);
                       return (
                         <tr
@@ -1674,7 +1694,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                           </td>
                         </tr>
                       );
-                    })}
+                    }))}
                   </tbody>
                 </table>
               </div>
