@@ -814,7 +814,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
           {activeRole === 0 && (
             <>
               {!isSidebarCollapsed && (
-                <div style={{ fontSize: '10px', fontWeight: 800, color: '#ef4444', letterSpacing: '0.06em', padding: '12px 14px 4px', textTransform: 'uppercase' }}>
+                <div style={{ fontSize: '10px', fontWeight: 800, color: '#ef4444', letterSpacing: '0.06em', padding: '8px 12px 4px', textTransform: 'uppercase' }}>
                   Infrastructure & Ops
                 </div>
               )}
@@ -824,7 +824,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...styles.navButton,
                   ...(currentView === 'admin-health' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '12px' : '10px 14px',
+                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
                 }}
                 title={isSidebarCollapsed ? 'Financial Integrations' : undefined}
               >
@@ -837,7 +837,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...styles.navButton,
                   ...(currentView === 'admin-thresholds' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '12px' : '10px 14px',
+                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
                 }}
                 title={isSidebarCollapsed ? 'AI Anomaly Thresholds' : undefined}
               >
@@ -850,7 +850,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...styles.navButton,
                   ...(currentView === 'admin-users' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '12px' : '10px 14px',
+                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
                 }}
                 title={isSidebarCollapsed ? 'User & Access Control' : undefined}
               >
@@ -863,7 +863,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...styles.navButton,
                   ...(currentView === 'admin-logs' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '12px' : '10px 14px',
+                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
                 }}
                 title={isSidebarCollapsed ? 'System Logs & Sync' : undefined}
               >
@@ -872,7 +872,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
               </button>
 
               {!isSidebarCollapsed && (
-                <div style={{ fontSize: '10px', fontWeight: 800, color: '#f59e0b', letterSpacing: '0.06em', padding: '12px 14px 4px', textTransform: 'uppercase' }}>
+                <div style={{ fontSize: '10px', fontWeight: 800, color: '#f59e0b', letterSpacing: '0.06em', padding: '8px 12px 4px', textTransform: 'uppercase' }}>
                   Compliance & Governance
                 </div>
               )}
@@ -882,7 +882,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...styles.navButton,
                   ...(currentView === 'admin-trail' || currentView === 'auditor-trail' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '12px' : '10px 14px',
+                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
                 }}
                 title={isSidebarCollapsed ? 'Audit Trail Feed' : undefined}
               >
@@ -895,7 +895,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...styles.navButton,
                   ...(currentView === 'admin-sla' || currentView === 'auditor-sla' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '12px' : '10px 14px',
+                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
                 }}
                 title={isSidebarCollapsed ? 'SLA Compliance Stats' : undefined}
               >
@@ -908,7 +908,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...styles.navButton,
                   ...(currentView === 'admin-hitl' || currentView === 'auditor-hitl' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '12px' : '10px 14px',
+                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
                 }}
                 title={isSidebarCollapsed ? 'HITL Governance Ratio' : undefined}
               >
@@ -921,7 +921,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...styles.navButton,
                   ...(currentView === 'admin-export' || currentView === 'auditor-export' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '12px' : '10px 14px',
+                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
                 }}
                 title={isSidebarCollapsed ? 'Export Compliance Reports' : undefined}
               >
@@ -941,7 +941,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...styles.navButton,
                   ...(currentView === 'analyst-tasks' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '12px' : '10px 14px',
+                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
                 }}
                 title={isSidebarCollapsed ? 'My Tasks Queue' : undefined}
               >
@@ -954,7 +954,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...styles.navButton,
                   ...(currentView === 'analyst-sla' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '12px' : '10px 14px',
+                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
                 }}
                 title={isSidebarCollapsed ? 'SLA Tracker & Alerts' : undefined}
               >
@@ -967,7 +967,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...styles.navButton,
                   ...(currentView === 'analyst-insights' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '12px' : '10px 14px',
+                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
                 }}
                 title={isSidebarCollapsed ? 'AI Diagnostics & Actions' : undefined}
               >
@@ -987,7 +987,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...styles.navButton,
                   ...(currentView === 'cfo-kpis' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '12px' : '10px 14px',
+                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
                 }}
                 title={isSidebarCollapsed ? 'Strategic Financial KPIs' : undefined}
               >
@@ -1000,7 +1000,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...styles.navButton,
                   ...(currentView === 'cfo-warnings' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '12px' : '10px 14px',
+                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
                 }}
                 title={isSidebarCollapsed ? 'Early Warnings & Covenants' : undefined}
               >
@@ -1013,7 +1013,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...styles.navButton,
                   ...(currentView === 'cfo-risks' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '12px' : '10px 14px',
+                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
                 }}
                 title={isSidebarCollapsed ? 'Escalated Material Risks' : undefined}
               >
@@ -1026,7 +1026,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...styles.navButton,
                   ...(currentView === 'cfo-brief' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '12px' : '10px 14px',
+                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
                 }}
                 title={isSidebarCollapsed ? 'AI Executive Brief' : undefined}
               >
@@ -1046,7 +1046,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...styles.navButton,
                   ...(currentView === 'auditor-trail' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '12px' : '10px 14px',
+                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
                 }}
                 title={isSidebarCollapsed ? 'Audit Trail Feed' : undefined}
               >
@@ -1059,7 +1059,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...styles.navButton,
                   ...(currentView === 'auditor-sla' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '12px' : '10px 14px',
+                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
                 }}
                 title={isSidebarCollapsed ? 'SLA Compliance Report' : undefined}
               >
@@ -1072,7 +1072,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...styles.navButton,
                   ...(currentView === 'auditor-hitl' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '12px' : '10px 14px',
+                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
                 }}
                 title={isSidebarCollapsed ? 'Human-in-the-Loop Governance' : undefined}
               >
@@ -1085,7 +1085,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...styles.navButton,
                   ...(currentView === 'auditor-export' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '12px' : '10px 14px',
+                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
                 }}
                 title={isSidebarCollapsed ? 'Report Generator & Export' : undefined}
               >
@@ -1177,7 +1177,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
               style={{
                 ...styles.themeToggleBtn,
                 justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                padding: isSidebarCollapsed ? '8px' : '8px 12px',
+                padding: isSidebarCollapsed ? '8px' : '6px 12px',
               }}
               title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             >
@@ -1195,7 +1195,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
               style={{
                 ...styles.themeToggleBtn,
                 justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                padding: isSidebarCollapsed ? '8px' : '8px 12px',
+                padding: isSidebarCollapsed ? '8px' : '6px 12px',
                 color: 'var(--fema-accent-rose, #ef4444)',
               }}
               title="Sign Out"
@@ -1968,16 +1968,16 @@ function getStyles(theme: 'dark' | 'light'): Record<string, React.CSSProperties>
       borderRight: isDark ? '1px solid #1e293b' : '1px solid #e2e8f0',
       display: 'flex',
       flexDirection: 'column',
-      padding: '24px 16px',
+      padding: '16px 12px',
       flexShrink: 0,
       transition: 'background-color 0.2s ease, border-color 0.2s ease',
     },
     brandContainer: {
       display: 'flex',
       alignItems: 'center',
-      gap: '12px',
-      marginBottom: '32px',
-      paddingLeft: '8px',
+      gap: '10px',
+      marginBottom: '20px',
+      paddingLeft: '6px',
     },
     brandBadge: {
       width: '38px',
@@ -2011,19 +2011,19 @@ function getStyles(theme: 'dark' | 'light'): Record<string, React.CSSProperties>
     navMenu: {
       display: 'flex',
       flexDirection: 'column',
-      gap: '6px',
+      gap: '2px',
       flex: 1,
     },
     navButton: {
       display: 'flex',
       alignItems: 'center',
-      gap: '12px',
-      padding: '11px 14px',
-      borderRadius: '10px',
+      gap: '10px',
+      padding: '8px 12px',
+      borderRadius: '8px',
       border: 'none',
       backgroundColor: 'transparent',
       color: isDark ? '#94a3b8' : '#64748b',
-      fontSize: '14px',
+      fontSize: '13px',
       fontWeight: 500,
       cursor: 'pointer',
       textAlign: 'left',
@@ -2048,7 +2048,7 @@ function getStyles(theme: 'dark' | 'light'): Record<string, React.CSSProperties>
     },
     sidebarFooter: {
       borderTop: isDark ? '1px solid #1e293b' : '1px solid #e2e8f0',
-      paddingTop: '16px',
+      paddingTop: '12px',
     },
     themeToggleBtn: {
       width: '100%',
