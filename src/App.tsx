@@ -216,7 +216,7 @@ export type AppView =
 
 // MAIN APPLICATION COMPONENT
 // ============================================================================
-export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = '/api' }) => {
+export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost:5000/api' }) => {
   // Navigation & URL Routing Helper
   const getViewFromPath = (): AppView => {
     const path = window.location.pathname.toLowerCase();
@@ -285,7 +285,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = '/api' }) => {
     try {
       const savedUser = localStorage.getItem('fema_user');
       if (savedUser) return JSON.parse(savedUser).role_id ?? 0;
-    } catch {}
+    } catch { }
     return 0; // Default to Admin
   });
 
@@ -364,7 +364,8 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = '/api' }) => {
     category: 'Revenue',
     customCategory: '',
     period: currentPeriod,
-    department: '',
+    department: 'Engineering',
+    customDepartment: '',
     budget_amount: '',
     actual_amount: '',
   });
@@ -507,15 +508,19 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = '/api' }) => {
     }
 
     const variance = budget !== 0 ? ((actual - budget) / budget) * 100 : 0;
-    const finalCategory = formData.category === 'Custom' 
+    const finalCategory = formData.category === 'Custom'
       ? (formData.customCategory.trim() || 'General Expense')
       : formData.category;
+
+    const finalDepartment = formData.department === 'Custom'
+      ? (formData.customDepartment.trim() || 'General Finance')
+      : (formData.department || 'General Finance');
 
     const newRecord: FinancialRecord = {
       id: records.length ? Math.max(...records.map((r) => r.id)) + 1 : 1,
       category: finalCategory,
       period: formData.period,
-      department: formData.department || 'General Finance',
+      department: finalDepartment,
       budget_amount: budget,
       actual_amount: actual,
       variance_percent: parseFloat(variance.toFixed(2)),
@@ -553,7 +558,8 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = '/api' }) => {
       category: 'Revenue',
       customCategory: '',
       period: currentPeriod,
-      department: '',
+      department: 'Engineering',
+      customDepartment: '',
       budget_amount: '',
       actual_amount: '',
     });
@@ -768,1450 +774,1472 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = '/api' }) => {
         />
       )}
       <div style={styles.appShell}>
-      {/* ---------------------------------------------------------------- */}
-      {/* SIDEBAR NAVIGATION                                               */}
-      {/* ---------------------------------------------------------------- */}
-      <aside
-        className="fema-sidebar-smooth"
-        style={{
-          ...styles.sidebar,
-          width: isSidebarCollapsed ? '72px' : '260px',
-          minWidth: isSidebarCollapsed ? '72px' : '260px',
-          height: user ? 'calc(100vh - 64px)' : '100vh',
-          maxHeight: user ? 'calc(100vh - 64px)' : '100vh',
-          overflowX: 'hidden',
-          overflowY: 'auto',
-          padding: isSidebarCollapsed ? '16px 8px' : '18px 12px',
-          boxSizing: 'border-box',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        {/* Sidebar Header / Toggle Area */}
-        {isSidebarCollapsed ? (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', marginBottom: '8px', gap: '6px' }}>
-            {/* Collapse / Expand Toggle Button (Centered at top) */}
-            <button
-              className="fema-collapse-btn-smooth"
-              onClick={() => setIsSidebarCollapsed(false)}
-              style={{
-                ...styles.collapseBtn,
-                width: '40px',
-                height: '36px',
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-              }}
-              title="Expand Sidebar"
-              aria-label="Expand Sidebar"
-            >
-              <Icons.ChevronRight />
-            </button>
+        {/* ---------------------------------------------------------------- */}
+        {/* SIDEBAR NAVIGATION                                               */}
+        {/* ---------------------------------------------------------------- */}
+        <aside
+          className="fema-sidebar-smooth"
+          style={{
+            ...styles.sidebar,
+            width: isSidebarCollapsed ? '72px' : '260px',
+            minWidth: isSidebarCollapsed ? '72px' : '260px',
+            height: user ? 'calc(100vh - 64px)' : '100vh',
+            maxHeight: user ? 'calc(100vh - 64px)' : '100vh',
+            overflowX: 'hidden',
+            overflowY: 'auto',
+            padding: isSidebarCollapsed ? '16px 8px' : '18px 12px',
+            boxSizing: 'border-box',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          {/* Sidebar Header / Toggle Area */}
+          {isSidebarCollapsed ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', marginBottom: '8px', gap: '6px' }}>
+              {/* Collapse / Expand Toggle Button (Centered at top) */}
+              <button
+                className="fema-collapse-btn-smooth"
+                onClick={() => setIsSidebarCollapsed(false)}
+                style={{
+                  ...styles.collapseBtn,
+                  width: '40px',
+                  height: '36px',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                }}
+                title="Expand Sidebar"
+                aria-label="Expand Sidebar"
+              >
+                <Icons.ChevronRight />
+              </button>
 
-            {/* Dashboard Overview Icon Button */}
-            <button
-              className="fema-nav-btn-smooth"
-              onClick={() => navigateTo('dashboard')}
-              style={{
-                ...styles.navButton,
-                ...(currentView === 'dashboard' ? styles.navButtonActive : {}),
-                width: '40px',
-                height: '40px',
-                padding: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '8px',
-              }}
-              title="Dashboard Overview"
-            >
-              <Icons.Dashboard />
-            </button>
-          </div>
-        ) : (
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              marginBottom: '8px',
-              width: '100%',
-            }}
-          >
-            {/* Expanded Dashboard Overview Button */}
-            <button
-              className="fema-nav-btn-smooth"
-              onClick={() => navigateTo('dashboard')}
-              style={{
-                ...styles.navButton,
-                ...(currentView === 'dashboard' ? styles.navButtonActive : {}),
-                flex: 1,
-                justifyContent: 'flex-start',
-                padding: '10px 12px',
-                overflow: 'hidden',
-                whiteSpace: 'nowrap',
-              }}
-              title="Dashboard Overview"
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+              {/* Dashboard Overview Icon Button */}
+              <button
+                className="fema-nav-btn-smooth"
+                onClick={() => navigateTo('dashboard')}
+                style={{
+                  ...styles.navButton,
+                  ...(currentView === 'dashboard' ? styles.navButtonActive : {}),
+                  width: '40px',
+                  height: '40px',
+                  padding: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '8px',
+                }}
+                title="Dashboard Overview"
+              >
                 <Icons.Dashboard />
-              </div>
-              <span
-                className="fema-nav-label-smooth"
-                style={{
-                  opacity: 1,
-                  maxWidth: '200px',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                Dashboard Overview
-              </span>
-            </button>
-
-            {/* Collapse Arrow Button (Next to Dashboard Overview) */}
-            <button
-              className="fema-collapse-btn-smooth"
-              onClick={() => setIsSidebarCollapsed(true)}
+              </button>
+            </div>
+          ) : (
+            <div
               style={{
-                ...styles.collapseBtn,
-                width: '32px',
-                height: '38px',
-                borderRadius: '8px',
-                flexShrink: 0,
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
+                gap: '6px',
+                marginBottom: '8px',
+                width: '100%',
               }}
-              title="Collapse Sidebar"
-              aria-label="Collapse Sidebar"
             >
-              <Icons.ChevronLeft />
-            </button>
-          </div>
-        )}
-
-        <nav style={styles.navMenu}>
-
-          {/* Role 0: Admin & Compliance Officer Sub-pages */}
-          {activeRole === 0 && (
-            <>
-              <div
-                style={{
-                  fontSize: '10px',
-                  fontWeight: 800,
-                  color: '#ef4444',
-                  letterSpacing: '0.06em',
-                  padding: isSidebarCollapsed ? '8px 0 4px' : '8px 12px 4px',
-                  textTransform: 'uppercase',
-                  textAlign: isSidebarCollapsed ? 'center' : 'left',
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap',
-                  opacity: isSidebarCollapsed ? 0 : 1,
-                  maxHeight: isSidebarCollapsed ? '0px' : '24px',
-                  transition: 'opacity 0.2s ease, max-height 0.3s ease',
-                }}
-              >
-                Infrastructure & Ops
-              </div>
-              <button
-                onClick={() => navigateTo('admin-health')}
-                style={{
-                  ...styles.navButton,
-                  ...(currentView === 'admin-health' ? styles.navButtonActive : {}),
-                  justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap',
-                }}
-                title="Financial Integrations"
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
-                  <Icons.Plug />
-                </div>
-                <span
-                  style={{
-                    opacity: isSidebarCollapsed ? 0 : 1,
-                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  Financial Integrations
-                </span>
-              </button>
-              <button
-                onClick={() => navigateTo('admin-thresholds')}
-                style={{
-                  ...styles.navButton,
-                  ...(currentView === 'admin-thresholds' ? styles.navButtonActive : {}),
-                  justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap',
-                }}
-                title="AI Anomaly Thresholds"
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
-                  <Icons.Settings />
-                </div>
-                <span
-                  style={{
-                    opacity: isSidebarCollapsed ? 0 : 1,
-                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  AI Anomaly Thresholds
-                </span>
-              </button>
-              <button
-                onClick={() => navigateTo('admin-users')}
-                style={{
-                  ...styles.navButton,
-                  ...(currentView === 'admin-users' ? styles.navButtonActive : {}),
-                  justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap',
-                }}
-                title="User & Access Control"
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
-                  <Icons.Users />
-                </div>
-                <span
-                  style={{
-                    opacity: isSidebarCollapsed ? 0 : 1,
-                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  User Directory & Access
-                </span>
-              </button>
-              <button
-                onClick={() => navigateTo('admin-logs')}
-                style={{
-                  ...styles.navButton,
-                  ...(currentView === 'admin-logs' ? styles.navButtonActive : {}),
-                  justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap',
-                }}
-                title="System Logs & Sync"
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
-                  <Icons.Terminal />
-                </div>
-                <span
-                  style={{
-                    opacity: isSidebarCollapsed ? 0 : 1,
-                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  System Sync Logs
-                </span>
-              </button>
-
-              <div
-                style={{
-                  fontSize: '10px',
-                  fontWeight: 800,
-                  color: '#f59e0b',
-                  letterSpacing: '0.06em',
-                  padding: isSidebarCollapsed ? '8px 0 4px' : '8px 12px 4px',
-                  textTransform: 'uppercase',
-                  textAlign: isSidebarCollapsed ? 'center' : 'left',
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap',
-                  opacity: isSidebarCollapsed ? 0 : 1,
-                  maxHeight: isSidebarCollapsed ? '0px' : '24px',
-                  transition: 'opacity 0.2s ease, max-height 0.3s ease',
-                }}
-              >
-                Compliance & Governance
-              </div>
-              <button
-                onClick={() => navigateTo('admin-trail')}
-                style={{
-                  ...styles.navButton,
-                  ...(currentView === 'admin-trail' || currentView === 'auditor-trail' ? styles.navButtonActive : {}),
-                  justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap',
-                }}
-                title="Audit Trail Feed"
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
-                  <Icons.FileText />
-                </div>
-                <span
-                  style={{
-                    opacity: isSidebarCollapsed ? 0 : 1,
-                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  Audit Trail Feed
-                </span>
-              </button>
-              <button
-                onClick={() => navigateTo('admin-sla')}
-                style={{
-                  ...styles.navButton,
-                  ...(currentView === 'admin-sla' || currentView === 'auditor-sla' ? styles.navButtonActive : {}),
-                  justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap',
-                }}
-                title="SLA Compliance Stats"
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
-                  <Icons.Target />
-                </div>
-                <span
-                  style={{
-                    opacity: isSidebarCollapsed ? 0 : 1,
-                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  SLA Compliance Stats
-                </span>
-              </button>
-              <button
-                onClick={() => navigateTo('admin-hitl')}
-                style={{
-                  ...styles.navButton,
-                  ...(currentView === 'admin-hitl' || currentView === 'auditor-hitl' ? styles.navButtonActive : {}),
-                  justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap',
-                }}
-                title="HITL Governance Ratio"
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
-                  <Icons.Scale />
-                </div>
-                <span
-                  style={{
-                    opacity: isSidebarCollapsed ? 0 : 1,
-                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  HITL Governance Ratio
-                </span>
-              </button>
-              <button
-                onClick={() => navigateTo('admin-export')}
-                style={{
-                  ...styles.navButton,
-                  ...(currentView === 'admin-export' || currentView === 'auditor-export' ? styles.navButtonActive : {}),
-                  justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap',
-                }}
-                title="Export Reports"
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
-                  <Icons.Download />
-                </div>
-                <span
-                  style={{
-                    opacity: isSidebarCollapsed ? 0 : 1,
-                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  Export Reports
-                </span>
-              </button>
-            </>
-          )}
-
-          {/* Role 1: Finance Analyst Specific Page Buttons */}
-          {activeRole === 1 && (
-            <>
-              <button
-                onClick={() => navigateTo('analyst-tasks')}
-                style={{
-                  ...styles.navButton,
-                  ...(currentView === 'analyst-tasks' ? styles.navButtonActive : {}),
-                  justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap',
-                }}
-                title="My Tasks Queue"
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
-                  <Icons.Tasks />
-                </div>
-                <span
-                  style={{
-                    opacity: isSidebarCollapsed ? 0 : 1,
-                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  My Tasks Queue
-                </span>
-              </button>
-              <button
-                onClick={() => navigateTo('analyst-sla')}
-                style={{
-                  ...styles.navButton,
-                  ...(currentView === 'analyst-sla' ? styles.navButtonActive : {}),
-                  justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap',
-                }}
-                title="SLA Tracker & Alerts"
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
-                  <Icons.Clock />
-                </div>
-                <span
-                  style={{
-                    opacity: isSidebarCollapsed ? 0 : 1,
-                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  SLA Tracker & Alerts
-                </span>
-              </button>
-              <button
-                onClick={() => navigateTo('analyst-insights')}
-                style={{
-                  ...styles.navButton,
-                  ...(currentView === 'analyst-insights' ? styles.navButtonActive : {}),
-                  justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap',
-                }}
-                title="AI Diagnostics & Actions"
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
-                  <Icons.SearchSparkle />
-                </div>
-                <span
-                  style={{
-                    opacity: isSidebarCollapsed ? 0 : 1,
-                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  AI Root-Cause & Action
-                </span>
-              </button>
-            </>
-          )}
-
-          {/* Role 2: Executive (CFO) Specific Page Buttons */}
-          {activeRole === 2 && (
-            <button
-              className="fema-nav-btn-smooth"
-              onClick={() => navigateTo('cfo-risks')}
-              style={{
-                ...styles.navButton,
-                ...(currentView === 'cfo-risks' ? styles.navButtonActive : {}),
-                justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                padding: isSidebarCollapsed ? '10px' : '8px 12px',
-                overflow: 'hidden',
-                whiteSpace: 'nowrap',
-              }}
-              title="Escalated Material Risks"
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
-                <Icons.ShieldAlert />
-              </div>
-              <span
-                className="fema-nav-label-smooth"
-                style={{
-                  opacity: isSidebarCollapsed ? 0 : 1,
-                  maxWidth: isSidebarCollapsed ? '0px' : '200px',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  transform: isSidebarCollapsed ? 'translateX(-8px)' : 'translateX(0)',
-                }}
-              >
-                Escalated Risks Sign-off
-              </span>
-            </button>
-          )}
-
-          {/* Role 3: Auditor Specific Page Buttons */}
-          {activeRole === 3 && (
-            <>
-              <button
-                onClick={() => navigateTo('auditor-trail')}
-                style={{
-                  ...styles.navButton,
-                  ...(currentView === 'auditor-trail' ? styles.navButtonActive : {}),
-                  justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap',
-                }}
-                title="Audit Trail Feed"
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
-                  <Icons.FileText />
-                </div>
-                <span
-                  style={{
-                    opacity: isSidebarCollapsed ? 0 : 1,
-                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  Audit Trail Feed
-                </span>
-              </button>
-              <button
-                onClick={() => navigateTo('auditor-sla')}
-                style={{
-                  ...styles.navButton,
-                  ...(currentView === 'auditor-sla' ? styles.navButtonActive : {}),
-                  justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap',
-                }}
-                title="SLA Compliance Report"
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
-                  <Icons.Target />
-                </div>
-                <span
-                  style={{
-                    opacity: isSidebarCollapsed ? 0 : 1,
-                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  SLA Compliance Stats
-                </span>
-              </button>
-              <button
-                onClick={() => navigateTo('auditor-hitl')}
-                style={{
-                  ...styles.navButton,
-                  ...(currentView === 'auditor-hitl' ? styles.navButtonActive : {}),
-                  justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap',
-                }}
-                title="Human-in-the-Loop Governance"
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
-                  <Icons.Scale />
-                </div>
-                <span
-                  style={{
-                    opacity: isSidebarCollapsed ? 0 : 1,
-                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  HITL Governance Ratio
-                </span>
-              </button>
-              <button
-                onClick={() => navigateTo('auditor-export')}
-                style={{
-                  ...styles.navButton,
-                  ...(currentView === 'auditor-export' ? styles.navButtonActive : {}),
-                  justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap',
-                }}
-                title="Report Generator & Export"
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
-                  <Icons.Download />
-                </div>
-                <span
-                  style={{
-                    opacity: isSidebarCollapsed ? 0 : 1,
-                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  Export Reports
-                </span>
-              </button>
-            </>
-          )}
-
-          {/* General Ledger & Exceptions (Analyst Role) */}
-          {activeRole === 1 && (
-            <>
+              {/* Expanded Dashboard Overview Button */}
               <button
                 className="fema-nav-btn-smooth"
-                onClick={() => navigateTo('records')}
+                onClick={() => navigateTo('dashboard')}
                 style={{
                   ...styles.navButton,
-                  ...(currentView === 'records' ? styles.navButtonActive : {}),
-                  justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '10px' : '9px 12px',
-                  position: 'relative',
+                  ...(currentView === 'dashboard' ? styles.navButtonActive : {}),
+                  flex: 1,
+                  justifyContent: 'flex-start',
+                  padding: '10px 12px',
                   overflow: 'hidden',
                   whiteSpace: 'nowrap',
                 }}
-                title="Financial Records"
+                title="Dashboard Overview"
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
-                  <Icons.Records />
+                  <Icons.Dashboard />
                 </div>
                 <span
                   className="fema-nav-label-smooth"
                   style={{
-                    opacity: isSidebarCollapsed ? 0 : 1,
-                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                    opacity: 1,
+                    maxWidth: '200px',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
-                    transform: isSidebarCollapsed ? 'translateX(-8px)' : 'translateX(0)',
                   }}
                 >
-                  Financial Records
+                  Dashboard Overview
                 </span>
               </button>
 
+              {/* Collapse Arrow Button (Next to Dashboard Overview) */}
               <button
-                className="fema-nav-btn-smooth"
-                onClick={() => navigateTo('exceptions')}
+                className="fema-collapse-btn-smooth"
+                onClick={() => setIsSidebarCollapsed(true)}
                 style={{
-                  ...styles.navButton,
-                  ...(currentView === 'exceptions' ? styles.navButtonActive : {}),
-                  justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '10px' : '9px 12px',
-                  position: 'relative',
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap',
+                  ...styles.collapseBtn,
+                  width: '32px',
+                  height: '38px',
+                  borderRadius: '8px',
+                  flexShrink: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
                 }}
-                title={`Exception Cases (${summary.open_exceptions})`}
+                title="Collapse Sidebar"
+                aria-label="Collapse Sidebar"
               >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
-                  <Icons.Exceptions />
-                </div>
-                <span
-                  className="fema-nav-label-smooth"
-                  style={{
-                    opacity: isSidebarCollapsed ? 0 : 1,
-                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    transform: isSidebarCollapsed ? 'translateX(-8px)' : 'translateX(0)',
-                  }}
-                >
-                  All Exceptions
-                </span>
-                {summary.open_exceptions > 0 && (
-                  isSidebarCollapsed ? (
-                    <span
-                      style={{
-                        position: 'absolute',
-                        top: '6px',
-                        right: '10px',
-                        width: '8px',
-                        height: '8px',
-                        backgroundColor: '#ef4444',
-                        borderRadius: '50%',
-                        border: '2px solid #0f172a',
-                      }}
-                    />
-                  ) : (
-                    <span style={styles.counterPill}>{summary.open_exceptions}</span>
-                  )
-                )}
+                <Icons.ChevronLeft />
               </button>
-            </>
+            </div>
           )}
 
-          {/* AI Copilot */}
-          {(activeRole === 1 || activeRole === 2) && (
-            <button
-              className="fema-nav-btn-smooth"
-              onClick={() => navigateTo('chat')}
-              style={{
-                ...styles.navButton,
-                ...(currentView === 'chat' ? styles.navButtonActive : {}),
-                justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                padding: isSidebarCollapsed ? '10px' : '9px 12px',
-                position: 'relative',
-                overflow: 'hidden',
-                whiteSpace: 'nowrap',
-              }}
-              title="Finance AI Copilot"
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
-                <Icons.Chat />
-              </div>
-              <span
-                className="fema-nav-label-smooth"
-                style={{
-                  opacity: isSidebarCollapsed ? 0 : 1,
-                  maxWidth: isSidebarCollapsed ? '0px' : '200px',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  transform: isSidebarCollapsed ? 'translateX(-8px)' : 'translateX(0)',
-                }}
-              >
-                Finance AI Copilot
-              </span>
-            </button>
-          )}
-        </nav>
-      </aside>
+          <nav style={styles.navMenu}>
 
-      {/* ---------------------------------------------------------------- */}
-      {/* MAIN VIEW AREA                                                   */}
-      {/* ---------------------------------------------------------------- */}
-      <main
-        style={{
-          ...styles.mainContent,
-          height: user ? 'calc(100vh - 64px)' : '100vh',
-          maxHeight: user ? 'calc(100vh - 64px)' : '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          overflowY: currentView === 'chat' ? 'hidden' : 'auto',
-          padding: currentView === 'chat' ? '20px 32px' : '32px 40px',
-        }}
-      >
-        {/* ============================================================== */}
-        {/* ============================================================== */}
-        {/* VIEW 1: DYNAMIC ROLE-SPECIFIC DASHBOARD                        */}
-        {/* ============================================================== */}
-        {currentView === 'dashboard' && (
-          <div style={{ width: '100%' }}>
+            {/* Role 0: Admin & Compliance Officer Sub-pages */}
             {activeRole === 0 && (
-              <AdminDashboard
-                activeSection="all"
-                onNavigateSection={(sec) => navigateTo(`admin-${sec}` as AppView)}
-                records={records}
-                exceptions={exceptions}
-              />
-            )}
-            {activeRole === 1 && <AnalystDashboard activeSection="all" records={records} exceptions={exceptions} />}
-            {activeRole === 2 && <CfoDashboard activeSection="all" records={records} exceptions={exceptions} />}
-          </div>
-        )}
-
-        {/* Role 0: System Administrator Sub-pages */}
-        {activeRole === 0 && currentView === 'admin-health' && (
-          <AdminDashboard activeSection="health" onNavigateSection={(sec) => navigateTo(`admin-${sec}` as AppView)} records={records} exceptions={exceptions} />
-        )}
-        {activeRole === 0 && currentView === 'admin-thresholds' && (
-          <AdminDashboard activeSection="thresholds" onNavigateSection={(sec) => navigateTo(`admin-${sec}` as AppView)} records={records} exceptions={exceptions} />
-        )}
-        {activeRole === 0 && currentView === 'admin-users' && (
-          <AdminDashboard activeSection="users" onNavigateSection={(sec) => navigateTo(`admin-${sec}` as AppView)} records={records} exceptions={exceptions} />
-        )}
-        {activeRole === 0 && currentView === 'admin-logs' && (
-          <AdminDashboard activeSection="logs" onNavigateSection={(sec) => navigateTo(`admin-${sec}` as AppView)} records={records} exceptions={exceptions} />
-        )}
-
-        {/* Role 0: Audit & Compliance Sub-pages (Consolidated from Role 3) */}
-        {activeRole === 0 && (currentView === 'admin-trail' || (currentView as string) === 'auditor-trail') && (
-          <AuditorDashboard activeSection="trail" />
-        )}
-        {activeRole === 0 && (currentView === 'admin-sla' || (currentView as string) === 'auditor-sla') && (
-          <AuditorDashboard activeSection="compliance" />
-        )}
-        {activeRole === 0 && (currentView === 'admin-hitl' || (currentView as string) === 'auditor-hitl') && (
-          <AuditorDashboard activeSection="hitl" />
-        )}
-        {activeRole === 0 && (currentView === 'admin-export' || (currentView as string) === 'auditor-export') && (
-          <AuditorDashboard activeSection="export" />
-        )}
-
-        {/* Role 1: Finance Analyst Sub-pages */}
-        {activeRole === 1 && currentView === 'analyst-tasks' && <AnalystDashboard activeSection="tasks" records={records} exceptions={exceptions} />}
-        {activeRole === 1 && currentView === 'analyst-sla' && <AnalystDashboard activeSection="sla" records={records} exceptions={exceptions} />}
-        {activeRole === 1 && currentView === 'analyst-insights' && <AnalystDashboard activeSection="insights" records={records} exceptions={exceptions} />}
-
-        {/* Role 2: Executive (CFO) Sub-pages */}
-        {activeRole === 2 && currentView === 'cfo-kpis' && <CfoDashboard activeSection="kpis" records={records} exceptions={exceptions} />}
-        {activeRole === 2 && currentView === 'cfo-warnings' && <CfoDashboard activeSection="warnings" records={records} exceptions={exceptions} />}
-        {activeRole === 2 && currentView === 'cfo-risks' && <CfoDashboard activeSection="risks" records={records} exceptions={exceptions} />}
-        {activeRole === 2 && currentView === 'cfo-brief' && <CfoDashboard activeSection="brief" records={records} exceptions={exceptions} />}
-
-
-        {/* ============================================================== */}
-        {/* VIEW 2: FINANCIAL RECORDS                                      */}
-        {/* ============================================================== */}
-        {currentView === 'records' && (
-          <div style={styles.viewContainer}>
-            <header style={styles.viewHeader}>
-              <h1 style={styles.viewTitle}>Financial Ledger & Record Entry</h1>
-              <p style={styles.viewDescription}>
-                Post ledger items to trigger AI-driven variance computation and automatic anomaly detection.
-              </p>
-            </header>
-
-            {/* Add Record Form */}
-            <div style={styles.panel}>
-              <h3 style={{ ...styles.panelTitle, marginBottom: '16px' }}>Add Ledger Record</h3>
-
-              <form onSubmit={handleCreateRecord}>
-                <div style={styles.formGrid}>
-                  <div style={styles.fieldGroup}>
-                    <label style={styles.label}>Category</label>
-                    <select
-                      value={formData.category}
-                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                      style={styles.select}
-                    >
-                      <option value="Revenue">Revenue (Inflow)</option>
-                      <option value="Operating Expense">Operating Expense (OpEx)</option>
-                      <option value="Capital Expenditure">Capital Expenditure (CapEx)</option>
-                      <option value="Cost of Goods Sold">Cost of Goods Sold (COGS)</option>
-                      <option value="Payroll & Talent">Payroll & Talent</option>
-                      <option value="Cloud Infrastructure">Cloud Infrastructure</option>
-                      <option value="Marketing & Growth">Marketing & Growth</option>
-                      <option value="Treasury & Finance">Treasury & Finance</option>
-                      <option value="Custom">Custom Category...</option>
-                    </select>
+              <>
+                <div
+                  style={{
+                    fontSize: '10px',
+                    fontWeight: 800,
+                    color: '#ef4444',
+                    letterSpacing: '0.06em',
+                    padding: isSidebarCollapsed ? '8px 0 4px' : '8px 12px 4px',
+                    textTransform: 'uppercase',
+                    textAlign: isSidebarCollapsed ? 'center' : 'left',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                    opacity: isSidebarCollapsed ? 0 : 1,
+                    maxHeight: isSidebarCollapsed ? '0px' : '24px',
+                    transition: 'opacity 0.2s ease, max-height 0.3s ease',
+                  }}
+                >
+                  Infrastructure & Ops
+                </div>
+                <button
+                  onClick={() => navigateTo('admin-health')}
+                  style={{
+                    ...styles.navButton,
+                    ...(currentView === 'admin-health' ? styles.navButtonActive : {}),
+                    justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                    padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                  }}
+                  title="Financial Integrations"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                    <Icons.Plug />
                   </div>
+                  <span
+                    style={{
+                      opacity: isSidebarCollapsed ? 0 : 1,
+                      maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    Financial Integrations
+                  </span>
+                </button>
+                <button
+                  onClick={() => navigateTo('admin-thresholds')}
+                  style={{
+                    ...styles.navButton,
+                    ...(currentView === 'admin-thresholds' ? styles.navButtonActive : {}),
+                    justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                    padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                  }}
+                  title="AI Anomaly Thresholds"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                    <Icons.Settings />
+                  </div>
+                  <span
+                    style={{
+                      opacity: isSidebarCollapsed ? 0 : 1,
+                      maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    AI Anomaly Thresholds
+                  </span>
+                </button>
+                <button
+                  onClick={() => navigateTo('admin-users')}
+                  style={{
+                    ...styles.navButton,
+                    ...(currentView === 'admin-users' ? styles.navButtonActive : {}),
+                    justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                    padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                  }}
+                  title="User & Access Control"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                    <Icons.Users />
+                  </div>
+                  <span
+                    style={{
+                      opacity: isSidebarCollapsed ? 0 : 1,
+                      maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    User Directory & Access
+                  </span>
+                </button>
+                <button
+                  onClick={() => navigateTo('admin-logs')}
+                  style={{
+                    ...styles.navButton,
+                    ...(currentView === 'admin-logs' ? styles.navButtonActive : {}),
+                    justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                    padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                  }}
+                  title="System Logs & Sync"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                    <Icons.Terminal />
+                  </div>
+                  <span
+                    style={{
+                      opacity: isSidebarCollapsed ? 0 : 1,
+                      maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    System Sync Logs
+                  </span>
+                </button>
 
-                  {formData.category === 'Custom' && (
+                <div
+                  style={{
+                    fontSize: '10px',
+                    fontWeight: 800,
+                    color: '#f59e0b',
+                    letterSpacing: '0.06em',
+                    padding: isSidebarCollapsed ? '8px 0 4px' : '8px 12px 4px',
+                    textTransform: 'uppercase',
+                    textAlign: isSidebarCollapsed ? 'center' : 'left',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                    opacity: isSidebarCollapsed ? 0 : 1,
+                    maxHeight: isSidebarCollapsed ? '0px' : '24px',
+                    transition: 'opacity 0.2s ease, max-height 0.3s ease',
+                  }}
+                >
+                  Compliance & Governance
+                </div>
+                <button
+                  onClick={() => navigateTo('admin-trail')}
+                  style={{
+                    ...styles.navButton,
+                    ...(currentView === 'admin-trail' || currentView === 'auditor-trail' ? styles.navButtonActive : {}),
+                    justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                    padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                  }}
+                  title="Audit Trail Feed"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                    <Icons.FileText />
+                  </div>
+                  <span
+                    style={{
+                      opacity: isSidebarCollapsed ? 0 : 1,
+                      maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    Audit Trail Feed
+                  </span>
+                </button>
+                <button
+                  onClick={() => navigateTo('admin-sla')}
+                  style={{
+                    ...styles.navButton,
+                    ...(currentView === 'admin-sla' || currentView === 'auditor-sla' ? styles.navButtonActive : {}),
+                    justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                    padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                  }}
+                  title="SLA Compliance Stats"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                    <Icons.Target />
+                  </div>
+                  <span
+                    style={{
+                      opacity: isSidebarCollapsed ? 0 : 1,
+                      maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    SLA Compliance Stats
+                  </span>
+                </button>
+                <button
+                  onClick={() => navigateTo('admin-hitl')}
+                  style={{
+                    ...styles.navButton,
+                    ...(currentView === 'admin-hitl' || currentView === 'auditor-hitl' ? styles.navButtonActive : {}),
+                    justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                    padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                  }}
+                  title="HITL Governance Ratio"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                    <Icons.Scale />
+                  </div>
+                  <span
+                    style={{
+                      opacity: isSidebarCollapsed ? 0 : 1,
+                      maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    HITL Governance Ratio
+                  </span>
+                </button>
+                <button
+                  onClick={() => navigateTo('admin-export')}
+                  style={{
+                    ...styles.navButton,
+                    ...(currentView === 'admin-export' || currentView === 'auditor-export' ? styles.navButtonActive : {}),
+                    justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                    padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                  }}
+                  title="Export Reports"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                    <Icons.Download />
+                  </div>
+                  <span
+                    style={{
+                      opacity: isSidebarCollapsed ? 0 : 1,
+                      maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    Export Reports
+                  </span>
+                </button>
+              </>
+            )}
+
+
+
+            {/* Role 2: Executive (CFO) Specific Page Buttons */}
+            {activeRole === 2 && (
+              <>
+                <button
+                  className="fema-nav-btn-smooth"
+                  onClick={() => navigateTo('cfo-kpis')}
+                  style={{
+                    ...styles.navButton,
+                    ...(currentView === 'cfo-kpis' ? styles.navButtonActive : {}),
+                    justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                    padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                  }}
+                  title="Strategic Financial KPIs"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                    <Icons.Building />
+                  </div>
+                  <span
+                    className="fema-nav-label-smooth"
+                    style={{
+                      opacity: isSidebarCollapsed ? 0 : 1,
+                      maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      transform: isSidebarCollapsed ? 'translateX(-8px)' : 'translateX(0)',
+                    }}
+                  >
+                    Strategic Financial KPIs
+                  </span>
+                </button>
+                <button
+                  className="fema-nav-btn-smooth"
+                  onClick={() => navigateTo('cfo-warnings')}
+                  style={{
+                    ...styles.navButton,
+                    ...(currentView === 'cfo-warnings' ? styles.navButtonActive : {}),
+                    justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                    padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                  }}
+                  title="Early Warnings & Covenants"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                    <Icons.WarningTriangle />
+                  </div>
+                  <span
+                    className="fema-nav-label-smooth"
+                    style={{
+                      opacity: isSidebarCollapsed ? 0 : 1,
+                      maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      transform: isSidebarCollapsed ? 'translateX(-8px)' : 'translateX(0)',
+                    }}
+                  >
+                    Early Warnings & Covenants
+                  </span>
+                </button>
+                <button
+                  className="fema-nav-btn-smooth"
+                  onClick={() => navigateTo('cfo-risks')}
+                  style={{
+                    ...styles.navButton,
+                    ...(currentView === 'cfo-risks' ? styles.navButtonActive : {}),
+                    justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                    padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                  }}
+                  title="Escalated Material Risks"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                    <Icons.ShieldAlert />
+                  </div>
+                  <span
+                    className="fema-nav-label-smooth"
+                    style={{
+                      opacity: isSidebarCollapsed ? 0 : 1,
+                      maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      transform: isSidebarCollapsed ? 'translateX(-8px)' : 'translateX(0)',
+                    }}
+                  >
+                    Escalated Risks Sign-off
+                  </span>
+                </button>
+                <button
+                  className="fema-nav-btn-smooth"
+                  onClick={() => navigateTo('cfo-brief')}
+                  style={{
+                    ...styles.navButton,
+                    ...(currentView === 'cfo-brief' ? styles.navButtonActive : {}),
+                    justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                    padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                  }}
+                  title="AI Executive Brief"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                    <Icons.Sparkles />
+                  </div>
+                  <span
+                    className="fema-nav-label-smooth"
+                    style={{
+                      opacity: isSidebarCollapsed ? 0 : 1,
+                      maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      transform: isSidebarCollapsed ? 'translateX(-8px)' : 'translateX(0)',
+                    }}
+                  >
+                    AI Executive Brief
+                  </span>
+                </button>
+              </>
+            )}
+
+            {/* Role 3: Auditor Specific Page Buttons */}
+            {activeRole === 3 && (
+              <>
+                <button
+                  onClick={() => navigateTo('auditor-trail')}
+                  style={{
+                    ...styles.navButton,
+                    ...(currentView === 'auditor-trail' ? styles.navButtonActive : {}),
+                    justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                    padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                  }}
+                  title="Audit Trail Feed"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                    <Icons.FileText />
+                  </div>
+                  <span
+                    style={{
+                      opacity: isSidebarCollapsed ? 0 : 1,
+                      maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    Audit Trail Feed
+                  </span>
+                </button>
+                <button
+                  onClick={() => navigateTo('auditor-sla')}
+                  style={{
+                    ...styles.navButton,
+                    ...(currentView === 'auditor-sla' ? styles.navButtonActive : {}),
+                    justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                    padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                  }}
+                  title="SLA Compliance Report"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                    <Icons.Target />
+                  </div>
+                  <span
+                    style={{
+                      opacity: isSidebarCollapsed ? 0 : 1,
+                      maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    SLA Compliance Stats
+                  </span>
+                </button>
+                <button
+                  onClick={() => navigateTo('auditor-hitl')}
+                  style={{
+                    ...styles.navButton,
+                    ...(currentView === 'auditor-hitl' ? styles.navButtonActive : {}),
+                    justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                    padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                  }}
+                  title="Human-in-the-Loop Governance"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                    <Icons.Scale />
+                  </div>
+                  <span
+                    style={{
+                      opacity: isSidebarCollapsed ? 0 : 1,
+                      maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    HITL Governance Ratio
+                  </span>
+                </button>
+                <button
+                  onClick={() => navigateTo('auditor-export')}
+                  style={{
+                    ...styles.navButton,
+                    ...(currentView === 'auditor-export' ? styles.navButtonActive : {}),
+                    justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                    padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                  }}
+                  title="Report Generator & Export"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                    <Icons.Download />
+                  </div>
+                  <span
+                    style={{
+                      opacity: isSidebarCollapsed ? 0 : 1,
+                      maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    Export Reports
+                  </span>
+                </button>
+              </>
+            )}
+
+            {/* General Ledger & Exceptions */}
+            {(activeRole === 1 || activeRole === 2) && (
+              <>
+                <button
+                  className="fema-nav-btn-smooth"
+                  onClick={() => navigateTo('records')}
+                  style={{
+                    ...styles.navButton,
+                    ...(currentView === 'records' ? styles.navButtonActive : {}),
+                    justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                    padding: isSidebarCollapsed ? '10px' : '9px 12px',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                  }}
+                  title="Financial Records"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                    <Icons.Records />
+                  </div>
+                  <span
+                    className="fema-nav-label-smooth"
+                    style={{
+                      opacity: isSidebarCollapsed ? 0 : 1,
+                      maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      transform: isSidebarCollapsed ? 'translateX(-8px)' : 'translateX(0)',
+                    }}
+                  >
+                    Financial Records
+                  </span>
+                </button>
+
+                <button
+                  className="fema-nav-btn-smooth"
+                  onClick={() => navigateTo('exceptions')}
+                  style={{
+                    ...styles.navButton,
+                    ...(currentView === 'exceptions' ? styles.navButtonActive : {}),
+                    justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                    padding: isSidebarCollapsed ? '10px' : '9px 12px',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                  }}
+                  title={`Exception Cases (${summary.open_exceptions})`}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px', position: 'relative' }}>
+                    <Icons.Exceptions />
+                    {summary.open_exceptions > 0 && isSidebarCollapsed && (
+                      <span
+                        style={{
+                          position: 'absolute',
+                          top: '-4px',
+                          right: '-4px',
+                          width: '8px',
+                          height: '8px',
+                          backgroundColor: '#ef4444',
+                          borderRadius: '50%',
+                          border: '2px solid #ef4444',
+                        }}
+                      />
+                    )}
+                  </div>
+                  <span
+                    className="fema-nav-label-smooth"
+                    style={{
+                      opacity: isSidebarCollapsed ? 0 : 1,
+                      maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      transform: isSidebarCollapsed ? 'translateX(-8px)' : 'translateX(0)',
+                    }}
+                  >
+                    All Exceptions
+                  </span>
+                  {summary.open_exceptions > 0 && !isSidebarCollapsed && (
+                    <span style={styles.counterPill}>{summary.open_exceptions}</span>
+                  )}
+                </button>
+              </>
+            )}
+
+            {/* AI Copilot */}
+            {(activeRole === 1 || activeRole === 2) && (
+              <button
+                className="fema-nav-btn-smooth"
+                onClick={() => navigateTo('chat')}
+                style={{
+                  ...styles.navButton,
+                  ...(currentView === 'chat' ? styles.navButtonActive : {}),
+                  justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                  padding: isSidebarCollapsed ? '10px' : '9px 12px',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
+                }}
+                title="Finance AI Copilot"
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                  <Icons.Chat />
+                </div>
+                <span
+                  className="fema-nav-label-smooth"
+                  style={{
+                    opacity: isSidebarCollapsed ? 0 : 1,
+                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    transform: isSidebarCollapsed ? 'translateX(-8px)' : 'translateX(0)',
+                  }}
+                >
+                  Finance AI Copilot
+                </span>
+              </button>
+            )}
+          </nav>
+        </aside>
+
+        {/* ---------------------------------------------------------------- */}
+        {/* MAIN VIEW AREA                                                   */}
+        {/* ---------------------------------------------------------------- */}
+        <main
+          style={{
+            ...styles.mainContent,
+            height: user ? 'calc(100vh - 64px)' : '100vh',
+            maxHeight: user ? 'calc(100vh - 64px)' : '100vh',
+            display: 'flex',
+            flexDirection: 'column',
+            overflowY: currentView === 'chat' ? 'hidden' : 'auto',
+            padding: currentView === 'chat' ? '20px 32px' : '32px 40px',
+          }}
+        >
+          {/* ============================================================== */}
+          {/* ============================================================== */}
+          {/* VIEW 1: DYNAMIC ROLE-SPECIFIC DASHBOARD                        */}
+          {/* ============================================================== */}
+          {currentView === 'dashboard' && (
+            <div style={{ width: '100%' }}>
+              {activeRole === 0 && (
+                <AdminDashboard
+                  activeSection="all"
+                  onNavigateSection={(sec) => navigateTo(`admin-${sec}` as AppView)}
+                  records={records}
+                  exceptions={exceptions}
+                />
+              )}
+              {activeRole === 1 && <AnalystDashboard activeSection="all" records={records} exceptions={exceptions} />}
+              {activeRole === 2 && <CfoDashboard activeSection="all" records={records} exceptions={exceptions} />}
+            </div>
+          )}
+
+          {/* Role 0: System Administrator Sub-pages */}
+          {activeRole === 0 && currentView === 'admin-health' && (
+            <AdminDashboard activeSection="health" onNavigateSection={(sec) => navigateTo(`admin-${sec}` as AppView)} records={records} exceptions={exceptions} />
+          )}
+          {activeRole === 0 && currentView === 'admin-thresholds' && (
+            <AdminDashboard activeSection="thresholds" onNavigateSection={(sec) => navigateTo(`admin-${sec}` as AppView)} records={records} exceptions={exceptions} />
+          )}
+          {activeRole === 0 && currentView === 'admin-users' && (
+            <AdminDashboard activeSection="users" onNavigateSection={(sec) => navigateTo(`admin-${sec}` as AppView)} records={records} exceptions={exceptions} />
+          )}
+          {activeRole === 0 && currentView === 'admin-logs' && (
+            <AdminDashboard activeSection="logs" onNavigateSection={(sec) => navigateTo(`admin-${sec}` as AppView)} records={records} exceptions={exceptions} />
+          )}
+
+          {/* Role 0: Audit & Compliance Sub-pages (Consolidated from Role 3) */}
+          {activeRole === 0 && (currentView === 'admin-trail' || (currentView as string) === 'auditor-trail') && (
+            <AuditorDashboard activeSection="trail" />
+          )}
+          {activeRole === 0 && (currentView === 'admin-sla' || (currentView as string) === 'auditor-sla') && (
+            <AuditorDashboard activeSection="compliance" />
+          )}
+          {activeRole === 0 && (currentView === 'admin-hitl' || (currentView as string) === 'auditor-hitl') && (
+            <AuditorDashboard activeSection="hitl" />
+          )}
+          {activeRole === 0 && (currentView === 'admin-export' || (currentView as string) === 'auditor-export') && (
+            <AuditorDashboard activeSection="export" />
+          )}
+
+          {/* Role 1: Finance Analyst Sub-pages */}
+          {activeRole === 1 && currentView === 'analyst-tasks' && <AnalystDashboard activeSection="tasks" records={records} exceptions={exceptions} />}
+          {activeRole === 1 && currentView === 'analyst-sla' && <AnalystDashboard activeSection="sla" records={records} exceptions={exceptions} />}
+          {activeRole === 1 && currentView === 'analyst-insights' && <AnalystDashboard activeSection="insights" records={records} exceptions={exceptions} />}
+
+          {/* Role 2: Executive (CFO) Sub-pages */}
+          {activeRole === 2 && currentView === 'cfo-kpis' && <CfoDashboard activeSection="kpis" records={records} exceptions={exceptions} />}
+          {activeRole === 2 && currentView === 'cfo-warnings' && <CfoDashboard activeSection="warnings" records={records} exceptions={exceptions} />}
+          {activeRole === 2 && currentView === 'cfo-risks' && <CfoDashboard activeSection="risks" records={records} exceptions={exceptions} />}
+          {activeRole === 2 && currentView === 'cfo-brief' && <CfoDashboard activeSection="brief" records={records} exceptions={exceptions} />}
+
+
+          {/* ============================================================== */}
+          {/* VIEW 2: FINANCIAL RECORDS                                      */}
+          {/* ============================================================== */}
+          {currentView === 'records' && (
+            <div style={styles.viewContainer}>
+              <header style={styles.viewHeader}>
+                <h1 style={styles.viewTitle}>Financial Ledger & Record Entry</h1>
+                <p style={styles.viewDescription}>
+                  Post ledger items to trigger AI-driven variance computation and automatic anomaly detection.
+                </p>
+              </header>
+
+              {/* Add Record Form */}
+              <div style={styles.panel}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                  <h3 style={styles.panelTitle}>Add Ledger Record</h3>
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <button type="submit" form="ledger-entry-form" style={styles.primaryButton}>
+                      Post Ledger Entry
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleRunMonitoring}
+                      disabled={isMonitoring}
+                      style={{
+                        ...styles.primaryButton,
+                        backgroundColor: theme === 'dark' ? '#059669' : '#10b981',
+                        borderColor: theme === 'dark' ? '#047857' : '#059669',
+                      }}
+                    >
+                      <Icons.Refresh />
+                      {isMonitoring ? 'Agent Analyzing...' : 'Run Exception Monitor'}
+                    </button>
+                  </div>
+                </div>
+
+                <form id="ledger-entry-form" onSubmit={handleCreateRecord}>
+                  <div style={styles.formGrid}>
                     <div style={styles.fieldGroup}>
-                      <label style={styles.label}>Custom Category Name</label>
+                      <label style={styles.label}>Category</label>
+                      <select
+                        value={formData.category}
+                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                        style={styles.select}
+                      >
+                        <option value="Revenue">Revenue (Inflow)</option>
+                        <option value="Operating Expense">Operating Expense (OpEx)</option>
+                        <option value="Capital Expenditure">Capital Expenditure (CapEx)</option>
+                        <option value="Cost of Goods Sold">Cost of Goods Sold (COGS)</option>
+                        <option value="Payroll & Talent">Payroll & Talent</option>
+                        <option value="Cloud Infrastructure">Cloud Infrastructure</option>
+                        <option value="Marketing & Growth">Marketing & Growth</option>
+                        <option value="Treasury & Finance">Treasury & Finance</option>
+                        <option value="Custom">Custom Category...</option>
+                      </select>
+                    </div>
+
+                    {formData.category === 'Custom' && (
+                      <div style={styles.fieldGroup}>
+                        <label style={styles.label}>Custom Category Name</label>
+                        <input
+                          type="text"
+                          value={formData.customCategory}
+                          onChange={(e) => setFormData({ ...formData, customCategory: e.target.value })}
+                          placeholder="e.g. Legal & Compliance, Logistics"
+                          required
+                          style={styles.input}
+                        />
+                      </div>
+                    )}
+
+                    <div style={styles.fieldGroup}>
+                      <label style={styles.label}>Period (Month / YYYY-MM)</label>
                       <input
-                        type="text"
-                        value={formData.customCategory}
-                        onChange={(e) => setFormData({ ...formData, customCategory: e.target.value })}
-                        placeholder="e.g. Legal & Compliance, Logistics"
+                        type="month"
+                        value={formData.period}
+                        onChange={(e) => setFormData({ ...formData, period: e.target.value })}
                         required
                         style={styles.input}
                       />
                     </div>
-                  )}
 
-                  <div style={styles.fieldGroup}>
-                    <label style={styles.label}>Period (Month / YYYY-MM)</label>
-                    <input
-                      type="month"
-                      value={formData.period}
-                      onChange={(e) => setFormData({ ...formData, period: e.target.value })}
-                      required
-                      style={styles.input}
-                    />
-                  </div>
-
-                  <div style={styles.fieldGroup}>
-                    <label style={styles.label}>Department / Cost Center</label>
-                    <input
-                      type="text"
-                      list="departments-autocomplete"
-                      value={formData.department}
-                      onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                      placeholder="e.g. Marketing, DevOps, Sales"
-                      required
-                      style={styles.input}
-                    />
-                    <datalist id="departments-autocomplete">
-                      {existingDepartments.map((dept) => (
-                        <option key={dept} value={dept} />
-                      ))}
-                    </datalist>
-                  </div>
-
-                  <div style={styles.fieldGroup}>
-                    <label style={styles.label}>Budget Amount (₹)</label>
-                    <input
-                      type="number"
-                      step="any"
-                      value={formData.budget_amount}
-                      onChange={(e) => setFormData({ ...formData, budget_amount: e.target.value })}
-                      placeholder="0.00"
-                      required
-                      style={styles.input}
-                    />
-                  </div>
-
-                  <div style={styles.fieldGroup}>
-                    <label style={styles.label}>Actual Amount (₹)</label>
-                    <input
-                      type="number"
-                      step="any"
-                      value={formData.actual_amount}
-                      onChange={(e) => setFormData({ ...formData, actual_amount: e.target.value })}
-                      placeholder="0.00"
-                      required
-                      style={styles.input}
-                    />
-                  </div>
-                </div>
-
-                <div style={{ marginTop: '20px', display: 'flex', gap: '12px', alignItems: 'center' }}>
-                  <button type="submit" style={styles.primaryButton}>
-                    Post Ledger Entry
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleRunMonitoring}
-                    disabled={isMonitoring}
-                    style={styles.secondaryButton}
-                  >
-                    <Icons.Refresh />
-                    {isMonitoring ? 'Agent Analyzing...' : 'Run Exception Monitor'}
-                  </button>
-                </div>
-              </form>
-
-              {formFeedback && (
-                <div
-                  style={{
-                    marginTop: '18px',
-                    padding: '14px 20px',
-                    borderRadius: '8px',
-                    border: formFeedback.type === 'success' ? '1px solid #10b981' : '1px solid #ef4444',
-                    backgroundColor: formFeedback.type === 'success' ? '#064e3b' : '#7f1d1d',
-                    color: formFeedback.type === 'success' ? '#6ee7b7' : '#fca5a5',
-                    fontSize: '14px',
-                    fontWeight: 600,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                    boxShadow: formFeedback.type === 'success' ? '0 0 15px rgba(16, 185, 129, 0.25)' : 'none',
-                    animation: 'fadeIn 0.2s ease-in-out',
-                  }}
-                >
-                  {formFeedback.message}
-                </div>
-              )}
-            </div>
-
-            {/* Records Ledger Table */}
-            <div style={styles.panel}>
-              <div style={styles.panelHeader}>
-                <h3 style={styles.panelTitle}>Active Ledger Records ({records.length})</h3>
-              </div>
-
-              <div style={styles.tableWrapper}>
-                <table style={styles.table}>
-                  <thead>
-                    <tr>
-                      <th style={styles.th}>Record ID</th>
-                      <th style={styles.th}>Period</th>
-                      <th style={styles.th}>Category</th>
-                      <th style={styles.th}>Department</th>
-                      <th style={styles.th}>Budget</th>
-                      <th style={styles.th}>Actual</th>
-                      <th style={styles.th}>Variance</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {records.length === 0 ? (
-                      <tr>
-                        <td colSpan={7} style={{ textAlign: 'center', padding: '36px', color: 'var(--fema-text-muted)', fontSize: '13px' }}>
-                          No financial ledger records found in database. Use the form above to add a new record.
-                        </td>
-                      </tr>
-                    ) : (
-                      records.map((r) => {
-                      const variance = r.variance_percent !== undefined
-                        ? r.variance_percent
-                        : r.budget_amount > 0
-                        ? Number((((r.actual_amount - r.budget_amount) / r.budget_amount) * 100).toFixed(2))
-                        : 0;
-                      const isHighRisk = Math.abs(variance) >= 20;
-
-                      return (
-                        <tr key={r.id} style={styles.tr}>
-                          <td style={styles.tdMono}>REC-#{r.id}</td>
-                          <td style={styles.td}>{r.period}</td>
-                          <td style={styles.td}>
-                            <span
-                              style={{
-                                ...styles.categoryPill,
-                                backgroundColor: r.category === 'Revenue'
-                                  ? (theme === 'dark' ? '#1e1b4b' : '#eff6ff')
-                                  : (theme === 'dark' ? '#312e81' : '#faf5ff'),
-                                color: r.category === 'Revenue'
-                                  ? (theme === 'dark' ? '#a5b4fc' : '#2563eb')
-                                  : (theme === 'dark' ? '#c084fc' : '#7e22ce'),
-                                border: r.category === 'Revenue'
-                                  ? (theme === 'dark' ? '1px solid #3730a3' : '1px solid #bfdbfe')
-                                  : (theme === 'dark' ? '1px solid #4c1d95' : '1px solid #e9d5ff'),
-                              }}
-                            >
-                              {r.category}
-                            </span>
-                          </td>
-                          <td style={{ ...styles.td, fontWeight: 500, color: theme === 'dark' ? '#f1f5f9' : '#1e293b' }}>{r.department}</td>
-                          <td style={styles.tdMono}>{formatCurrency(r.budget_amount)}</td>
-                          <td style={styles.tdMono}>{formatCurrency(r.actual_amount)}</td>
-                          <td style={styles.td}>
-                            <span
-                              style={{
-                                ...styles.varianceBadge,
-                                backgroundColor: isHighRisk
-                                  ? variance < 0
-                                    ? (theme === 'dark' ? '#450a0a' : '#fee2e2')
-                                    : (theme === 'dark' ? '#451a03' : '#fef3c7')
-                                  : (theme === 'dark' ? '#0f172a' : '#f1f5f9'),
-                                color: variance < 0
-                                  ? (theme === 'dark' ? '#f87171' : '#dc2626')
-                                  : (theme === 'dark' ? '#fbbf24' : '#d97706'),
-                                border: isHighRisk
-                                  ? '1px solid currentColor'
-                                  : (theme === 'dark' ? '1px solid #334155' : '1px solid #e2e8f0'),
-                              }}
-                            >
-                              {variance > 0 ? '+' : ''}
-                              {variance}%
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    }))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ============================================================== */}
-        {/* VIEW 3: EXCEPTION CASES                                        */}
-        {/* ============================================================== */}
-        {currentView === 'exceptions' && (
-          <div style={styles.viewContainer}>
-            <header style={styles.viewHeader}>
-              <h1 style={styles.viewTitle}>Exceptions & SLA Management</h1>
-              <p style={styles.viewDescription}>
-                Multi-agent triage, accountable owner assignments, SLA countdowns, and automated escalation.
-              </p>
-            </header>
-
-            {/* Filter Bar */}
-            <div style={styles.filterBar}>
-              <div style={styles.filterGroup}>
-                <label style={styles.filterLabel}>Severity:</label>
-                <select
-                  value={filterSeverity}
-                  onChange={(e) => setFilterSeverity(e.target.value)}
-                  style={styles.filterSelect}
-                >
-                  <option value="">All Severities</option>
-                  <option value="CRITICAL">Critical</option>
-                  <option value="HIGH">High</option>
-                  <option value="MEDIUM">Medium</option>
-                  <option value="LOW">Low</option>
-                </select>
-              </div>
-
-              <div style={styles.filterGroup}>
-                <label style={styles.filterLabel}>Status:</label>
-                <select
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                  style={styles.filterSelect}
-                >
-                  <option value="">All Statuses</option>
-                  <option value="OPEN">Open</option>
-                  <option value="IN_PROGRESS">In Progress</option>
-                  <option value="RESOLVED">Resolved</option>
-                  <option value="ESCALATED">Escalated</option>
-                </select>
-              </div>
-
-              <button
-                onClick={() => setShowOverdueOnly(!showOverdueOnly)}
-                style={{
-                  ...styles.filterToggle,
-                  ...(showOverdueOnly ? styles.filterToggleActive : {}),
-                }}
-              >
-                <Icons.AlertCircle />
-                Overdue SLA Only
-              </button>
-
-              {(filterSeverity || filterStatus || showOverdueOnly) && (
-                <button
-                  onClick={() => {
-                    setFilterSeverity('');
-                    setFilterStatus('');
-                    setShowOverdueOnly(false);
-                  }}
-                  style={styles.textButton}
-                >
-                  Reset Filters
-                </button>
-              )}
-            </div>
-
-            {/* Exception Cases Ledger */}
-            <div style={styles.panel}>
-              <div style={styles.panelHeader}>
-                <h3 style={styles.panelTitle}>Tracked Exceptions ({filteredExceptions.length})</h3>
-                <span style={{ fontSize: '12px', color: '#94a3b8' }}>Click row to view details & audit trail</span>
-              </div>
-
-              <div style={styles.tableWrapper}>
-                <table style={styles.table}>
-                  <thead>
-                    <tr>
-                      <th style={styles.th}>Case ID</th>
-                      <th style={styles.th}>Record Ref</th>
-                      <th style={styles.th}>Variance</th>
-                      <th style={styles.th}>Severity</th>
-                      <th style={styles.th}>Status</th>
-                      <th style={styles.th}>Accountable Owner</th>
-                      <th style={styles.th}>SLA Deadline</th>
-                      <th style={{ ...styles.th, textAlign: 'center' }}>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredExceptions.length === 0 ? (
-                      <tr>
-                        <td colSpan={8} style={{ textAlign: 'center', padding: '36px', color: 'var(--fema-text-muted)', fontSize: '13px' }}>
-                          No exception cases found. Post financial records and run monitoring to detect anomalies.
-                        </td>
-                      </tr>
-                    ) : (
-                      filteredExceptions.map((c) => {
-                      const overdue = isCaseOverdue(c.sla_deadline, c.status);
-                      return (
-                        <tr
-                          key={c.id}
-                          onClick={() => setSelectedCase(c)}
-                          style={{
-                            ...styles.tr,
-                            cursor: 'pointer',
-                            backgroundColor: selectedCase?.id === c.id ? (theme === 'dark' ? '#1e293b' : '#f1f5f9') : 'transparent',
-                          }}
-                        >
-                          <td style={styles.tdMono}>
-                            <strong>CASE-{c.id}</strong>
-                          </td>
-                          <td style={styles.tdMono}>REC-#{c.financial_record_id}</td>
-                          <td style={styles.td}>
-                            <span style={{ fontWeight: 600, color: c.variance_percent < 0 ? (theme === 'dark' ? '#f87171' : '#dc2626') : (theme === 'dark' ? '#fbbf24' : '#d97706') }}>
-                              {c.variance_percent > 0 ? '+' : ''}
-                              {c.variance_percent}%
-                            </span>
-                          </td>
-                          <td style={styles.td}>
-                            <span style={{ ...styles.badge, ...getSeverityBadgeInline(c.severity, theme) }}>
-                              {c.severity}
-                            </span>
-                          </td>
-                          <td style={styles.td}>
-                            <span style={{ ...styles.badge, ...getStatusBadgeInline(c.status, theme) }}>
-                              {c.status}
-                            </span>
-                          </td>
-                          <td style={styles.td}>
-                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                              <span style={{ fontSize: '13px', fontWeight: 500, color: theme === 'dark' ? '#f1f5f9' : '#1e293b' }}>
-                                {c.owner?.name || 'Unassigned'}
-                              </span>
-                              <span style={{ fontSize: '11px', color: theme === 'dark' ? '#94a3b8' : '#64748b' }}>{c.owner?.role}</span>
-                            </div>
-                          </td>
-                          <td style={styles.td}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                              {overdue && (
-                                <span title="SLA Overdue" style={{ color: '#ef4444' }}>
-                                  <Icons.AlertCircle />
-                                </span>
-                              )}
-                              <span
-                                style={{
-                                  fontSize: '12px',
-                                  fontFamily: 'monospace',
-                                  color: overdue ? '#ef4444' : (theme === 'dark' ? '#cbd5e1' : '#334155'),
-                                }}
-                              >
-                                {new Date(c.sla_deadline).toLocaleDateString()}
-                              </span>
-                            </div>
-                          </td>
-                          <td style={{ ...styles.td, textAlign: 'center' }}>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedCase(c);
-                              }}
-                              style={styles.miniButton}
-                            >
-                              Inspect →
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    }))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Case Details Drawer / Panel */}
-            {selectedCase && (
-              <div style={styles.drawerOverlay} onClick={() => setSelectedCase(null)}>
-                <div style={styles.drawer} onClick={(e) => e.stopPropagation()}>
-                  <div style={styles.drawerHeader}>
-                    <div>
-                      <span style={{ fontSize: '12px', color: theme === 'dark' ? '#818cf8' : '#2563eb', fontWeight: 600, letterSpacing: '0.05em' }}>
-                        EXCEPTION DETAIL
-                      </span>
-                      <h2 style={{ fontSize: '20px', margin: '4px 0 0 0', color: theme === 'dark' ? '#f8fafc' : '#1e293b' }}>
-                        Case #{selectedCase.id}
-                      </h2>
-                    </div>
-                    <button onClick={() => setSelectedCase(null)} style={styles.closeButton}>
-                      ✕
-                    </button>
-                  </div>
-
-                  <div style={styles.drawerBody}>
-                    <div style={styles.detailRow}>
-                      <span style={styles.detailLabel}>Variance Impact:</span>
-                      <span style={{ fontSize: '18px', fontWeight: 700, color: selectedCase.variance_percent < 0 ? (theme === 'dark' ? '#f87171' : '#dc2626') : (theme === 'dark' ? '#fbbf24' : '#d97706') }}>
-                        {selectedCase.variance_percent > 0 ? '+' : ''}
-                        {selectedCase.variance_percent}%
-                      </span>
-                    </div>
-
-                    <div style={styles.detailRow}>
-                      <span style={styles.detailLabel}>Severity:</span>
-                      <span style={{ ...styles.badge, ...getSeverityBadgeInline(selectedCase.severity, theme) }}>
-                        {selectedCase.severity}
-                      </span>
-                    </div>
-
-                    <div style={styles.detailRow}>
-                      <span style={styles.detailLabel}>Escalation Level:</span>
-                      <span style={{ color: theme === 'dark' ? '#e2e8f0' : '#1e293b', fontWeight: 600 }}>
-                        Level {selectedCase.escalation_level} of 4
-                      </span>
-                    </div>
-
-                    <div style={styles.detailRow}>
-                      <span style={styles.detailLabel}>Assigned Owner:</span>
-                      <div>
-                        <div style={{ color: theme === 'dark' ? '#f1f5f9' : '#1e293b', fontWeight: 600 }}>{selectedCase.owner?.name}</div>
-                        <div style={{ fontSize: '12px', color: theme === 'dark' ? '#94a3b8' : '#64748b' }}>{selectedCase.owner?.role}</div>
-                      </div>
-                    </div>
-
-                    <div style={styles.detailRow}>
-                      <span style={styles.detailLabel}>SLA Deadline:</span>
-                      <div style={{ color: isCaseOverdue(selectedCase.sla_deadline, selectedCase.status) ? '#ef4444' : (theme === 'dark' ? '#f1f5f9' : '#1e293b') }}>
-                        {new Date(selectedCase.sla_deadline).toLocaleString()}
-                        {isCaseOverdue(selectedCase.sla_deadline, selectedCase.status) && ' (BREACHED)'}
-                      </div>
-                    </div>
-
-                    <div style={{ marginTop: '16px' }}>
-                      <span style={styles.detailLabel}>Root Cause / Observed Reason:</span>
-                      <div style={styles.reasonBox}>{selectedCase.possible_reason || 'Under review by finance agent.'}</div>
-                    </div>
-
-                    {/* Status Update & Actions */}
-                    <div style={{ marginTop: '24px', borderTop: theme === 'dark' ? '1px solid #334155' : '1px solid #e2e8f0', paddingTop: '16px' }}>
-                      <label style={{ ...styles.label, marginBottom: '8px', display: 'block' }}>Update Status</label>
-                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                        {(['OPEN', 'IN_PROGRESS', 'RESOLVED'] as CaseStatus[]).map((st) => (
-                          <button
-                            key={st}
-                            onClick={() => handleStatusUpdate(selectedCase.id, st)}
-                            style={{
-                              ...styles.statusButton,
-                              ...(selectedCase.status === st ? styles.statusButtonActive : {}),
-                            }}
-                          >
-                            {st}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div style={{ marginTop: '20px' }}>
-                      <button
-                        onClick={() => handleEscalateCase(selectedCase.id)}
-                        disabled={selectedCase.escalation_level >= 3}
-                        style={{
-                          ...styles.primaryButton,
-                          width: '100%',
-                          backgroundColor: '#e11d48',
-                          borderColor: '#f43f5e',
-                          justifyContent: 'center',
-                        }}
+                    <div style={styles.fieldGroup}>
+                      <label style={styles.label}>Department / Cost Center</label>
+                      <select
+                        value={formData.department}
+                        onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                        style={styles.select}
                       >
-                        <Icons.Escalate />
-                        Escalate Case to Higher Authority
-                      </button>
-                      <p style={{ fontSize: '11px', color: '#64748b', textAlign: 'center', marginTop: '6px' }}>
-                        Moves case automatically to next role (Manager → Sr. Manager → CFO)
-                      </p>
+                        <option value="Engineering">Engineering</option>
+                        <option value="DevOps">DevOps</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Sales">Sales</option>
+                        <option value="HR & Operations">HR & Operations</option>
+                        <option value="Legal & Compliance">Legal & Compliance</option>
+                        <option value="Finance & Treasury">Finance & Treasury</option>
+                        {existingDepartments
+                          .filter((dept) => !['Engineering', 'DevOps', 'Marketing', 'Sales', 'HR & Operations', 'Legal & Compliance', 'Finance & Treasury'].includes(dept))
+                          .map((dept) => (
+                            <option key={dept} value={dept}>{dept}</option>
+                          ))}
+                        <option value="Custom">Custom Department...</option>
+                      </select>
+                    </div>
+
+                    {formData.department === 'Custom' && (
+                      <div style={styles.fieldGroup}>
+                        <label style={styles.label}>Custom Department Name</label>
+                        <input
+                          type="text"
+                          value={formData.customDepartment}
+                          onChange={(e) => setFormData({ ...formData, customDepartment: e.target.value })}
+                          placeholder="e.g. R&D, Logistics"
+                          required
+                          style={styles.input}
+                        />
+                      </div>
+                    )}
+
+                    <div style={styles.fieldGroup}>
+                      <label style={styles.label}>Budget Amount (₹)</label>
+                      <input
+                        type="number"
+                        step="any"
+                        value={formData.budget_amount}
+                        onChange={(e) => setFormData({ ...formData, budget_amount: e.target.value })}
+                        placeholder="0.00"
+                        required
+                        style={styles.input}
+                      />
+                    </div>
+
+                    <div style={styles.fieldGroup}>
+                      <label style={styles.label}>Actual Amount (₹)</label>
+                      <input
+                        type="number"
+                        step="any"
+                        value={formData.actual_amount}
+                        onChange={(e) => setFormData({ ...formData, actual_amount: e.target.value })}
+                        placeholder="0.00"
+                        required
+                        style={styles.input}
+                      />
                     </div>
                   </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+                </form>
 
-        {/* ============================================================== */}
-        {/* VIEW 4: FINANCE CHAT (RAG AI)                                  */}
-        {/* ============================================================== */}
-        {currentView === 'chat' && (
-          <div style={{ ...styles.viewContainer, flex: 1, height: '100%', minHeight: 0, gap: '10px' }}>
-            <header style={{ ...styles.viewHeader, marginBottom: '0px', flexShrink: 0 }}>
-              <h1 style={{ ...styles.viewTitle, fontSize: '24px' }}>FEMA Intelligence Chat</h1>
-              <p style={{ ...styles.viewDescription, marginTop: '2px', fontSize: '13px' }}>
-                Query your company ledger and exceptions in plain English. Answers are strictly grounded in stored financial records.
-              </p>
-            </header>
-
-            <div style={{ ...styles.chatShell, flex: 1, height: 'auto', minHeight: 0 }}>
-              {/* Message History */}
-              <div style={styles.chatLog}>
-                {chatMessages.map((msg: ChatMessage) => (
+                {formFeedback && (
                   <div
-                    key={msg.id}
                     style={{
-                      ...styles.chatBubbleContainer,
-                      justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start',
+                      marginTop: '18px',
+                      padding: '14px 20px',
+                      borderRadius: '8px',
+                      border: formFeedback.type === 'success' ? '1px solid #10b981' : '1px solid #ef4444',
+                      backgroundColor: formFeedback.type === 'success' ? '#064e3b' : '#7f1d1d',
+                      color: formFeedback.type === 'success' ? '#6ee7b7' : '#fca5a5',
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      boxShadow: formFeedback.type === 'success' ? '0 0 15px rgba(16, 185, 129, 0.25)' : 'none',
+                      animation: 'fadeIn 0.2s ease-in-out',
                     }}
                   >
-                    <div
-                      style={{
-                        ...styles.chatBubble,
-                        ...(msg.sender === 'user' ? styles.userBubble : styles.botBubble),
-                      }}
-                    >
-                      <div style={styles.chatBubbleHeader}>
-                        <span style={styles.chatSender}>
-                          {msg.sender === 'user' ? 'You' : 'FEMA Assistant'}
-                        </span>
-                        <span style={styles.chatTimestamp}>{msg.timestamp}</span>
-                      </div>
-                      <div style={styles.chatText}>{msg.text}</div>
-
-                      {msg.sources && msg.sources.length > 0 && (
-                        <div style={styles.sourceCitation}>
-                          <strong>Sources:</strong> {msg.sources.join(', ')}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-
-                {isChatThinking && (
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center', color: '#818cf8', fontSize: '13px' }}>
-                    <Icons.Bot />
-                    <span>Searching records and formulating answer...</span>
+                    {formFeedback.message}
                   </div>
                 )}
               </div>
 
-              {/* Sample Prompts */}
-              <div style={styles.promptChips}>
-                <span style={{ fontSize: '12px', color: '#64748b', marginRight: '4px' }}>Try asking:</span>
-                {[
-                  'Why did revenue decrease?',
-                  'How many critical exceptions are open?',
-                  'Show me overdue SLA cases',
-                ].map((prompt) => (
-                  <button
-                    key={prompt}
-                    onClick={() => setChatInput(prompt)}
-                    style={styles.chipButton}
+              {/* Records Ledger Table */}
+              <div style={styles.panel}>
+                <div style={styles.panelHeader}>
+                  <h3 style={styles.panelTitle}>Active Ledger Records ({records.length})</h3>
+                </div>
+
+                <div style={styles.tableWrapper}>
+                  <table style={styles.table}>
+                    <thead>
+                      <tr>
+                        <th style={styles.th}>Record ID</th>
+                        <th style={styles.th}>Period</th>
+                        <th style={styles.th}>Category</th>
+                        <th style={styles.th}>Department</th>
+                        <th style={styles.th}>Budget</th>
+                        <th style={styles.th}>Actual</th>
+                        <th style={styles.th}>Variance</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {records.length === 0 ? (
+                        <tr>
+                          <td colSpan={7} style={{ textAlign: 'center', padding: '36px', color: 'var(--fema-text-muted)', fontSize: '13px' }}>
+                            No financial ledger records found in database. Use the form above to add a new record.
+                          </td>
+                        </tr>
+                      ) : (
+                        records.map((r) => {
+                          const variance = r.variance_percent !== undefined
+                            ? r.variance_percent
+                            : r.budget_amount > 0
+                              ? Number((((r.actual_amount - r.budget_amount) / r.budget_amount) * 100).toFixed(2))
+                              : 0;
+                          const isHighRisk = Math.abs(variance) >= 20;
+
+                          return (
+                            <tr key={r.id} style={styles.tr}>
+                              <td style={styles.tdMono}>REC-#{r.id}</td>
+                              <td style={styles.td}>{r.period}</td>
+                              <td style={styles.td}>
+                                <span
+                                  style={{
+                                    ...styles.categoryPill,
+                                    backgroundColor: r.category === 'Revenue'
+                                      ? (theme === 'dark' ? '#1e1b4b' : '#eff6ff')
+                                      : (theme === 'dark' ? '#312e81' : '#faf5ff'),
+                                    color: r.category === 'Revenue'
+                                      ? (theme === 'dark' ? '#a5b4fc' : '#2563eb')
+                                      : (theme === 'dark' ? '#c084fc' : '#7e22ce'),
+                                    border: r.category === 'Revenue'
+                                      ? (theme === 'dark' ? '1px solid #3730a3' : '1px solid #bfdbfe')
+                                      : (theme === 'dark' ? '1px solid #4c1d95' : '1px solid #e9d5ff'),
+                                  }}
+                                >
+                                  {r.category}
+                                </span>
+                              </td>
+                              <td style={{ ...styles.td, fontWeight: 500, color: theme === 'dark' ? '#f1f5f9' : '#1e293b' }}>{r.department}</td>
+                              <td style={styles.tdMono}>{formatCurrency(r.budget_amount)}</td>
+                              <td style={styles.tdMono}>{formatCurrency(r.actual_amount)}</td>
+                              <td style={styles.td}>
+                                <span
+                                  style={{
+                                    ...styles.varianceBadge,
+                                    backgroundColor: isHighRisk
+                                      ? variance < 0
+                                        ? (theme === 'dark' ? '#450a0a' : '#fee2e2')
+                                        : (theme === 'dark' ? '#451a03' : '#fef3c7')
+                                      : (theme === 'dark' ? '#0f172a' : '#f1f5f9'),
+                                    color: variance < 0
+                                      ? (theme === 'dark' ? '#f87171' : '#dc2626')
+                                      : (theme === 'dark' ? '#fbbf24' : '#d97706'),
+                                    border: isHighRisk
+                                      ? '1px solid currentColor'
+                                      : (theme === 'dark' ? '1px solid #334155' : '1px solid #e2e8f0'),
+                                  }}
+                                >
+                                  {variance > 0 ? '+' : ''}
+                                  {variance}%
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        }))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ============================================================== */}
+          {/* VIEW 3: EXCEPTION CASES                                        */}
+          {/* ============================================================== */}
+          {currentView === 'exceptions' && (
+            <div style={styles.viewContainer}>
+              <header style={styles.viewHeader}>
+                <h1 style={styles.viewTitle}>Exceptions & SLA Management</h1>
+                <p style={styles.viewDescription}>
+                  Multi-agent triage, accountable owner assignments, SLA countdowns, and automated escalation.
+                </p>
+              </header>
+
+              {/* Filter Bar */}
+              <div style={styles.filterBar}>
+                <div style={styles.filterGroup}>
+                  <label style={styles.filterLabel}>Severity:</label>
+                  <select
+                    value={filterSeverity}
+                    onChange={(e) => setFilterSeverity(e.target.value)}
+                    style={styles.filterSelect}
                   >
-                    {prompt}
+                    <option value="">All Severities</option>
+                    <option value="CRITICAL">Critical</option>
+                    <option value="HIGH">High</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="LOW">Low</option>
+                  </select>
+                </div>
+
+                <div style={styles.filterGroup}>
+                  <label style={styles.filterLabel}>Status:</label>
+                  <select
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                    style={styles.filterSelect}
+                  >
+                    <option value="">All Statuses</option>
+                    <option value="OPEN">Open</option>
+                    <option value="IN_PROGRESS">In Progress</option>
+                    <option value="RESOLVED">Resolved</option>
+                    <option value="ESCALATED">Escalated</option>
+                  </select>
+                </div>
+
+                <button
+                  onClick={() => setShowOverdueOnly(!showOverdueOnly)}
+                  style={{
+                    ...styles.filterToggle,
+                    ...(showOverdueOnly ? styles.filterToggleActive : {}),
+                  }}
+                >
+                  <Icons.AlertCircle />
+                  Overdue SLA Only
+                </button>
+
+                {(filterSeverity || filterStatus || showOverdueOnly) && (
+                  <button
+                    onClick={() => {
+                      setFilterSeverity('');
+                      setFilterStatus('');
+                      setShowOverdueOnly(false);
+                    }}
+                    style={styles.textButton}
+                  >
+                    Reset Filters
                   </button>
-                ))}
+                )}
               </div>
 
-              {/* Chat Input Bar */}
-              <form onSubmit={handleSendChat} style={styles.chatInputRow}>
-                <input
-                  type="text"
-                  value={chatInput}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setChatInput(e.target.value)}
-                  placeholder="Ask a question regarding financial records, owners, or variances..."
-                  style={styles.chatInput}
-                />
-                <button type="submit" disabled={isChatThinking || !chatInput.trim()} style={styles.chatSendButton}>
-                  <Icons.Send />
-                  Send
-                </button>
-              </form>
+              {/* Exception Cases Ledger */}
+              <div style={styles.panel}>
+                <div style={styles.panelHeader}>
+                  <h3 style={styles.panelTitle}>Tracked Exceptions ({filteredExceptions.length})</h3>
+                  <span style={{ fontSize: '12px', color: '#94a3b8' }}>Click row to view details & audit trail</span>
+                </div>
+
+                <div style={styles.tableWrapper}>
+                  <table style={styles.table}>
+                    <thead>
+                      <tr>
+                        <th style={styles.th}>Case ID</th>
+                        <th style={styles.th}>Record Ref</th>
+                        <th style={styles.th}>Variance</th>
+                        <th style={styles.th}>Severity</th>
+                        <th style={styles.th}>Status</th>
+                        <th style={styles.th}>Accountable Owner</th>
+                        <th style={styles.th}>SLA Deadline</th>
+                        <th style={{ ...styles.th, textAlign: 'center' }}>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredExceptions.length === 0 ? (
+                        <tr>
+                          <td colSpan={8} style={{ textAlign: 'center', padding: '36px', color: 'var(--fema-text-muted)', fontSize: '13px' }}>
+                            No exception cases found. Post financial records and run monitoring to detect anomalies.
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredExceptions.map((c) => {
+                          const overdue = isCaseOverdue(c.sla_deadline, c.status);
+                          return (
+                            <tr
+                              key={c.id}
+                              onClick={() => setSelectedCase(c)}
+                              style={{
+                                ...styles.tr,
+                                cursor: 'pointer',
+                                backgroundColor: selectedCase?.id === c.id ? (theme === 'dark' ? '#1e293b' : '#f1f5f9') : 'transparent',
+                              }}
+                            >
+                              <td style={styles.tdMono}>
+                                <strong>CASE-{c.id}</strong>
+                              </td>
+                              <td style={styles.tdMono}>REC-#{c.financial_record_id}</td>
+                              <td style={styles.td}>
+                                <span style={{ fontWeight: 600, color: c.variance_percent < 0 ? (theme === 'dark' ? '#f87171' : '#dc2626') : (theme === 'dark' ? '#fbbf24' : '#d97706') }}>
+                                  {c.variance_percent > 0 ? '+' : ''}
+                                  {c.variance_percent}%
+                                </span>
+                              </td>
+                              <td style={styles.td}>
+                                <span style={{ ...styles.badge, ...getSeverityBadgeInline(c.severity, theme) }}>
+                                  {c.severity}
+                                </span>
+                              </td>
+                              <td style={styles.td}>
+                                <span style={{ ...styles.badge, ...getStatusBadgeInline(c.status, theme) }}>
+                                  {c.status}
+                                </span>
+                              </td>
+                              <td style={styles.td}>
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                  <span style={{ fontSize: '13px', fontWeight: 500, color: theme === 'dark' ? '#f1f5f9' : '#1e293b' }}>
+                                    {c.owner?.name || 'Unassigned'}
+                                  </span>
+                                  <span style={{ fontSize: '11px', color: theme === 'dark' ? '#94a3b8' : '#64748b' }}>{c.owner?.role}</span>
+                                </div>
+                              </td>
+                              <td style={styles.td}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                  {overdue && (
+                                    <span title="SLA Overdue" style={{ color: '#ef4444' }}>
+                                      <Icons.AlertCircle />
+                                    </span>
+                                  )}
+                                  <span
+                                    style={{
+                                      fontSize: '12px',
+                                      fontFamily: 'monospace',
+                                      color: overdue ? '#ef4444' : (theme === 'dark' ? '#cbd5e1' : '#334155'),
+                                    }}
+                                  >
+                                    {new Date(c.sla_deadline).toLocaleDateString()}
+                                  </span>
+                                </div>
+                              </td>
+                              <td style={{ ...styles.td, textAlign: 'center' }}>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedCase(c);
+                                  }}
+                                  style={styles.miniButton}
+                                >
+                                  Inspect →
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        }))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Case Details Drawer / Panel */}
+              {selectedCase && (
+                <div style={styles.drawerOverlay} onClick={() => setSelectedCase(null)}>
+                  <div style={styles.drawer} onClick={(e) => e.stopPropagation()}>
+                    <div style={styles.drawerHeader}>
+                      <div>
+                        <span style={{ fontSize: '12px', color: theme === 'dark' ? '#818cf8' : '#2563eb', fontWeight: 600, letterSpacing: '0.05em' }}>
+                          EXCEPTION DETAIL
+                        </span>
+                        <h2 style={{ fontSize: '20px', margin: '4px 0 0 0', color: theme === 'dark' ? '#f8fafc' : '#1e293b' }}>
+                          Case #{selectedCase.id}
+                        </h2>
+                      </div>
+                      <button onClick={() => setSelectedCase(null)} style={styles.closeButton}>
+                        ✕
+                      </button>
+                    </div>
+
+                    <div style={styles.drawerBody}>
+                      <div style={styles.detailRow}>
+                        <span style={styles.detailLabel}>Variance Impact:</span>
+                        <span style={{ fontSize: '18px', fontWeight: 700, color: selectedCase.variance_percent < 0 ? (theme === 'dark' ? '#f87171' : '#dc2626') : (theme === 'dark' ? '#fbbf24' : '#d97706') }}>
+                          {selectedCase.variance_percent > 0 ? '+' : ''}
+                          {selectedCase.variance_percent}%
+                        </span>
+                      </div>
+
+                      <div style={styles.detailRow}>
+                        <span style={styles.detailLabel}>Severity:</span>
+                        <span style={{ ...styles.badge, ...getSeverityBadgeInline(selectedCase.severity, theme) }}>
+                          {selectedCase.severity}
+                        </span>
+                      </div>
+
+                      <div style={styles.detailRow}>
+                        <span style={styles.detailLabel}>Escalation Level:</span>
+                        <span style={{ color: theme === 'dark' ? '#e2e8f0' : '#1e293b', fontWeight: 600 }}>
+                          Level {selectedCase.escalation_level} of 4
+                        </span>
+                      </div>
+
+                      <div style={styles.detailRow}>
+                        <span style={styles.detailLabel}>Assigned Owner:</span>
+                        <div>
+                          <div style={{ color: theme === 'dark' ? '#f1f5f9' : '#1e293b', fontWeight: 600 }}>{selectedCase.owner?.name}</div>
+                          <div style={{ fontSize: '12px', color: theme === 'dark' ? '#94a3b8' : '#64748b' }}>{selectedCase.owner?.role}</div>
+                        </div>
+                      </div>
+
+                      <div style={styles.detailRow}>
+                        <span style={styles.detailLabel}>SLA Deadline:</span>
+                        <div style={{ color: isCaseOverdue(selectedCase.sla_deadline, selectedCase.status) ? '#ef4444' : (theme === 'dark' ? '#f1f5f9' : '#1e293b') }}>
+                          {new Date(selectedCase.sla_deadline).toLocaleString()}
+                          {isCaseOverdue(selectedCase.sla_deadline, selectedCase.status) && ' (BREACHED)'}
+                        </div>
+                      </div>
+
+                      <div style={{ marginTop: '16px' }}>
+                        <span style={styles.detailLabel}>Root Cause / Observed Reason:</span>
+                        <div style={styles.reasonBox}>{selectedCase.possible_reason || 'Under review by finance agent.'}</div>
+                      </div>
+
+                      {/* Status Update & Actions */}
+                      <div style={{ marginTop: '24px', borderTop: theme === 'dark' ? '1px solid #334155' : '1px solid #e2e8f0', paddingTop: '16px' }}>
+                        <label style={{ ...styles.label, marginBottom: '8px', display: 'block' }}>Update Status</label>
+                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                          {(['OPEN', 'IN_PROGRESS', 'RESOLVED'] as CaseStatus[]).map((st) => (
+                            <button
+                              key={st}
+                              onClick={() => handleStatusUpdate(selectedCase.id, st)}
+                              style={{
+                                ...styles.statusButton,
+                                ...(selectedCase.status === st ? styles.statusButtonActive : {}),
+                              }}
+                            >
+                              {st}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div style={{ marginTop: '20px' }}>
+                        <button
+                          onClick={() => handleEscalateCase(selectedCase.id)}
+                          disabled={selectedCase.escalation_level >= 3}
+                          style={{
+                            ...styles.primaryButton,
+                            width: '100%',
+                            backgroundColor: '#e11d48',
+                            borderColor: '#f43f5e',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <Icons.Escalate />
+                          Escalate Case to Higher Authority
+                        </button>
+                        <p style={{ fontSize: '11px', color: '#64748b', textAlign: 'center', marginTop: '6px' }}>
+                          Moves case automatically to next role (Manager → Sr. Manager → CFO)
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-        )}
-      </main>
+          )}
+
+          {/* ============================================================== */}
+          {/* VIEW 4: FINANCE CHAT (RAG AI)                                  */}
+          {/* ============================================================== */}
+          {currentView === 'chat' && (
+            <div style={{ ...styles.viewContainer, flex: 1, height: '100%', minHeight: 0, gap: '10px' }}>
+              <header style={{ ...styles.viewHeader, marginBottom: '0px', flexShrink: 0 }}>
+                <h1 style={{ ...styles.viewTitle, fontSize: '24px' }}>FEMA Intelligence Chat</h1>
+                <p style={{ ...styles.viewDescription, marginTop: '2px', fontSize: '13px' }}>
+                  Investigate financial exceptions and budget variances, powered by RAG.
+                </p>
+              </header>
+
+              <div style={{ ...styles.chatShell, flex: 1, height: 'auto', minHeight: 0 }}>
+                {/* Message History */}
+                <div style={styles.chatLog}>
+                  {chatMessages.map((msg: ChatMessage) => (
+                    <div
+                      key={msg.id}
+                      style={{
+                        ...styles.chatBubbleContainer,
+                        justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start',
+                      }}
+                    >
+                      <div
+                        style={{
+                          ...styles.chatBubble,
+                          ...(msg.sender === 'user' ? styles.userBubble : styles.botBubble),
+                        }}
+                      >
+                        <div style={styles.chatBubbleHeader}>
+                          <span style={styles.chatSender}>
+                            {msg.sender === 'user' ? 'You' : 'FEMA Assistant'}
+                          </span>
+                          <span style={styles.chatTimestamp}>{msg.timestamp}</span>
+                        </div>
+                        <div style={styles.chatText}>{msg.text}</div>
+
+                      </div>
+                    </div>
+                  ))}
+
+                  {isChatThinking && (
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', color: '#818cf8', fontSize: '13px' }}>
+                      <Icons.Bot />
+                      <span>Searching records and formulating answer...</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Sample Prompts */}
+                <div style={styles.promptChips}>
+                  <span style={{ fontSize: '12px', color: '#64748b', marginRight: '4px' }}>Try asking:</span>
+                  {[
+                    'Why did revenue decrease?',
+                    'How many critical exceptions are open?',
+                    'Show me overdue SLA cases',
+                  ].map((prompt) => (
+                    <button
+                      key={prompt}
+                      onClick={() => setChatInput(prompt)}
+                      style={styles.chipButton}
+                    >
+                      {prompt}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Chat Input Bar */}
+                <form onSubmit={handleSendChat} style={styles.chatInputRow}>
+                  <input
+                    type="text"
+                    value={chatInput}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setChatInput(e.target.value)}
+                    placeholder="Ask a question regarding financial records, owners, or variances..."
+                    style={styles.chatInput}
+                  />
+                  <button type="submit" disabled={isChatThinking || !chatInput.trim()} style={styles.chatSendButton}>
+                    <Icons.Send />
+                    Send
+                  </button>
+                </form>
+              </div>
+            </div>
+          )}
+        </main>
       </div>
       <AuthModal
         isOpen={authModalOpen}
@@ -2562,11 +2590,19 @@ function getStyles(theme: 'dark' | 'light'): Record<string, React.CSSProperties>
       backgroundColor: isDark ? '#090d16' : '#f8fafc',
       border: isDark ? '1px solid #334155' : '1px solid #e2e8f0',
       borderRadius: '10px',
-      padding: '10px 14px',
+      padding: '10px 36px 10px 14px',
       color: isDark ? '#f8fafc' : '#1e293b',
       fontSize: '14px',
       outline: 'none',
       transition: 'border-color 0.15s ease',
+      appearance: 'none',
+      WebkitAppearance: 'none',
+      MozAppearance: 'none',
+      cursor: 'pointer',
+      backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='${isDark ? '%2394a3b8' : '%2364748b'}' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+      backgroundRepeat: 'no-repeat',
+      backgroundPosition: 'right 12px center',
+      backgroundSize: '14px',
     },
     primaryButton: {
       display: 'inline-flex',
@@ -2705,10 +2741,17 @@ function getStyles(theme: 'dark' | 'light'): Record<string, React.CSSProperties>
       backgroundColor: isDark ? '#090d16' : '#f8fafc',
       border: isDark ? '1px solid #334155' : '1px solid #e2e8f0',
       color: isDark ? '#f8fafc' : '#1e293b',
-      padding: '7px 12px',
+      padding: '7px 32px 7px 12px',
       borderRadius: '8px',
       fontSize: '13px',
       outline: 'none',
+      appearance: 'none',
+      WebkitAppearance: 'none',
+      MozAppearance: 'none',
+      backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='${isDark ? '%2394a3b8' : '%2364748b'}' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+      backgroundRepeat: 'no-repeat',
+      backgroundPosition: 'right 10px center',
+      backgroundSize: '14px',
     },
     filterToggle: {
       display: 'inline-flex',

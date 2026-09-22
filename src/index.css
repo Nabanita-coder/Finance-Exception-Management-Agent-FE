@@ -114,6 +114,7 @@ html, body, #root {
   color: var(--fema-text-primary);
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overflow-x: hidden;
+  scroll-behavior: smooth;
   transition: background-color 0.25s ease, color 0.25s ease;
 }
 
@@ -164,6 +165,35 @@ html, body, #root {
   align-items: center;
   justify-content: space-between;
   transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.fema-landing-nav-link {
+  position: relative;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.fema-landing-nav-link:hover {
+  color: var(--fema-text-primary) !important;
+}
+
+.fema-landing-nav-link::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 2px;
+  bottom: -4px;
+  left: 0;
+  background-color: var(--fema-accent-indigo);
+  transform-origin: bottom right;
+  transition: transform 0.25s ease-out;
+  border-radius: 2px;
+}
+
+.fema-landing-nav-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
 }
 
 .landing-brand-badge {
@@ -3059,7 +3089,211 @@ body[data-theme="dark"] .fema-auth-error {
   transform: rotate(90deg);
   transition: transform 0.1s ease;
 }
+.fema-lifecycle-count {
+  font-size: 20px;
+  font-weight: 800;
+  font-family: 'IBM Plex Mono', monospace;
+}
 
+.fema-lifecycle-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--fema-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
 
+/* AI Threshold Zone Visualization */
+.fema-zone-visualizer {
+  background-color: var(--fema-surface-subtle);
+  border: 1px solid var(--fema-border);
+  border-radius: 12px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 
+.fema-zone-bar {
+  position: relative;
+  width: 100%;
+  height: 24px;
+  border-radius: 6px;
+  background: linear-gradient(to right, #10b981 0%, #10b981 35%, #f59e0b 35%, #f59e0b 65%, #ef4444 65%, #ef4444 100%);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
 
+.fema-zone-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--fema-text-secondary);
+}
+
+.fema-zone-cutoff-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: #ffffff;
+  box-shadow: 0 0 6px #ffffff;
+}
+
+.fema-shortcuts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.fema-shortcut-card {
+  background-color: var(--fema-surface);
+  border: 1px solid var(--fema-border);
+  border-radius: var(--fema-card-radius);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: var(--fema-card-shadow);
+  transition: all 0.2s ease;
+}
+
+.fema-shortcut-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--fema-accent-indigo);
+  box-shadow: var(--fema-card-shadow-hover);
+}
+
+.fema-shortcut-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fema-shortcut-icon {
+  font-size: 22px;
+}
+
+.fema-shortcut-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--fema-text-primary);
+}
+
+.fema-shortcut-desc {
+  font-size: 12px;
+  color: var(--fema-text-secondary);
+  line-height: 1.4;
+}
+
+.fema-shortcut-action {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fema-accent-indigo);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: auto;
+}
+
+/* ==========================================================================
+   SMOOTH SIDEBAR NAVIGATION TRANSITIONS
+   ========================================================================== */
+.fema-sidebar-smooth {
+  transition: width 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+              min-width 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+              padding 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+              background-color 0.25s ease,
+              border-color 0.25s ease !important;
+  will-change: width, min-width;
+}
+
+.fema-nav-label-smooth {
+  transition: opacity 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
+              max-width 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+              transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+  will-change: opacity, max-width, transform;
+}
+
+.fema-nav-btn-smooth {
+  transition: background-color 0.18s ease,
+              color 0.18s ease,
+              padding 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+              transform 0.15s ease !important;
+}
+
+.fema-nav-btn-smooth:hover {
+  transform: translateX(2px);
+}
+
+.fema-collapse-btn-smooth {
+  transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+}
+
+.fema-collapse-btn-smooth:hover {
+  transform: scale(1.08);
+  border-color: var(--fema-accent-indigo) !important;
+  color: var(--fema-accent-indigo) !important;
+}
+
+/* ==========================================================================
+   REFRESH BUTTON ANIMATIONS (Smooth Rotating & Hover Motion)
+   ========================================================================== */
+@keyframes femaSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes femaPulseRotate {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.05);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+.fema-refresh-btn {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.fema-refresh-btn:hover {
+  transform: translateY(-2px);
+  border-color: var(--fema-accent-indigo) !important;
+  color: var(--fema-accent-indigo) !important;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+}
+
+.fema-refresh-btn.is-loading svg {
+  animation: femaSpin 0.65s linear infinite !important;
+}
+
+.fema-refresh-btn:active svg {
+  transform: rotate(90deg);
+  transition: transform 0.1s ease;
+}
+
+.fema-header-action-btn {
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+}
+
+.fema-header-action-btn:hover {
+  transform: scale(1.06) translateY(-2px);
+}
+
+.fema-signin-btn:hover {
+  background-color: var(--fema-surface-muted) !important;
+  color: var(--fema-accent-indigo) !important;
+  border-color: var(--fema-accent-indigo) !important;
+}

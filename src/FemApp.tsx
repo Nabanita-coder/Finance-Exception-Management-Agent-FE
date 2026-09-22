@@ -1751,6 +1751,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                                   <Icons.AlertCircle />
                                 </span>
                               )}
+
                               <span
                                 style={{
                                   fontSize: '12px',
@@ -1893,10 +1894,10 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
         {/* ============================================================== */}
         {currentView === 'chat' && (
           <div style={styles.viewContainer}>
-            <header style={styles.viewHeader}>
-              <h1 style={styles.viewTitle}>FEMA Intelligence Chat</h1>
-              <p style={styles.viewDescription}>
-                Query your company ledger and exceptions in plain English. Answers are strictly grounded in stored financial records.
+            <header style={{ ...styles.viewHeader, marginBottom: '0px', flexShrink: 0 }}>
+              <h1 style={{ ...styles.viewTitle, fontSize: '24px' }}>FEMA Intelligence Chat</h1>
+              <p style={{ ...styles.viewDescription, marginTop: '2px', fontSize: '13px' }}>
+                Investigate financial exceptions and budget variances, powered by RAG.
               </p>
             </header>
 
@@ -2824,6 +2825,7 @@ function getStyles(theme: 'dark' | 'light'): Record<string, React.CSSProperties>
       fontSize: '14px',
       outline: 'none',
     },
+
     chatSendButton: {
       display: 'inline-flex',
       alignItems: 'center',

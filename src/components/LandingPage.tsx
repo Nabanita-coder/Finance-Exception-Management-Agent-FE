@@ -178,16 +178,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
         {/* Links */}
         <nav style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
-          <a href="#roles" style={{ fontSize: '14px', fontWeight: 500, color: 'var(--fema-text-secondary)', textDecoration: 'none' }}>
+          <a href="#roles" className="fema-landing-nav-link" style={{ fontSize: '14px', fontWeight: 500, color: 'var(--fema-text-secondary)', textDecoration: 'none' }}>
             Roles & Personas
           </a>
-          <a href="#simulator" style={{ fontSize: '14px', fontWeight: 500, color: 'var(--fema-text-secondary)', textDecoration: 'none' }}>
+          <a href="#simulator" className="fema-landing-nav-link" style={{ fontSize: '14px', fontWeight: 500, color: 'var(--fema-text-secondary)', textDecoration: 'none' }}>
             Live Simulator
           </a>
-          <a href="#pipeline" style={{ fontSize: '14px', fontWeight: 500, color: 'var(--fema-text-secondary)', textDecoration: 'none' }}>
+          <a href="#pipeline" className="fema-landing-nav-link" style={{ fontSize: '14px', fontWeight: 500, color: 'var(--fema-text-secondary)', textDecoration: 'none' }}>
             Agentic Pipeline
           </a>
-          <a href="#governance" style={{ fontSize: '14px', fontWeight: 500, color: 'var(--fema-text-secondary)', textDecoration: 'none' }}>
+          <a href="#governance" className="fema-landing-nav-link" style={{ fontSize: '14px', fontWeight: 500, color: 'var(--fema-text-secondary)', textDecoration: 'none' }}>
             SOX 404 & HITL
           </a>
         </nav>
@@ -195,6 +195,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         {/* Actions */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
           <button
+            className="fema-header-action-btn"
             onClick={() => setTheme(isDark ? 'light' : 'dark')}
             style={{
               width: '38px',
@@ -238,6 +239,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           ) : (
             <>
               <button
+                className="fema-header-action-btn fema-signin-btn"
                 onClick={() => onOpenAuth ? onOpenAuth('login') : handleLaunch('dashboard')}
                 style={{
                   padding: '9px 18px',
@@ -253,6 +255,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 Sign In
               </button>
               <button
+                className="fema-header-action-btn"
                 onClick={() => onOpenAuth ? onOpenAuth('register') : handleLaunch('dashboard')}
                 style={{
                   padding: '9px 18px',
