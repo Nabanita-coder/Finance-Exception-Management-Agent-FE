@@ -10,8 +10,8 @@ export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:50
 
 // 1. Authentication & Role Endpoints
 export const AUTH_ENDPOINTS = {
-  LOGIN: `${API_BASE_URL}/api/auth/login`,
-  REGISTER: `${API_BASE_URL}/api/auth/register`,
+  LOGIN: `/api/auth/login`,
+  REGISTER: `/api/auth/register`,
   ME: `${API_BASE_URL}/api/auth/me`,
   ROLES: `${API_BASE_URL}/api/auth/roles`,
 };
