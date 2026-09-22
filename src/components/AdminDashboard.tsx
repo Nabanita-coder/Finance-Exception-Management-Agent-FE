@@ -71,7 +71,7 @@ interface ExceptionCase {
 
 interface AdminDashboardProps {
   activeSection?: "all" | "health" | "thresholds" | "users" | "logs";
-  onNavigateSection?: (section: "health" | "thresholds" | "users" | "logs") => void;
+  onNavigateSection?: (section: "health" | "thresholds" | "users" | "logs" | "trail" | "compliance" | "hitl" | "export") => void;
 }
 
 // ============================================================================
@@ -191,10 +191,15 @@ interface DeptStat {
 const DepartmentalGroupedBarChart: React.FC<{ data: DeptStat[] }> = ({ data }) => {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
-  const displayData = data.length > 0 ? data : [
-    { department: "DevOps", budget: 300000, actual: 440000, varianceAmt: 140000, variancePct: 46.7, exceptions: 2 },
-    { department: "Marketing", budget: 48000, actual: 4, varianceAmt: -47996, variancePct: -100.0, exceptions: 1 },
-  ];
+  if (!data || data.length === 0) {
+    return (
+      <div style={{ textAlign: "center", padding: "48px 20px", color: "var(--fema-text-muted)", fontSize: "13px" }}>
+        No departmental ledger records available yet. Add financial entries in the Financial Records tab to view real-time department comparisons.
+      </div>
+    );
+  }
+
+  const displayData = data;
 
   // Totals for the bottom summary strip
   const totalBudget = displayData.reduce((acc, d) => acc + d.budget, 0);
@@ -728,7 +733,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       {/* View Header */}
       <div className="fema-view-header">
         <div>
-          <div className="fema-role-tag">ROLE 0: SYSTEM ADMINISTRATOR</div>
+          <div className="fema-role-tag">ROLE 0: ADMIN & COMPLIANCE GOVERNANCE</div>
           <h1 className="fema-view-title">
             {activeSection === "health"
               ? "Financial Systems & Integration Health"
@@ -1066,7 +1071,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
                 <div className="fema-shortcut-title">User Directory & Access</div>
                 <div className="fema-shortcut-desc">
-                  Assign user roles (Admin, Analyst, CFO, Auditor) and manage operator privileges.
+                  Assign user roles (Admin & Compliance, Finance Analyst, CFO) and manage operator privileges.
                 </div>
                 <div className="fema-shortcut-action">Manage Access &rarr;</div>
               </div>
@@ -1084,6 +1089,72 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   Review raw sync notifications, audit trails, and reconciliation error console traces.
                 </div>
                 <div className="fema-shortcut-action">View Sync Logs &rarr;</div>
+              </div>
+            </div>
+
+            {/* Compliance & Audit Governance Modules for Role 0 */}
+            <h3 style={{ fontSize: "15px", fontWeight: 700, color: "var(--fema-text-primary)", margin: "24px 0 12px" }}>
+              Audit & Compliance Governance Modules
+            </h3>
+            <div className="fema-shortcuts-grid">
+              <div
+                className="fema-shortcut-card"
+                onClick={() => onNavigateSection && onNavigateSection("trail")}
+              >
+                <div className="fema-shortcut-top">
+                  <span className="fema-shortcut-icon">📜</span>
+                  <Badge variant="amber" size="sm">Immutable Ledger</Badge>
+                </div>
+                <div className="fema-shortcut-title">Audit Trail Feed</div>
+                <div className="fema-shortcut-desc">
+                  Cryptographically track ledger updates, AI variance computations, and operator interventions.
+                </div>
+                <div className="fema-shortcut-action">Inspect Audit Trail &rarr;</div>
+              </div>
+
+              <div
+                className="fema-shortcut-card"
+                onClick={() => onNavigateSection && onNavigateSection("compliance")}
+              >
+                <div className="fema-shortcut-top">
+                  <span className="fema-shortcut-icon">🎯</span>
+                  <Badge variant="success" size="sm">SLA Matrix</Badge>
+                </div>
+                <div className="fema-shortcut-title">SLA Compliance Stats</div>
+                <div className="fema-shortcut-desc">
+                  Monitor SLA adherence rates, overdue escalations, and department resolution benchmarks.
+                </div>
+                <div className="fema-shortcut-action">View Compliance Stats &rarr;</div>
+              </div>
+
+              <div
+                className="fema-shortcut-card"
+                onClick={() => onNavigateSection && onNavigateSection("hitl")}
+              >
+                <div className="fema-shortcut-top">
+                  <span className="fema-shortcut-icon">⚖️</span>
+                  <Badge variant="purple" size="sm">SOX 404</Badge>
+                </div>
+                <div className="fema-shortcut-title">HITL Governance Ratio</div>
+                <div className="fema-shortcut-desc">
+                  Ensure human oversight compliance: AI proposals vs human approvals verification ratio.
+                </div>
+                <div className="fema-shortcut-action">View HITL Governance &rarr;</div>
+              </div>
+
+              <div
+                className="fema-shortcut-card"
+                onClick={() => onNavigateSection && onNavigateSection("export")}
+              >
+                <div className="fema-shortcut-top">
+                  <span className="fema-shortcut-icon">📥</span>
+                  <Badge variant="info" size="sm">JSON / CSV</Badge>
+                </div>
+                <div className="fema-shortcut-title">Export Compliance Reports</div>
+                <div className="fema-shortcut-desc">
+                  Download certified audit bundles and exception logs for regulatory board submissions.
+                </div>
+                <div className="fema-shortcut-action">Generate & Export &rarr;</div>
               </div>
             </div>
           </div>
@@ -1612,20 +1683,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         const adminCount = users.filter((u) => u.role_id === 0).length;
         const analystCount = users.filter((u) => u.role_id === 1).length;
         const cfoCount = users.filter((u) => u.role_id === 2).length;
-        const auditorCount = users.filter((u) => u.role_id === 3).length;
 
         const getRolePresentation = (roleId: number) => {
           switch (roleId) {
             case 0:
-              return { label: "System Administrator", icon: "🛡️", variant: "danger" as const, gradient: "linear-gradient(135deg, #ef4444, #991b1b)" };
+              return { label: "Admin & Compliance", icon: "🛡️", variant: "danger" as const, gradient: "linear-gradient(135deg, #ef4444, #0891b2)" };
             case 1:
               return { label: "Finance Analyst", icon: "📊", variant: "primary" as const, gradient: "linear-gradient(135deg, #6366f1, #4338ca)" };
             case 2:
               return { label: "Executive CFO", icon: "💼", variant: "purple" as const, gradient: "linear-gradient(135deg, #a855f7, #7e22ce)" };
-            case 3:
-              return { label: "Compliance Auditor", icon: "🔍", variant: "amber" as const, gradient: "linear-gradient(135deg, #f59e0b, #b45309)" };
             default:
-              return { label: "Standard Operator", icon: "👤", variant: "neutral" as const, gradient: "linear-gradient(135deg, #64748b, #334155)" };
+              return { label: "Admin & Compliance", icon: "🛡️", variant: "danger" as const, gradient: "linear-gradient(135deg, #ef4444, #0891b2)" };
           }
         };
 
@@ -1667,8 +1735,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               <div className="fema-kpi-card-compact">
                 <div className="fema-kpi-compact-info">
-                  <span className="fema-kpi-compact-label">System Admins</span>
-                  <span className="fema-kpi-compact-val">{adminCount} Root</span>
+                  <span className="fema-kpi-compact-label">Admin & Compliance</span>
+                  <span className="fema-kpi-compact-val">{adminCount} Officers</span>
                   <span className="fema-kpi-compact-sub" style={{ color: "#f43f5e" }}>Role 0 Governance</span>
                 </div>
                 <span style={{ fontSize: "20px" }}>🛡️</span>
@@ -1685,11 +1753,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               <div className="fema-kpi-card-compact">
                 <div className="fema-kpi-compact-info">
-                  <span className="fema-kpi-compact-label">Executive & Audit</span>
-                  <span className="fema-kpi-compact-val">{cfoCount + auditorCount} Officers</span>
-                  <span className="fema-kpi-compact-sub" style={{ color: "#a855f7" }}>CFO & SOX Oversight</span>
+                  <span className="fema-kpi-compact-label">Executive CFOs</span>
+                  <span className="fema-kpi-compact-val">{cfoCount} Leaders</span>
+                  <span className="fema-kpi-compact-sub" style={{ color: "#a855f7" }}>Strategic Oversight</span>
                 </div>
-                <span style={{ fontSize: "20px" }}>⚖️</span>
+                <span style={{ fontSize: "20px" }}>💼</span>
               </div>
             </div>
 
@@ -1738,10 +1806,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     onChange={(e) => setUserRoleFilter(e.target.value)}
                   >
                     <option value="all">All Roles ({users.length})</option>
-                    <option value="0">System Admin ({adminCount})</option>
+                    <option value="0">Admin & Compliance ({adminCount})</option>
                     <option value="1">Finance Analyst ({analystCount})</option>
                     <option value="2">Executive CFO ({cfoCount})</option>
-                    <option value="3">Compliance Auditor ({auditorCount})</option>
                   </select>
 
                   <span style={{ fontSize: "12px", color: "var(--fema-text-secondary)" }}>
@@ -1929,10 +1996,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               value={newRoleId}
               onChange={(e) => setNewRoleId(Number(e.target.value))}
             >
-              <option value={0}>Role 0: System Administrator (Full System Access)</option>
-              <option value={1}>Role 1: Finance Analyst / Accountable Owner (My Tasks & SLA)</option>
-              <option value={2}>Role 2: Finance Leadership / Executive (CFO KPIs)</option>
-              <option value={3}>Role 3: Compliance Auditor (Audit Trail & Reports)</option>
+              <option value={0}>Role 0: Admin & Compliance Officer (Full System, SOX 404 & Audit Trail)</option>
+              <option value={1}>Role 1: Finance Analyst / Accountable Owner (My Tasks & Root-Cause SLA)</option>
+              <option value={2}>Role 2: Finance Leadership / Executive (CFO KPIs & Material Risks)</option>
             </select>
           </div>
           <div className="fema-modal-actions">

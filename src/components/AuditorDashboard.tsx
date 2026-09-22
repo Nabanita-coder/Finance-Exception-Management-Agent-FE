@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { AUDITOR_ENDPOINTS, getAuthHeaders } from "../config/apiConfig";
+import { AUDITOR_ENDPOINTS, COMMON_ENDPOINTS, getAuthHeaders } from "../config/apiConfig";
 import { Badge } from "./Badge";
 import { Modal } from "./Modal";
 
@@ -42,7 +42,7 @@ interface AuditorDashboardProps {
   activeSection?: "all" | "trail" | "compliance" | "hitl" | "export";
 }
 
-// Departmental compliance mock benchmark data for audit reporting
+// Departmental compliance benchmark data interface for audit reporting
 interface DeptSlaBenchmark {
   department: string;
   cases: number;
@@ -53,76 +53,43 @@ interface DeptSlaBenchmark {
   status: "COMPLIANT" | "BREACHED" | "EXCEEDING";
 }
 
-const DEPT_BENCHMARKS: DeptSlaBenchmark[] = [
-  {
-    department: "Cloud Infrastructure (DevOps)",
-    cases: 2,
-    targetSlaHours: 24,
-    actualAvgHours: 29.4,
-    onTimePct: 75.0,
-    urgency: "CRITICAL",
-    status: "BREACHED",
-  },
-  {
-    department: "Enterprise Sales",
-    cases: 1,
-    targetSlaHours: 48,
-    actualAvgHours: 36.2,
-    onTimePct: 92.5,
-    urgency: "CRITICAL",
-    status: "COMPLIANT",
-  },
-  {
-    department: "Talent Acquisition",
-    cases: 1,
-    targetSlaHours: 24,
-    actualAvgHours: 21.0,
-    onTimePct: 94.0,
-    urgency: "HIGH",
-    status: "COMPLIANT",
-  },
-  {
-    department: "Marketing & Growth",
-    cases: 1,
-    targetSlaHours: 48,
-    actualAvgHours: 18.5,
-    onTimePct: 100.0,
-    urgency: "MEDIUM",
-    status: "EXCEEDING",
-  },
-  {
-    department: "SMB Operations",
-    cases: 0,
-    targetSlaHours: 48,
-    actualAvgHours: 24.0,
-    onTimePct: 100.0,
-    urgency: "LOW",
-    status: "EXCEEDING",
-  },
-];
-
 // ============================================================================
 // DEDICATED DOMAIN CHART: Auditor Compliance & Governance Matrix (Dashboard Only)
 // ============================================================================
-const AuditorGovernanceChart: React.FC = () => {
-  const chartData = [
-    { dept: "Cloud Infra", human: 68, ai: 32, slaRate: 75, target: 95 },
-    { dept: "Ent. Sales", human: 85, ai: 15, slaRate: 93, target: 95 },
-    { dept: "Talent Acq.", human: 80, ai: 20, slaRate: 94, target: 95 },
-    { dept: "Marketing", human: 75, ai: 25, slaRate: 100, target: 95 },
-    { dept: "SMB Ops", human: 90, ai: 10, slaRate: 100, target: 95 },
-  ];
+const AuditorGovernanceChart: React.FC<{
+  benchmarks: DeptSlaBenchmark[];
+  governance: HitlGovernance | null;
+}> = ({ benchmarks, governance }) => {
+  if (!benchmarks || benchmarks.length === 0) {
+    return (
+      <div className="fema-empty-state" style={{ padding: "40px 20px", textAlign: "center", color: "var(--fema-text-muted)" }}>
+        No departmental compliance cases found to benchmark. Active exception cases will populate this matrix.
+      </div>
+    );
+  }
+
+  const humanPct = Math.round(governance?.human_governance_pct ?? 75);
+  const aiPct = Math.round(governance?.ai_automation_pct ?? (100 - humanPct));
+
+  const chartData = benchmarks.map((b) => ({
+    dept: b.department.length > 12 ? b.department.slice(0, 11) + "..." : b.department,
+    human: humanPct,
+    ai: aiPct,
+    slaRate: b.onTimePct,
+    target: 95,
+  }));
 
   const maxVal = 100;
   const chartHeight = 180;
   const colWidth = 42;
   const gap = 38;
   const startX = 65;
+  const totalSvgWidth = Math.max(760, startX + chartData.length * (colWidth * 2 + gap) + 60);
 
   return (
     <div style={{ width: "100%", overflowX: "auto" }}>
       <svg
-        viewBox="0 0 760 250"
+        viewBox={`0 0 ${totalSvgWidth} 250`}
         style={{ width: "100%", height: "auto", maxHeight: "250px", display: "block" }}
       >
         <defs>
@@ -144,7 +111,7 @@ const AuditorGovernanceChart: React.FC = () => {
               <line
                 x1={startX - 10}
                 y1={y}
-                x2={730}
+                x2={totalSvgWidth - 30}
                 y2={y}
                 stroke="rgba(255, 255, 255, 0.07)"
                 strokeDasharray={tick === 0 ? "none" : "3,3"}
@@ -170,14 +137,14 @@ const AuditorGovernanceChart: React.FC = () => {
               <line
                 x1={startX - 10}
                 y1={y60}
-                x2={730}
+                x2={totalSvgWidth - 30}
                 y2={y60}
                 stroke="#10b981"
                 strokeWidth="1.5"
                 strokeDasharray="4,4"
               />
               <text
-                x={725}
+                x={totalSvgWidth - 35}
                 y={y60 - 5}
                 textAnchor="end"
                 fontSize="9"
@@ -280,6 +247,8 @@ export const AuditorDashboard: React.FC<AuditorDashboardProps> = ({
   const [trail, setTrail] = useState<AuditLogItem[]>([]);
   const [compliance, setCompliance] = useState<SlaCompliance | null>(null);
   const [governance, setGovernance] = useState<HitlGovernance | null>(null);
+  const [benchmarks, setBenchmarks] = useState<DeptSlaBenchmark[]>([]);
+  const [breachedCases, setBreachedCases] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -300,21 +269,72 @@ export const AuditorDashboard: React.FC<AuditorDashboardProps> = ({
         ? `${AUDITOR_ENDPOINTS.TRAIL}?action=${encodeURIComponent(filterAction)}`
         : AUDITOR_ENDPOINTS.TRAIL;
 
-      const [trailRes, compRes, hitlRes] = await Promise.all([
+      const [trailRes, compRes, hitlRes, excRes] = await Promise.all([
         fetch(trailUrl, { headers: getAuthHeaders() }),
         fetch(AUDITOR_ENDPOINTS.SLA_COMPLIANCE, { headers: getAuthHeaders() }),
         fetch(AUDITOR_ENDPOINTS.HITL_METRICS, { headers: getAuthHeaders() }),
+        fetch(COMMON_ENDPOINTS.EXCEPTIONS, { headers: getAuthHeaders() }),
       ]);
 
-      const [trailData, compData, hitlData] = await Promise.all([
+      const [trailData, compData, hitlData, excData] = await Promise.all([
         trailRes.json(),
         compRes.json(),
         hitlRes.json(),
+        excRes.json(),
       ]);
 
       if (trailData.success) setTrail(trailData.trail || []);
       if (compData.success) setCompliance(compData.compliance);
       if (hitlData.success) setGovernance(hitlData.governance);
+
+      const excList: any[] = excData.exceptions || [];
+      const deptMap: Record<string, { total: number; onTime: number; breached: number; totalHours: number; maxSeverity: string }> = {};
+      const breachedList: any[] = [];
+      const now = new Date();
+
+      for (const c of excList) {
+        const dept = c.department || "Operations";
+        if (!deptMap[dept]) {
+          deptMap[dept] = { total: 0, onTime: 0, breached: 0, totalHours: 0, maxSeverity: "LOW" };
+        }
+        deptMap[dept].total += 1;
+        const isBreached = c.status !== "RESOLVED" && c.sla_deadline && new Date(c.sla_deadline) < now;
+        if (isBreached) {
+          deptMap[dept].breached += 1;
+          breachedList.push(c);
+        } else {
+          deptMap[dept].onTime += 1;
+        }
+
+        const created = c.created_at ? new Date(c.created_at).getTime() : now.getTime();
+        const updated = c.updated_at ? new Date(c.updated_at).getTime() : now.getTime();
+        const hours = Math.max(1, Math.round((updated - created) / (1000 * 60 * 60)));
+        deptMap[dept].totalHours += hours;
+
+        const severityOrder: Record<string, number> = { CRITICAL: 4, HIGH: 3, MEDIUM: 2, LOW: 1 };
+        if ((severityOrder[c.severity] || 0) > (severityOrder[deptMap[dept].maxSeverity] || 0)) {
+          deptMap[dept].maxSeverity = c.severity;
+        }
+      }
+
+      const computedBenchmarks: DeptSlaBenchmark[] = Object.entries(deptMap).map(([dept, data]) => {
+        const onTimePct = data.total > 0 ? Math.round((data.onTime / data.total) * 1000) / 10 : 100;
+        const actualAvgHours = data.total > 0 ? Math.round((data.totalHours / data.total) * 10) / 10 : 24;
+        const status: "COMPLIANT" | "BREACHED" | "EXCEEDING" =
+          data.breached > 0 ? "BREACHED" : onTimePct >= 95 ? "EXCEEDING" : "COMPLIANT";
+        return {
+          department: dept,
+          cases: data.total,
+          targetSlaHours: data.maxSeverity === "CRITICAL" ? 24 : 48,
+          actualAvgHours,
+          onTimePct,
+          urgency: (data.maxSeverity as any) || "LOW",
+          status,
+        };
+      });
+
+      setBenchmarks(computedBenchmarks);
+      setBreachedCases(breachedList);
     } catch (err: any) {
       setError("Failed to load compliance ledger records: " + err.message);
     } finally {
@@ -384,7 +404,7 @@ export const AuditorDashboard: React.FC<AuditorDashboardProps> = ({
               border: "1px solid rgba(217, 119, 6, 0.35)",
             }}
           >
-            ROLE 3: AUDIT & COMPLIANCE GOVERNANCE
+            ROLE 0: AUDIT & COMPLIANCE GOVERNANCE
           </div>
           <h1 className="fema-view-title">
             {activeSection === "trail"
@@ -420,9 +440,9 @@ export const AuditorDashboard: React.FC<AuditorDashboardProps> = ({
         <div className="fema-kpi-card-compact">
           <div className="fema-kpi-compact-info">
             <span className="fema-kpi-compact-label">SLA On-Time Resolution</span>
-            <span className="fema-kpi-compact-val">{compliance?.on_time_rate_pct || 87.5}%</span>
+            <span className="fema-kpi-compact-val">{compliance?.on_time_rate_pct != null ? `${compliance.on_time_rate_pct}%` : "100.0%"}</span>
             <span className="fema-kpi-compact-sub" style={{ color: "#10b981" }}>
-              Target: {compliance?.target_rate_pct || 95.0}% Benchmark
+              Target: {compliance?.target_rate_pct ?? 95.0}% Benchmark
             </span>
           </div>
           <span style={{ fontSize: "20px" }}>🎯</span>
@@ -431,7 +451,7 @@ export const AuditorDashboard: React.FC<AuditorDashboardProps> = ({
         <div className="fema-kpi-card-compact">
           <div className="fema-kpi-compact-info">
             <span className="fema-kpi-compact-label">HITL Governance Ratio</span>
-            <span className="fema-kpi-compact-val">{governance?.human_governance_pct || 75.0}%</span>
+            <span className="fema-kpi-compact-val">{governance?.human_governance_pct != null ? `${governance.human_governance_pct}%` : "100.0%"}</span>
             <span className="fema-kpi-compact-sub" style={{ color: "#fbbf24" }}>
               Mandate: &ge; 60.0% (SOX 404 Met)
             </span>
@@ -442,11 +462,11 @@ export const AuditorDashboard: React.FC<AuditorDashboardProps> = ({
         <div className="fema-kpi-card-compact">
           <div className="fema-kpi-compact-info">
             <span className="fema-kpi-compact-label">Active Breached Cases</span>
-            <span className="fema-kpi-compact-val" style={{ color: compliance?.currently_breached ? "#f43f5e" : "#10b981" }}>
-              {compliance?.currently_breached || 3} Cases
+            <span className="fema-kpi-compact-val" style={{ color: (compliance?.currently_breached || breachedCases.length) > 0 ? "#f43f5e" : "#10b981" }}>
+              {compliance?.currently_breached ?? breachedCases.length} Cases
             </span>
-            <span className="fema-kpi-compact-sub" style={{ color: "#f43f5e" }}>
-              {compliance?.currently_breached ? "Audit Justification Required" : "Zero Breaches"}
+            <span className="fema-kpi-compact-sub" style={{ color: (compliance?.currently_breached || breachedCases.length) > 0 ? "#f43f5e" : "#10b981" }}>
+              {(compliance?.currently_breached || breachedCases.length) > 0 ? "Audit Justification Required" : "Zero Breaches"}
             </span>
           </div>
           <span style={{ fontSize: "20px" }}>🚨</span>
@@ -455,7 +475,7 @@ export const AuditorDashboard: React.FC<AuditorDashboardProps> = ({
         <div className="fema-kpi-card-compact">
           <div className="fema-kpi-compact-info">
             <span className="fema-kpi-compact-label">Immutable Audit Events</span>
-            <span className="fema-kpi-compact-val">{trail.length || 4} Entries</span>
+            <span className="fema-kpi-compact-val">{trail.length} Entries</span>
             <span className="fema-kpi-compact-sub" style={{ color: "#0ea5e9" }}>
               SHA-256 Hash Chain Verified
             </span>
@@ -496,7 +516,7 @@ export const AuditorDashboard: React.FC<AuditorDashboardProps> = ({
               </div>
             </div>
 
-            <AuditorGovernanceChart />
+            <AuditorGovernanceChart benchmarks={benchmarks} governance={governance} />
           </div>
 
           {/* Dual Balanced Columns Below Chart */}
@@ -637,19 +657,38 @@ export const AuditorDashboard: React.FC<AuditorDashboardProps> = ({
                     </p>
                   </div>
                   <span style={{ fontSize: "11px", color: "#f43f5e", fontWeight: 700 }}>
-                    {compliance?.currently_breached || 3} Breaches
+                    {compliance?.currently_breached ?? breachedCases.length} Breaches
                   </span>
                 </div>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 10px", background: "rgba(244, 63, 94, 0.08)", border: "1px solid rgba(244, 63, 94, 0.2)", borderRadius: "6px" }}>
-                    <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--fema-text-primary)" }}>Case #6: DevOps Compute Outlay</span>
-                    <Badge variant="danger" size="sm">+45% Overrun</Badge>
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 10px", background: "rgba(244, 63, 94, 0.08)", border: "1px solid rgba(244, 63, 94, 0.2)", borderRadius: "6px" }}>
-                    <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--fema-text-primary)" }}>Case #4: DevOps Software License</span>
-                    <Badge variant="danger" size="sm">+50% Variance</Badge>
-                  </div>
+                  {breachedCases.length === 0 ? (
+                    <div style={{ padding: "12px", textAlign: "center", color: "var(--fema-text-muted)", fontSize: "12px" }}>
+                      No active SLA breaches requiring compliance justifications.
+                    </div>
+                  ) : (
+                    breachedCases.slice(0, 5).map((bc) => (
+                      <div
+                        key={bc.id}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          padding: "8px 10px",
+                          background: "rgba(244, 63, 94, 0.08)",
+                          border: "1px solid rgba(244, 63, 94, 0.2)",
+                          borderRadius: "6px",
+                        }}
+                      >
+                        <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--fema-text-primary)" }}>
+                          Case #{bc.id}: {bc.department || "Operations"} {bc.category || ""}
+                        </span>
+                        <Badge variant="danger" size="sm">
+                          {bc.variance_percent > 0 ? `+${bc.variance_percent}%` : `${bc.variance_percent}%`} Overrun
+                        </Badge>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             </div>
@@ -880,73 +919,81 @@ export const AuditorDashboard: React.FC<AuditorDashboardProps> = ({
                   </tr>
                 </thead>
                 <tbody>
-                  {DEPT_BENCHMARKS.map((b) => (
-                    <tr key={b.department}>
-                      <td style={{ fontWeight: 600, color: "var(--fema-text-primary)", fontSize: "13px" }}>
-                        {b.department}
-                      </td>
-                      <td style={{ fontSize: "12px" }}>{b.cases} Cases</td>
-                      <td style={{ fontSize: "12px", fontFamily: "monospace" }}>{b.targetSlaHours} Hours</td>
-                      <td style={{ fontSize: "12px", fontFamily: "monospace", color: b.actualAvgHours > b.targetSlaHours ? "#f43f5e" : "#10b981" }}>
-                        {b.actualAvgHours} Hours
-                      </td>
-                      <td>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                          <div style={{ width: "60px", height: "6px", background: "rgba(255, 255, 255, 0.08)", borderRadius: "3px", overflow: "hidden" }}>
-                            <div
-                              style={{
-                                width: `${b.onTimePct}%`,
-                                height: "100%",
-                                background: b.onTimePct >= 95 ? "#10b981" : b.onTimePct >= 90 ? "#fbbf24" : "#f43f5e",
-                              }}
-                            />
-                          </div>
-                          <span style={{ fontSize: "11px", fontWeight: 700, color: b.onTimePct >= 95 ? "#10b981" : b.onTimePct >= 90 ? "#fbbf24" : "#f43f5e" }}>
-                            {b.onTimePct}%
-                          </span>
-                        </div>
-                      </td>
-                      <td>
-                        <Badge
-                          variant={
-                            b.urgency === "CRITICAL"
-                              ? "danger"
-                              : b.urgency === "HIGH"
-                              ? "warning"
-                              : b.urgency === "MEDIUM"
-                              ? "purple"
-                              : "neutral"
-                          }
-                          size="sm"
-                        >
-                          {b.urgency}
-                        </Badge>
-                      </td>
-                      <td>
-                        <span
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "5px",
-                            padding: "3px 8px",
-                            borderRadius: "12px",
-                            fontSize: "11px",
-                            fontWeight: 700,
-                            background:
-                              b.status === "EXCEEDING" || b.status === "COMPLIANT"
-                                ? "rgba(16, 185, 129, 0.12)"
-                                : "rgba(244, 63, 94, 0.12)",
-                            color:
-                              b.status === "EXCEEDING" || b.status === "COMPLIANT"
-                                ? "#10b981"
-                                : "#f43f5e",
-                          }}
-                        >
-                          {b.status === "EXCEEDING" || b.status === "COMPLIANT" ? "● COMPLIANT" : "⚠️ BREACHED"}
-                        </span>
+                  {benchmarks.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} style={{ textAlign: "center", padding: "30px", color: "var(--fema-text-muted)" }}>
+                        No departmental compliance benchmarks found. Active exceptions will dynamically populate this matrix.
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    benchmarks.map((b) => (
+                      <tr key={b.department}>
+                        <td style={{ fontWeight: 600, color: "var(--fema-text-primary)", fontSize: "13px" }}>
+                          {b.department}
+                        </td>
+                        <td style={{ fontSize: "12px" }}>{b.cases} Cases</td>
+                        <td style={{ fontSize: "12px", fontFamily: "monospace" }}>{b.targetSlaHours} Hours</td>
+                        <td style={{ fontSize: "12px", fontFamily: "monospace", color: b.actualAvgHours > b.targetSlaHours ? "#f43f5e" : "#10b981" }}>
+                          {b.actualAvgHours} Hours
+                        </td>
+                        <td>
+                          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                            <div style={{ width: "60px", height: "6px", background: "rgba(255, 255, 255, 0.08)", borderRadius: "3px", overflow: "hidden" }}>
+                              <div
+                                style={{
+                                  width: `${b.onTimePct}%`,
+                                  height: "100%",
+                                  background: b.onTimePct >= 95 ? "#10b981" : b.onTimePct >= 90 ? "#fbbf24" : "#f43f5e",
+                                }}
+                              />
+                            </div>
+                            <span style={{ fontSize: "11px", fontWeight: 700, color: b.onTimePct >= 95 ? "#10b981" : b.onTimePct >= 90 ? "#fbbf24" : "#f43f5e" }}>
+                              {b.onTimePct}%
+                            </span>
+                          </div>
+                        </td>
+                        <td>
+                          <Badge
+                            variant={
+                              b.urgency === "CRITICAL"
+                                ? "danger"
+                                : b.urgency === "HIGH"
+                                ? "warning"
+                                : b.urgency === "MEDIUM"
+                                ? "purple"
+                                : "neutral"
+                            }
+                            size="sm"
+                          >
+                            {b.urgency}
+                          </Badge>
+                        </td>
+                        <td>
+                          <span
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "5px",
+                              padding: "3px 8px",
+                              borderRadius: "12px",
+                              fontSize: "11px",
+                              fontWeight: 700,
+                              background:
+                                b.status === "EXCEEDING" || b.status === "COMPLIANT"
+                                  ? "rgba(16, 185, 129, 0.12)"
+                                  : "rgba(244, 63, 94, 0.12)",
+                              color:
+                                b.status === "EXCEEDING" || b.status === "COMPLIANT"
+                                  ? "#10b981"
+                                  : "#f43f5e",
+                            }}
+                          >
+                            {b.status === "EXCEEDING" || b.status === "COMPLIANT" ? "● COMPLIANT" : "⚠️ BREACHED"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
@@ -1008,11 +1055,13 @@ export const AuditorDashboard: React.FC<AuditorDashboardProps> = ({
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 12px", background: "rgba(255, 255, 255, 0.02)", border: "1px solid var(--fema-border)", borderRadius: "6px" }}>
                   <span style={{ fontSize: "12px", color: "var(--fema-text-secondary)" }}>Active System Performance:</span>
-                  <strong style={{ fontSize: "13px", color: "#10b981" }}>{governance?.human_governance_pct || 75.0}% Verified</strong>
+                  <strong style={{ fontSize: "13px", color: "#10b981" }}>{governance?.human_governance_pct ?? 100.0}% Verified</strong>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 12px", background: "rgba(255, 255, 255, 0.02)", border: "1px solid var(--fema-border)", borderRadius: "6px" }}>
                   <span style={{ fontSize: "12px", color: "var(--fema-text-secondary)" }}>Compliance Buffer Surplus:</span>
-                  <strong style={{ fontSize: "13px", color: "#10b981" }}>+15.0% Safety Margin</strong>
+                  <strong style={{ fontSize: "13px", color: "#10b981" }}>
+                    {((governance?.human_governance_pct ?? 100.0) - 60.0) >= 0 ? `+${((governance?.human_governance_pct ?? 100.0) - 60.0).toFixed(1)}% Safety Margin` : "0.0% Deficit"}
+                  </strong>
                 </div>
 
                 <div style={{ padding: "10px 12px", background: "rgba(16, 185, 129, 0.08)", border: "1px solid rgba(16, 185, 129, 0.2)", borderRadius: "6px", fontSize: "11px", color: "#10b981", lineHeight: 1.5 }}>
@@ -1045,7 +1094,7 @@ export const AuditorDashboard: React.FC<AuditorDashboardProps> = ({
                     </span>
                   </div>
                   <strong style={{ fontSize: "14px", color: "#fbbf24" }}>
-                    {governance?.human_reviewed_count || 3} Actions (75%)
+                    {governance?.human_reviewed_count ?? 0} Actions ({governance?.human_governance_pct ?? 100}%)
                   </strong>
                 </div>
 
@@ -1059,7 +1108,7 @@ export const AuditorDashboard: React.FC<AuditorDashboardProps> = ({
                     </span>
                   </div>
                   <strong style={{ fontSize: "14px", color: "#6366f1" }}>
-                    1 Action (100% Human)
+                    {governance?.human_reviewed_count ? `${Math.min(governance.human_reviewed_count, 1)} Action (Human)` : "0 Actions"}
                   </strong>
                 </div>
 
@@ -1073,7 +1122,7 @@ export const AuditorDashboard: React.FC<AuditorDashboardProps> = ({
                     </span>
                   </div>
                   <strong style={{ fontSize: "14px", color: "#8b5cf6" }}>
-                    {governance?.ai_automated_count || 1} Action (25%)
+                    {governance?.ai_automated_count ?? 0} Actions ({governance?.ai_automation_pct ?? 0}%)
                   </strong>
                 </div>
               </div>

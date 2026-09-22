@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { CFO_ENDPOINTS, getAuthHeaders } from "../config/apiConfig";
+import { CFO_ENDPOINTS, COMMON_ENDPOINTS, getAuthHeaders } from "../config/apiConfig";
 import { Badge, getSeverityBadgeVariant } from "./Badge";
 import { Modal } from "./Modal";
 import { AiChatWidget } from "./AiChatWidget";
@@ -46,14 +46,36 @@ interface CfoDashboardProps {
 // ============================================================================
 // SVG CHART: Executive Budget vs Actual Exposure by Cost Center (Dashboard Only)
 // ============================================================================
-const CfoExecutiveChart: React.FC<{ kpis: any }> = () => {
-  const units = [
-    { name: "Cloud Infra", budget: 350000, actual: 490000, variance: 40.0, risk: "CRITICAL" },
-    { name: "Enterprise Sales", budget: 1200000, actual: 720000, variance: -40.0, risk: "CRITICAL" },
-    { name: "Talent Acq.", budget: 150000, actual: 185000, variance: 23.3, risk: "HIGH" },
-    { name: "Marketing & Growth", budget: 250000, actual: 285000, variance: 14.0, risk: "MEDIUM" },
-    { name: "SMB Operations", budget: 800000, actual: 820000, variance: 2.5, risk: "LOW" },
-  ];
+const CfoExecutiveChart: React.FC<{ records: any[] }> = ({ records }) => {
+  // Aggregate budget and actual dynamically per department from live records
+  const deptMap: Record<string, { budget: number; actual: number }> = {};
+  for (const r of records) {
+    const d = r.department || "General";
+    if (!deptMap[d]) deptMap[d] = { budget: 0, actual: 0 };
+    deptMap[d].budget += Number(r.budget_amount) || 0;
+    deptMap[d].actual += Number(r.actual_amount) || 0;
+  }
+
+  const units = Object.entries(deptMap).map(([name, val]) => {
+    const variance = val.budget > 0 ? ((val.actual - val.budget) / val.budget) * 100 : 0;
+    const absVar = Math.abs(variance);
+    const risk = absVar >= 30 ? "CRITICAL" : absVar >= 15 ? "HIGH" : absVar >= 5 ? "MEDIUM" : "LOW";
+    return {
+      name,
+      budget: val.budget,
+      actual: val.actual,
+      variance: Math.round(variance * 10) / 10,
+      risk,
+    };
+  });
+
+  if (units.length === 0) {
+    return (
+      <div className="fema-empty-state" style={{ padding: "40px 20px", textAlign: "center", color: "var(--fema-text-muted)" }}>
+        No financial ledger records found. Ingest financial records to view business unit expenditure telemetry.
+      </div>
+    );
+  }
 
   const svgWidth = 760;
   const svgHeight = 220;
@@ -64,7 +86,7 @@ const CfoExecutiveChart: React.FC<{ kpis: any }> = () => {
 
   const chartW = svgWidth - padLeft - padRight;
   const chartH = svgHeight - padTop - padBottom;
-  const maxVal = 1300000;
+  const maxVal = Math.max(...units.map((u) => Math.max(u.budget, u.actual)), 1000) * 1.15;
 
   const groupW = chartW / units.length;
   const barW = Math.min(22, (groupW - 24) / 2);
@@ -190,6 +212,7 @@ export const CfoDashboard: React.FC<CfoDashboardProps> = ({
   const [warnings, setWarnings] = useState<EarlyWarning[]>([]);
   const [escalatedRisks, setEscalatedRisks] = useState<EscalatedRisk[]>([]);
   const [brief, setBrief] = useState<ExecutiveBrief | null>(null);
+  const [records, setRecords] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -205,24 +228,27 @@ export const CfoDashboard: React.FC<CfoDashboardProps> = ({
     setLoading(true);
     setError(null);
     try {
-      const [kpisRes, warningsRes, risksRes, briefRes] = await Promise.all([
+      const [kpisRes, warningsRes, risksRes, briefRes, recordsRes] = await Promise.all([
         fetch(CFO_ENDPOINTS.KPIS, { headers: getAuthHeaders() }),
         fetch(CFO_ENDPOINTS.EARLY_WARNINGS, { headers: getAuthHeaders() }),
         fetch(CFO_ENDPOINTS.ESCALATED_RISKS, { headers: getAuthHeaders() }),
         fetch(CFO_ENDPOINTS.EXECUTIVE_BRIEF, { headers: getAuthHeaders() }),
+        fetch(COMMON_ENDPOINTS.RECORDS, { headers: getAuthHeaders() }),
       ]);
 
-      const [kpisData, warningsData, risksData, briefData] = await Promise.all([
+      const [kpisData, warningsData, risksData, briefData, recordsData] = await Promise.all([
         kpisRes.json(),
         warningsRes.json(),
         risksRes.json(),
         briefRes.json(),
+        recordsRes.json(),
       ]);
 
       if (kpisData.success) setKpis(kpisData.kpis);
       if (warningsData.success) setWarnings(warningsData.warnings || []);
       if (risksData.success) setEscalatedRisks(risksData.risks || []);
       if (briefData.success) setBrief(briefData.brief);
+      if (recordsData.success) setRecords(recordsData.records || []);
     } catch (err: any) {
       setError("Failed to load CFO executive telemetry: " + err.message);
     } finally {
@@ -294,8 +320,16 @@ export const CfoDashboard: React.FC<CfoDashboardProps> = ({
         <div className="fema-kpi-card-compact">
           <div className="fema-kpi-compact-info">
             <span className="fema-kpi-compact-label">Operating Cash Flow</span>
-            <span className="fema-kpi-compact-val">$12.85M</span>
-            <span className="fema-kpi-compact-sub" style={{ color: "#10b981" }}>+8.4% YoY (Healthy)</span>
+            <span className="fema-kpi-compact-val">
+              {kpis?.operating_cash_flow?.amount != null
+                ? `$${(kpis.operating_cash_flow.amount / 1000000).toFixed(2)}M`
+                : "$0.00M"}
+            </span>
+            <span className="fema-kpi-compact-sub" style={{ color: "#10b981" }}>
+              {kpis?.operating_cash_flow?.trend_pct != null
+                ? `${kpis.operating_cash_flow.trend_pct > 0 ? "+" : ""}${kpis.operating_cash_flow.trend_pct}% YoY (${kpis.operating_cash_flow.status || "Healthy"})`
+                : "Tracking"}
+            </span>
           </div>
           <span style={{ fontSize: "20px" }}>💵</span>
         </div>
@@ -303,8 +337,12 @@ export const CfoDashboard: React.FC<CfoDashboardProps> = ({
         <div className="fema-kpi-card-compact">
           <div className="fema-kpi-compact-info">
             <span className="fema-kpi-compact-label">Liquidity Ratio</span>
-            <span className="fema-kpi-compact-val">2.35x</span>
-            <span className="fema-kpi-compact-sub" style={{ color: "#6366f1" }}>Target: &ge; 1.50x (Safe)</span>
+            <span className="fema-kpi-compact-val">
+              {kpis?.liquidity_ratio?.current_ratio != null ? `${kpis.liquidity_ratio.current_ratio}x` : "1.00x"}
+            </span>
+            <span className="fema-kpi-compact-sub" style={{ color: "#6366f1" }}>
+              Target: &ge; {kpis?.liquidity_ratio?.target ?? 1.5}x ({kpis?.liquidity_ratio?.status || "Safe"})
+            </span>
           </div>
           <span style={{ fontSize: "20px" }}>🏦</span>
         </div>
@@ -312,8 +350,14 @@ export const CfoDashboard: React.FC<CfoDashboardProps> = ({
         <div className="fema-kpi-card-compact">
           <div className="fema-kpi-compact-info">
             <span className="fema-kpi-compact-label">EBITDA Margin</span>
-            <span className="fema-kpi-compact-val">19.2%</span>
-            <span className="fema-kpi-compact-sub" style={{ color: "#10b981" }}>+1.2% over target</span>
+            <span className="fema-kpi-compact-val">
+              {kpis?.operating_margin_pct?.current != null ? `${kpis.operating_margin_pct.current}%` : "0.0%"}
+            </span>
+            <span className="fema-kpi-compact-sub" style={{ color: "#10b981" }}>
+              {kpis?.operating_margin_pct?.trend_pct != null
+                ? `${kpis.operating_margin_pct.trend_pct > 0 ? "+" : ""}${kpis.operating_margin_pct.trend_pct}% vs target`
+                : "Nominal"}
+            </span>
           </div>
           <span style={{ fontSize: "20px" }}>📈</span>
         </div>
@@ -362,7 +406,7 @@ export const CfoDashboard: React.FC<CfoDashboardProps> = ({
               </div>
             </div>
 
-            <CfoExecutiveChart kpis={kpis} />
+            <CfoExecutiveChart records={records} />
           </div>
 
           {/* Symmetrical Dual Panels */}
@@ -552,40 +596,98 @@ export const CfoDashboard: React.FC<CfoDashboardProps> = ({
                       <strong>Operating Cash Flow</strong>
                       <div className="fema-text-sub">Consolidated working capital velocity</div>
                     </td>
-                    <td><span style={{ fontWeight: 700, color: "#10b981" }}>$12,850,000</span></td>
+                    <td>
+                      <span style={{ fontWeight: 700, color: "#10b981" }}>
+                        {kpis?.operating_cash_flow?.amount != null
+                          ? `$${Number(kpis.operating_cash_flow.amount).toLocaleString()}`
+                          : "$0"}
+                      </span>
+                    </td>
                     <td>$8,000,000 Min</td>
-                    <td>+$4.85M Surplus</td>
-                    <td><span className="fema-status-pill active"><span className="fema-status-dot-pulse" /> Compliant</span></td>
+                    <td>
+                      {kpis?.operating_cash_flow?.amount != null
+                        ? kpis.operating_cash_flow.amount >= 8000000
+                          ? `+$${((kpis.operating_cash_flow.amount - 8000000) / 1000000).toFixed(2)}M Surplus`
+                          : `-$${((8000000 - kpis.operating_cash_flow.amount) / 1000000).toFixed(2)}M Deficit`
+                        : "N/A"}
+                    </td>
+                    <td>
+                      <span className="fema-status-pill active">
+                        <span className="fema-status-dot-pulse" /> {kpis?.operating_cash_flow?.status || "Tracking"}
+                      </span>
+                    </td>
                   </tr>
                   <tr>
                     <td>
                       <strong>Liquidity Coverage Ratio (LCR)</strong>
                       <div className="fema-text-sub">High-quality liquid assets vs 30-day net outflows</div>
                     </td>
-                    <td><span style={{ fontWeight: 700, color: "#6366f1" }}>2.35x</span></td>
-                    <td>1.50x Min</td>
-                    <td>+0.85x Buffer</td>
-                    <td><span className="fema-status-pill active"><span className="fema-status-dot-pulse" /> Safe</span></td>
+                    <td>
+                      <span style={{ fontWeight: 700, color: "#6366f1" }}>
+                        {kpis?.liquidity_ratio?.current_ratio != null
+                          ? `${kpis.liquidity_ratio.current_ratio}x`
+                          : "1.00x"}
+                      </span>
+                    </td>
+                    <td>{kpis?.liquidity_ratio?.target ? `${kpis.liquidity_ratio.target}x Min` : "1.50x Min"}</td>
+                    <td>
+                      {kpis?.liquidity_ratio?.current_ratio != null
+                        ? `${kpis.liquidity_ratio.current_ratio >= (kpis.liquidity_ratio.target || 1.5) ? "+" : ""}${(kpis.liquidity_ratio.current_ratio - (kpis.liquidity_ratio.target || 1.5)).toFixed(2)}x Buffer`
+                        : "0.00x"}
+                    </td>
+                    <td>
+                      <span className="fema-status-pill active">
+                        <span className="fema-status-dot-pulse" /> {kpis?.liquidity_ratio?.status || "Safe"}
+                      </span>
+                    </td>
                   </tr>
                   <tr>
                     <td>
                       <strong>EBITDA Operating Margin</strong>
                       <div className="fema-text-sub">Trailing twelve-month operating margin</div>
                     </td>
-                    <td><span style={{ fontWeight: 700, color: "#a855f7" }}>19.2%</span></td>
-                    <td>18.0% Target</td>
-                    <td>+1.2% Ahead</td>
-                    <td><span className="fema-status-pill active"><span className="fema-status-dot-pulse" /> Exceeding</span></td>
+                    <td>
+                      <span style={{ fontWeight: 700, color: "#a855f7" }}>
+                        {kpis?.operating_margin_pct?.current != null
+                          ? `${kpis.operating_margin_pct.current}%`
+                          : "0.0%"}
+                      </span>
+                    </td>
+                    <td>{kpis?.operating_margin_pct?.target ? `${kpis.operating_margin_pct.target}% Target` : "18.0% Target"}</td>
+                    <td>
+                      {kpis?.operating_margin_pct?.trend_pct != null
+                        ? `${kpis.operating_margin_pct.trend_pct > 0 ? "+" : ""}${kpis.operating_margin_pct.trend_pct}% Spread`
+                        : "0.0%"}
+                    </td>
+                    <td>
+                      <span className="fema-status-pill active">
+                        <span className="fema-status-dot-pulse" /> {kpis?.operating_margin_pct?.status || "Exceeding"}
+                      </span>
+                    </td>
                   </tr>
                   <tr>
                     <td>
                       <strong>Net Budget Variance Exposure</strong>
                       <div className="fema-text-sub">Aggregate active exceptions deviation</div>
                     </td>
-                    <td><span style={{ fontWeight: 700, color: "#f43f5e" }}>+26.4%</span></td>
+                    <td>
+                      <span style={{ fontWeight: 700, color: (kpis?.budget_variance?.net_variance_pct || 0) > 0 ? "#f43f5e" : "#10b981" }}>
+                        {kpis?.budget_variance?.net_variance_pct != null
+                          ? `${kpis.budget_variance.net_variance_pct > 0 ? "+" : ""}${kpis.budget_variance.net_variance_pct}%`
+                          : "0.0%"}
+                      </span>
+                    </td>
                     <td>15.0% Trigger</td>
-                    <td>+11.4% Overrun</td>
-                    <td><span className="fema-status-pill inactive">Attention Needed</span></td>
+                    <td>
+                      {kpis?.budget_variance?.net_variance_pct != null
+                        ? `${(kpis.budget_variance.net_variance_pct - 15).toFixed(1)}% Differential`
+                        : "0.0%"}
+                    </td>
+                    <td>
+                      <span className={`fema-status-pill ${kpis?.budget_variance?.status === "ATTENTION" ? "inactive" : "active"}`}>
+                        {kpis?.budget_variance?.status || "Normal"}
+                      </span>
+                    </td>
                   </tr>
                 </tbody>
               </table>

@@ -180,14 +180,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
           {/* Quick Demo Test Accounts */}
           <div className="fema-demo-accounts">
-            <div className="fema-demo-label">Quick Test Sign-In (All 4 Roles):</div>
-            <div className="fema-demo-grid">
+            <div className="fema-demo-label">Quick Test Sign-In (3 Roles):</div>
+            <div className="fema-demo-grid" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
               <button
                 type="button"
                 className="fema-demo-btn admin"
                 onClick={() => fillTestAccount("admin", "admin123")}
               >
-                🛠️ Admin (0)
+                🛠️ Admin &amp; Compliance (0)
               </button>
               <button
                 type="button"
@@ -202,13 +202,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 onClick={() => fillTestAccount("cfo", "cfo123")}
               >
                 🏛️ CFO (2)
-              </button>
-              <button
-                type="button"
-                className="fema-demo-btn auditor"
-                onClick={() => fillTestAccount("auditor", "auditor123")}
-              >
-                📋 Auditor (3)
               </button>
             </div>
           </div>
@@ -257,10 +250,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               value={roleId}
               onChange={(e) => setRoleId(Number(e.target.value))}
             >
-              <option value={0}>🛠️ System Administrator (Role 0)</option>
-              <option value={1}>📊 Accountable Owner / Finance Analyst (Role 1)</option>
-              <option value={2}>🏛️ Finance Leadership / Executive CFO (Role 2)</option>
-              <option value={3}>📋 Auditor / Compliance Officer (Role 3)</option>
+              <option value={0}>🛠️ Admin &amp; Compliance Officer (Role 0)</option>
+              <option value={1}>📊 Finance Analyst / Owner (Role 1)</option>
+              <option value={2}>🏛️ Finance Leadership / CFO (Role 2)</option>
             </select>
           </div>
 

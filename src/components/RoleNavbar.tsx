@@ -22,10 +22,9 @@ export const RoleNavbar: React.FC<RoleNavbarProps> = ({
   onNavigateHome,
 }) => {
   const roleNames: Record<number, { title: string; icon: string }> = {
-    0: { title: "System Administrator", icon: "🛠️" },
+    0: { title: "Admin & Compliance", icon: "🛠️" },
     1: { title: "Finance Analyst", icon: "📊" },
     2: { title: "Executive (CFO)", icon: "🏛️" },
-    3: { title: "Auditor & Compliance", icon: "📋" },
   };
 
   const currentRoleInfo = roleNames[activeRole] || roleNames[1];
@@ -60,12 +59,11 @@ export const RoleNavbar: React.FC<RoleNavbarProps> = ({
             className="fema-role-select"
             value={activeRole}
             onChange={(e) => onRoleChange(Number(e.target.value))}
-            title="Switch perspective between the 4 dynamic dashboards"
+            title="Switch perspective between the 3 consolidated dashboards"
           >
-            <option value={0}>🛠️ 0 - System Administrator</option>
-            <option value={1}>📊 1 - Finance Analyst (Owner)</option>
+            <option value={0}>🛠️ 0 - Admin &amp; Compliance</option>
+            <option value={1}>📊 1 - Finance Analyst</option>
             <option value={2}>🏛️ 2 - Executive (CFO)</option>
-            <option value={3}>📋 3 - Auditor & Compliance</option>
           </select>
         </div>
 
