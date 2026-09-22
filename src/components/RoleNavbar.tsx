@@ -1,6 +1,5 @@
 import React from "react";
 import type { UserSession } from "./AuthModal";
-import { Badge, getRoleBadgeVariant } from "./Badge";
 
 interface RoleNavbarProps {
   user: UserSession;
@@ -21,15 +20,6 @@ export const RoleNavbar: React.FC<RoleNavbarProps> = ({
   onNavigateHome,
   onRoleChange,
 }) => {
-  const roleNames: Record<number, { title: string; icon: string }> = {
-    0: { title: "System Administrator", icon: "🛠️" },
-    1: { title: "Finance Analyst", icon: "📊" },
-    2: { title: "Executive (CFO)", icon: "🏛️" },
-    3: { title: "Auditor & Compliance", icon: "📋" },
-  };
-
-  const currentRoleInfo = roleNames[activeRole] || roleNames[1];
-
   return (
     <header className="fema-navbar">
       <div className="fema-navbar-left">
