@@ -9,6 +9,7 @@ interface RoleNavbarProps {
   theme: "light" | "dark";
   onToggleTheme: () => void;
   onNavigateHome?: () => void;
+  onRoleChange?: (newRole: number) => void;
 }
 
 export const RoleNavbar: React.FC<RoleNavbarProps> = ({
@@ -18,6 +19,7 @@ export const RoleNavbar: React.FC<RoleNavbarProps> = ({
   theme,
   onToggleTheme,
   onNavigateHome,
+  onRoleChange,
 }) => {
   const roleNames: Record<number, { title: string; icon: string }> = {
     0: { title: "System Administrator", icon: "🛠️" },
@@ -47,7 +49,21 @@ export const RoleNavbar: React.FC<RoleNavbarProps> = ({
       </div>
 
       <div className="fema-navbar-right">
-
+        {/* Quick Role Switcher for Dynamic Exploration */}
+        <div className="fema-role-switcher-wrap">
+          <span className="fema-switcher-label">View Dashboard:</span>
+          <select
+            className="fema-role-select"
+            value={activeRole}
+            onChange={(e) => onRoleChange?.(Number(e.target.value))}
+            title="Switch perspective between the 3 consolidated dashboards"
+          >
+            <option value={0}>🛠️ 0 - Admin &amp; Compliance</option>
+            <option value={1}>📊 1 - Finance Analyst</option>
+            <option value={2}>🏛️ 2 - Executive (CFO)</option>
+            <option value={3}>📋 3 - Auditor</option>
+          </select>
+        </div>
 
         {/* Dark/Light Mode Toggle */}
         <button
