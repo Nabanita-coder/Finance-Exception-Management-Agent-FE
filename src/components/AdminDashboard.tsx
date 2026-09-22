@@ -516,37 +516,38 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     setLoading(true);
     setError(null);
     try {
-      const [healthRes, threshRes, usersRes, logsRes, recRes, excRes] = await Promise.all([
-        fetch(ADMIN_ENDPOINTS.HEALTH, { headers: getAuthHeaders() }),
-        fetch(ADMIN_ENDPOINTS.THRESHOLDS, { headers: getAuthHeaders() }),
-        fetch(ADMIN_ENDPOINTS.USERS, { headers: getAuthHeaders() }),
-        fetch(ADMIN_ENDPOINTS.LOGS, { headers: getAuthHeaders() }),
-        fetch(COMMON_ENDPOINTS.RECORDS),
-        fetch(COMMON_ENDPOINTS.EXCEPTIONS),
+      const fetchSafe = async (url: string, opts?: RequestInit) => {
+        try {
+          const res = await fetch(url, opts);
+          return res.ok ? await res.json() : null;
+        } catch {
+          return null;
+        }
+      };
+
+      const [healthData, threshData, usersData, logsData, rData, eData] = await Promise.all([
+        fetchSafe(ADMIN_ENDPOINTS.HEALTH, { headers: getAuthHeaders() }),
+        fetchSafe(ADMIN_ENDPOINTS.THRESHOLDS, { headers: getAuthHeaders() }),
+        fetchSafe(ADMIN_ENDPOINTS.USERS, { headers: getAuthHeaders() }),
+        fetchSafe(ADMIN_ENDPOINTS.LOGS, { headers: getAuthHeaders() }),
+        fetchSafe(COMMON_ENDPOINTS.RECORDS),
+        fetchSafe(COMMON_ENDPOINTS.EXCEPTIONS),
+        new Promise((resolve) => setTimeout(resolve, 450)),
       ]);
 
-      const [healthData, threshData, usersData, logsData] = await Promise.all([
-        healthRes.json(),
-        threshRes.json(),
-        usersRes.json(),
-        logsRes.json(),
-      ]);
+      if (healthData && healthData.success) setIntegrations(healthData.integrations || []);
+      if (threshData && threshData.success) setThresholds(threshData.thresholds || []);
+      if (usersData && usersData.success) setUsers(usersData.users || []);
+      if (logsData && logsData.logs) setLogs(logsData.logs || []);
 
-      if (healthData.success) setIntegrations(healthData.integrations || []);
-      if (threshData.success) setThresholds(threshData.thresholds || []);
-      if (usersData.success) setUsers(usersData.users || []);
-      if (logsData.success) setLogs(logsData.logs || []);
-
-      if (recRes.ok) {
-        const rData = await recRes.json();
-        setRecords(rData || []);
+      if (rData && Array.isArray(rData)) {
+        setRecords(rData);
       }
-      if (excRes.ok) {
-        const eData = await excRes.json();
-        setExceptions(eData || []);
+      if (eData && Array.isArray(eData)) {
+        setExceptions(eData);
       }
     } catch (err: any) {
-      setError("Failed to fetch admin dashboard telemetry: " + err.message);
+      console.warn("Telemetry fetch error:", err);
     } finally {
       setLoading(false);
     }
@@ -741,11 +742,37 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </p>
         </div>
         <button
-          className="fema-btn fema-btn-outline"
+          className={`fema-btn fema-btn-outline fema-refresh-btn ${loading ? "is-loading" : ""}`}
           onClick={fetchAdminData}
           disabled={loading}
+          title="Refresh"
+          aria-label="Refresh"
+          style={{
+            width: "36px",
+            height: "36px",
+            padding: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: "10px",
+            flexShrink: 0,
+          }}
         >
-          {loading ? "Refreshing..." : "↻ Refresh Status"}
+          <svg
+            width="17"
+            height="17"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+            <path d="M3 3v5h5" />
+            <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+            <path d="M16 21h5v-5" />
+          </svg>
         </button>
       </div>
 
@@ -764,7 +791,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               subtitle={`${records.length} financial transactions tracked`}
               badgeText="LIVE LEDGER"
               badgeVariant="info"
-              icon="💰"
+              icon={
+                <div style={{ color: "#10b981", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="12" x="2" y="6" rx="2" /><circle cx="12" cy="12" r="2" /><path d="M6 12h.01M18 12h.01" /></svg>
+                </div>
+              }
             />
             <StatCard
               title="Active Exception Cases"
@@ -772,7 +803,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               subtitle={`${severityCounts.critical} Critical • ${severityCounts.high} High`}
               badgeText={exceptions.length > 0 ? "ACTION REQUIRED" : "ALL RESOLVED"}
               badgeVariant={exceptions.length > 0 ? "danger" : "success"}
-              icon="🚨"
+              icon={
+                <div style={{ color: "#f43f5e", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+                </div>
+              }
             />
             <StatCard
               title="AI Detection Cutoff"
@@ -780,7 +815,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               subtitle="Variances above trigger exceptions"
               badgeText="RULE ENGINE"
               badgeVariant="purple"
-              icon="⚙️"
+              icon={
+                <div style={{ color: "#a855f7", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+                </div>
+              }
             />
             <StatCard
               title="Connected Financial APIs"
@@ -788,14 +827,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               subtitle="ERP, EPM & Banking streams"
               badgeText="100% HEALTHY"
               badgeVariant="success"
-              icon="🔌"
+              icon={
+                <div style={{ color: "#06b6d4", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="M15 9h6"/><path d="M15 15h6"/></svg>
+                </div>
+              }
             />
             <StatCard
               title="Financial Feed Uptime"
               value={`${averageUptime}%`}
               subtitle={`Avg round-trip: ${averageLatency}ms`}
               trend={{ value: "0.04%", isPositive: true, label: "vs SLA" }}
-              icon="⚡"
+              icon={
+                <div style={{ color: "#f59e0b", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                </div>
+              }
             />
             <StatCard
               title="Platform Operators"
@@ -803,7 +850,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               subtitle={`${users.filter((u) => u.is_active).length || 4} Active user accounts`}
               badgeText="RBAC PROTECTED"
               badgeVariant="info"
-              icon="👥"
+              icon={
+                <div style={{ color: "#6366f1", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+              }
             />
           </div>
 
@@ -813,8 +864,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <div className="fema-chart-card">
               <div className="fema-chart-header">
                 <div>
-                  <div className="fema-chart-title">
-                    <span>🏢</span> Departmental Budget vs. Actual & Variance
+                  <div className="fema-chart-title" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>
+                    <span>Departmental Budget vs. Actual & Variance</span>
                   </div>
                   <div className="fema-chart-sub">
                     Direct comparison of allocated budgets vs actual expenditure by department
@@ -839,8 +891,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <div className="fema-chart-card">
               <div className="fema-chart-header">
                 <div>
-                  <div className="fema-chart-title">
-                    <span>🎯</span> AI Anomaly Severity & Lifecycle Funnel
+                  <div className="fema-chart-title" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a855f7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                    <span>AI Anomaly Severity & Lifecycle Funnel</span>
                   </div>
                   <div className="fema-chart-sub">
                     Live severity breakdown and current workflow status across all cases
@@ -865,30 +918,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <div style={{ fontSize: "12px", fontWeight: 700, color: "var(--fema-text-secondary)", marginBottom: "10px" }}>
                     Exception Workflow Lifecycle
                   </div>
-                  <div className="fema-lifecycle-row">
-                    <div className="fema-lifecycle-card">
-                      <div className="fema-lifecycle-count" style={{ color: "#ef4444" }}>
-                        {lifecycleCounts.open}
-                      </div>
-                      <div className="fema-lifecycle-label">Open</div>
+                  <div className="fema-lifecycle-counts-grid">
+                    <div className="fema-lifecycle-count-item">
+                      <span className="fema-lifecycle-val" style={{ color: "var(--fema-accent-rose)" }}>{lifecycleCounts.open}</span>
+                      <span className="fema-lifecycle-lbl">OPEN</span>
                     </div>
-                    <div className="fema-lifecycle-card">
-                      <div className="fema-lifecycle-count" style={{ color: "#3b82f6" }}>
-                        {lifecycleCounts.inProgress}
-                      </div>
-                      <div className="fema-lifecycle-label">In Progress</div>
+                    <div className="fema-lifecycle-count-item">
+                      <span className="fema-lifecycle-val" style={{ color: "var(--fema-accent-indigo)" }}>{lifecycleCounts.inProgress}</span>
+                      <span className="fema-lifecycle-lbl">IN PROGRESS</span>
                     </div>
-                    <div className="fema-lifecycle-card">
-                      <div className="fema-lifecycle-count" style={{ color: "#f59e0b" }}>
-                        {lifecycleCounts.escalated}
-                      </div>
-                      <div className="fema-lifecycle-label">Escalated</div>
+                    <div className="fema-lifecycle-count-item">
+                      <span className="fema-lifecycle-val" style={{ color: "var(--fema-accent-amber)" }}>{lifecycleCounts.escalated}</span>
+                      <span className="fema-lifecycle-lbl">ESCALATED</span>
                     </div>
-                    <div className="fema-lifecycle-card">
-                      <div className="fema-lifecycle-count" style={{ color: "#10b981" }}>
-                        {lifecycleCounts.resolved}
-                      </div>
-                      <div className="fema-lifecycle-label">Resolved</div>
+                    <div className="fema-lifecycle-count-item">
+                      <span className="fema-lifecycle-val" style={{ color: "var(--fema-accent-emerald)" }}>{lifecycleCounts.resolved}</span>
+                      <span className="fema-lifecycle-lbl">RESOLVED</span>
                     </div>
                   </div>
                 </div>
@@ -902,8 +947,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <div className="fema-chart-card">
               <div className="fema-chart-header">
                 <div>
-                  <div className="fema-chart-title">
-                    <span>🔌</span> Financial Data Pipeline Telemetry
+                  <div className="fema-chart-title" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="M15 9h6"/><path d="M15 15h6"/></svg>
+                    <span>Financial Data Pipeline Telemetry</span>
                   </div>
                   <div className="fema-chart-sub">
                     Live connection round-trip latency and 30-day uptime for financial systems
@@ -962,8 +1008,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <div className="fema-chart-card">
               <div className="fema-chart-header">
                 <div>
-                  <div className="fema-chart-title">
-                    <span>⚡</span> AI Anomaly Threshold Zone Calibration
+                  <div className="fema-chart-title" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+                    <span>AI Anomaly Threshold Zone Calibration</span>
                   </div>
                   <div className="fema-chart-sub">
                     Configured boundary separating autonomous auto-reconciliation from anomaly alert creation
@@ -1023,7 +1070,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 onClick={() => onNavigateSection && onNavigateSection("health")}
               >
                 <div className="fema-shortcut-top">
-                  <span className="fema-shortcut-icon">🔌</span>
+                  <div style={{ color: "#06b6d4", display: "flex", alignItems: "center", justifyContent: "center", width: "32px", height: "32px", background: "rgba(6, 182, 212, 0.12)", borderRadius: "8px" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="M15 9h6"/><path d="M15 15h6"/></svg>
+                  </div>
                   <Badge variant="success" size="sm">4 Pipelines</Badge>
                 </div>
                 <div className="fema-shortcut-title">Financial Integrations</div>
@@ -1038,7 +1087,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 onClick={() => onNavigateSection && onNavigateSection("thresholds")}
               >
                 <div className="fema-shortcut-top">
-                  <span className="fema-shortcut-icon">⚙️</span>
+                  <div style={{ color: "#a855f7", display: "flex", alignItems: "center", justifyContent: "center", width: "32px", height: "32px", background: "rgba(168, 85, 247, 0.12)", borderRadius: "8px" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+                  </div>
                   <Badge variant="purple" size="sm">Configurable</Badge>
                 </div>
                 <div className="fema-shortcut-title">AI Anomaly Thresholds</div>
@@ -1053,7 +1104,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 onClick={() => onNavigateSection && onNavigateSection("users")}
               >
                 <div className="fema-shortcut-top">
-                  <span className="fema-shortcut-icon">👥</span>
+                  <div style={{ color: "#6366f1", display: "flex", alignItems: "center", justifyContent: "center", width: "32px", height: "32px", background: "rgba(99, 102, 241, 0.12)", borderRadius: "8px" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                  </div>
                   <Badge variant="info" size="sm">{users.length || 4} Users</Badge>
                 </div>
                 <div className="fema-shortcut-title">User Directory & Access</div>
@@ -1068,7 +1121,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 onClick={() => onNavigateSection && onNavigateSection("logs")}
               >
                 <div className="fema-shortcut-top">
-                  <span className="fema-shortcut-icon">📜</span>
+                  <div style={{ color: "#f59e0b", display: "flex", alignItems: "center", justifyContent: "center", width: "32px", height: "32px", background: "rgba(245, 158, 11, 0.12)", borderRadius: "8px" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                  </div>
                   <Badge variant="warning" size="sm">Live Stream</Badge>
                 </div>
                 <div className="fema-shortcut-title">System Sync Logs</div>
@@ -1146,7 +1201,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <div className="fema-health-kpi-card">
                 <div className="fema-health-kpi-top">
                   <span className="fema-health-kpi-label">Active Financial Pipelines</span>
-                  <span style={{ fontSize: "18px" }}>🟢</span>
+                  <div style={{ color: "var(--fema-accent-emerald)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                  </div>
                 </div>
                 <div className="fema-health-kpi-val">{activeCount} / {totalCount}</div>
                 <div className="fema-health-kpi-sub" style={{ color: "var(--fema-accent-emerald)" }}>
@@ -1157,7 +1214,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <div className="fema-health-kpi-card">
                 <div className="fema-health-kpi-top">
                   <span className="fema-health-kpi-label">Average Response Speed</span>
-                  <span style={{ fontSize: "18px" }}>⚡</span>
+                  <div style={{ color: "#f59e0b", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                  </div>
                 </div>
                 <div className="fema-health-kpi-val">{avgLat} <span style={{ fontSize: "14px", fontWeight: 500, color: "var(--fema-text-muted)" }}>ms</span></div>
                 <div className="fema-health-kpi-sub" style={{ color: Number(avgLat) < 50 ? "var(--fema-accent-emerald)" : "var(--fema-accent-amber)" }}>
@@ -1168,7 +1227,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <div className="fema-health-kpi-card">
                 <div className="fema-health-kpi-top">
                   <span className="fema-health-kpi-label">30-Day Pipeline Reliability</span>
-                  <span style={{ fontSize: "18px" }}>🛡️</span>
+                  <div style={{ color: "#6366f1", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                  </div>
                 </div>
                 <div className="fema-health-kpi-val">{avgUptime}%</div>
                 <div className="fema-health-kpi-sub" style={{ color: "var(--fema-accent-emerald)" }}>
@@ -1179,7 +1240,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <div className="fema-health-kpi-card">
                 <div className="fema-health-kpi-top">
                   <span className="fema-health-kpi-label">Data Ingestion Accuracy</span>
-                  <span style={{ fontSize: "18px" }}>📦</span>
+                  <div style={{ color: "#06b6d4", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                  </div>
                 </div>
                 <div className="fema-health-kpi-val">100%</div>
                 <div className="fema-health-kpi-sub" style={{ color: "var(--fema-text-secondary)" }}>
@@ -1494,7 +1557,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <span className="fema-kpi-compact-val">{thresholds.length} Rules</span>
                   <span className="fema-kpi-compact-sub" style={{ color: "#10b981" }}>● Live Enforced</span>
                 </div>
-                <span style={{ fontSize: "20px" }}>🛡️</span>
+                <div style={{ color: "#10b981", display: "flex", alignItems: "center", justifyContent: "center", padding: "8px", background: "rgba(16, 185, 129, 0.1)", borderRadius: "8px" }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                </div>
               </div>
 
               <div className="fema-kpi-card-compact">
@@ -1503,7 +1568,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <span className="fema-kpi-compact-val">{baseThreshold}%</span>
                   <span className="fema-kpi-compact-sub" style={{ color: "#10b981" }}>Auto-settled &lt; {baseThreshold}%</span>
                 </div>
-                <span style={{ fontSize: "20px" }}>🎯</span>
+                <div style={{ color: "#6366f1", display: "flex", alignItems: "center", justifyContent: "center", padding: "8px", background: "rgba(99, 102, 241, 0.1)", borderRadius: "8px" }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                </div>
               </div>
 
               <div className="fema-kpi-card-compact">
@@ -1512,7 +1579,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <span className="fema-kpi-compact-val">{highThreshold}%</span>
                   <span className="fema-kpi-compact-sub" style={{ color: "#f43f5e" }}>Escalate &ge; {highThreshold}%</span>
                 </div>
-                <span style={{ fontSize: "20px" }}>⚠️</span>
+                <div style={{ color: "#f43f5e", display: "flex", alignItems: "center", justifyContent: "center", padding: "8px", background: "rgba(244, 63, 94, 0.1)", borderRadius: "8px" }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+                </div>
               </div>
 
               <div className="fema-kpi-card-compact">
@@ -1521,7 +1590,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <span className="fema-kpi-compact-val">{highSla}h / {medSla}h</span>
                   <span className="fema-kpi-compact-sub" style={{ color: "#6366f1" }}>Urgent vs Standard</span>
                 </div>
-                <span style={{ fontSize: "20px" }}>⏱️</span>
+                <div style={{ color: "#a855f7", display: "flex", alignItems: "center", justifyContent: "center", padding: "8px", background: "rgba(168, 85, 247, 0.1)", borderRadius: "8px" }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
               </div>
             </div>
 
@@ -1654,7 +1725,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <span className="fema-kpi-compact-val">{users.length} Users</span>
                   <span className="fema-kpi-compact-sub" style={{ color: "#10b981" }}>● 100% Active Directory</span>
                 </div>
-                <span style={{ fontSize: "20px" }}>👥</span>
+                <div style={{ color: "#10b981", display: "flex", alignItems: "center", justifyContent: "center", padding: "8px", background: "rgba(16, 185, 129, 0.1)", borderRadius: "8px" }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
               </div>
 
               <div className="fema-kpi-card-compact">
@@ -1663,7 +1736,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <span className="fema-kpi-compact-val">{adminCount} Root</span>
                   <span className="fema-kpi-compact-sub" style={{ color: "#f43f5e" }}>System Governance</span>
                 </div>
-                <span style={{ fontSize: "20px" }}>🛡️</span>
+                <div style={{ color: "#f43f5e", display: "flex", alignItems: "center", justifyContent: "center", padding: "8px", background: "rgba(244, 63, 94, 0.1)", borderRadius: "8px" }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
               </div>
 
               <div className="fema-kpi-card-compact">
@@ -1672,7 +1747,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <span className="fema-kpi-compact-val">{analystCount} Owners</span>
                   <span className="fema-kpi-compact-sub" style={{ color: "#6366f1" }}>Exception Operations</span>
                 </div>
-                <span style={{ fontSize: "20px" }}>📊</span>
+                <div style={{ color: "#6366f1", display: "flex", alignItems: "center", justifyContent: "center", padding: "8px", background: "rgba(99, 102, 241, 0.1)", borderRadius: "8px" }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+                </div>
               </div>
 
               <div className="fema-kpi-card-compact">
@@ -1681,7 +1758,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <span className="fema-kpi-compact-val">{cfoCount + auditorCount} Officers</span>
                   <span className="fema-kpi-compact-sub" style={{ color: "#a855f7" }}>CFO & SOX Oversight</span>
                 </div>
-                <span style={{ fontSize: "20px" }}>⚖️</span>
+                <div style={{ color: "#a855f7", display: "flex", alignItems: "center", justifyContent: "center", padding: "8px", background: "rgba(168, 85, 247, 0.1)", borderRadius: "8px" }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>
+                </div>
               </div>
             </div>
 
@@ -1704,7 +1783,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               {/* Table Toolbar (Search & Filters) */}
               <div className="fema-table-toolbar">
                 <div className="fema-table-search-wrap">
-                  <span style={{ fontSize: "14px", color: "var(--fema-text-muted)" }}>🔍</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fema-text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                   <input
                     type="text"
                     className="fema-table-search-input"

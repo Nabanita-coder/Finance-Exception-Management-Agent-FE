@@ -140,7 +140,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       >
         {/* Brand */}
         <div
-          onClick={() => handleLaunch('dashboard')}
+          onClick={() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.history.pushState(null, '', '/');
+          }}
           style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
         >
           <div
@@ -168,7 +171,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </span>
             </div>
             <div style={{ fontSize: '11px', color: 'var(--fema-text-secondary)', fontWeight: 500 }}>
-              Finance Exception Management Agent • Aiinhome Technologies
+              Finance Exception Management Agent
             </div>
           </div>
         </div>
@@ -208,7 +211,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             }}
             title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           >
-            {isDark ? '☀️' : '🌙'}
+            {isDark ? (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+            ) : (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+            )}
           </button>
 
           {user ? (
@@ -235,8 +242,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 style={{
                   padding: '9px 18px',
                   borderRadius: '10px',
-                  border: '1px solid var(--fema-border-highlight)',
-                  backgroundColor: 'transparent',
+                  border: '1px solid var(--fema-border)',
+                  backgroundColor: 'var(--fema-surface-subtle)',
                   color: 'var(--fema-text-primary)',
                   fontSize: '13px',
                   fontWeight: 600,
@@ -246,9 +253,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 Sign In
               </button>
               <button
-                onClick={() => onOpenAuth ? onOpenAuth('login') : handleLaunch('dashboard')}
+                onClick={() => onOpenAuth ? onOpenAuth('register') : handleLaunch('dashboard')}
                 style={{
-                  padding: '9px 20px',
+                  padding: '9px 18px',
                   borderRadius: '10px',
                   border: 'none',
                   background: 'linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)',
@@ -259,7 +266,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   boxShadow: '0 6px 20px rgba(79, 70, 229, 0.35)',
                 }}
               >
-                Launch Console →
+                Get Started →
               </button>
             </>
           )}
@@ -271,97 +278,100 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       {/* ==================================================================== */}
       <section
         style={{
-          position: 'relative',
-          padding: '70px 32px 60px',
+          padding: '90px 32px 60px',
           maxWidth: '1280px',
           margin: '0 auto',
-          width: '100%',
+          textAlign: 'center',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          textAlign: 'center',
         }}
       >
-        {/* Compliance Badge */}
         <div
           style={{
             display: 'inline-flex',
             alignItems: 'center',
             gap: '8px',
-            padding: '6px 16px',
+            padding: '6px 14px',
             borderRadius: '20px',
-            border: isDark ? '1px solid rgba(99, 102, 241, 0.4)' : '1px solid #cbd5e1',
-            backgroundColor: isDark ? 'rgba(99, 102, 241, 0.12)' : 'rgba(30, 41, 59, 0.05)',
-            color: isDark ? '#a5b4fc' : '#1e293b',
+            background: isDark ? 'rgba(99, 102, 241, 0.15)' : 'rgba(99, 102, 241, 0.1)',
+            border: '1px solid rgba(99, 102, 241, 0.3)',
+            color: '#818cf8',
             fontSize: '12px',
             fontWeight: 700,
             letterSpacing: '0.04em',
-            marginBottom: '22px',
+            textTransform: 'uppercase',
+            marginBottom: '28px',
           }}
         >
-          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 10px #10b981' }} />
-          AGENTIC AI 2.0 • CONTINUOUS FINANCIAL EXCEPTION MONITORING
+          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', display: 'inline-block' }} />
+          Enterprise Financial Intelligence &amp; Anomaly Governance
         </div>
 
-        {/* Hero Title */}
         <h1
           style={{
-            fontSize: 'clamp(34px, 5.2vw, 58px)',
-            fontWeight: 800,
-            lineHeight: 1.15,
-            maxWidth: '960px',
+            fontSize: 'clamp(36px, 6vw, 68px)',
+            fontWeight: 900,
+            lineHeight: 1.08,
+            letterSpacing: '-0.03em',
+            maxWidth: '1000px',
+            margin: '0 0 24px',
             color: 'var(--fema-text-primary)',
-            letterSpacing: '-0.025em',
-            marginBottom: '20px',
           }}
         >
-          Autonomous Financial Variance Monitoring &amp;{' '}
+          Autonomous Financial{' '}
           <span
             style={{
-              background: isDark
-                ? 'linear-gradient(135deg, #818cf8 0%, #38bdf8 50%, #c084fc 100%)'
-                : 'linear-gradient(135deg, #1e293b 0%, #2563eb 50%, #7c3aed 100%)',
+              background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
             }}
           >
-            Multi-Agent Exception Resolution
+            Exception Management
           </span>
         </h1>
 
-        {/* Hero Subtitle */}
         <p
           style={{
-            fontSize: '18px',
+            fontSize: 'clamp(16px, 2vw, 20px)',
             lineHeight: 1.6,
             color: 'var(--fema-text-secondary)',
-            maxWidth: '780px',
-            marginBottom: '38px',
+            maxWidth: '740px',
+            margin: '0 0 40px',
           }}
         >
-          FEMA connects with ERP, EPM, banking, and general ledger feeds to detect deviations in real time, diagnose root causes with agentic reasoning, assign accountable owners, and enforce SLA escalation up to the CFO.
+          Detect general ledger deviations, auto-reconcile recurring variances, generate multi-factor AI root causes, and enforce regulatory SLA compliance across all 4 financial roles.
         </p>
 
-        {/* CTA Group */}
-        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '46px' }}>
+        {/* Hero CTAs */}
+        <div
+          style={{
+            display: 'flex',
+            gap: '16px',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            marginBottom: '40px',
+          }}
+        >
           <button
-            onClick={() => handleLaunch('dashboard')}
+            onClick={() => onOpenAuth ? onOpenAuth('login') : handleLaunch('dashboard')}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '10px',
-              padding: '14px 30px',
+              padding: '14px 28px',
               borderRadius: '12px',
               border: 'none',
-              background: 'linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)',
+              background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
               color: '#ffffff',
               fontSize: '15px',
               fontWeight: 700,
               cursor: 'pointer',
-              boxShadow: '0 8px 24px rgba(79, 70, 229, 0.4)',
+              boxShadow: '0 10px 28px rgba(99, 102, 241, 0.4)',
+              transition: 'transform 0.2s, box-shadow 0.2s',
             }}
           >
-            <span>Launch Live Console</span>
+            <span>Launch FEMA Platform</span>
             <span>→</span>
           </button>
 
@@ -371,9 +381,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               display: 'inline-flex',
               alignItems: 'center',
               gap: '8px',
-              padding: '14px 28px',
+              padding: '14px 26px',
               borderRadius: '12px',
-              border: '1px solid var(--fema-border-highlight)',
+              border: '1px solid var(--fema-border)',
               backgroundColor: 'var(--fema-surface)',
               color: 'var(--fema-text-primary)',
               fontSize: '15px',
@@ -382,7 +392,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               boxShadow: 'var(--fema-card-shadow)',
             }}
           >
-            <span>⚡ Interactive Simulator</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span>Interactive Simulator</span>
           </a>
 
           <button
@@ -394,14 +405,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               padding: '14px 26px',
               borderRadius: '12px',
               border: '1px solid var(--fema-border)',
-              backgroundColor: 'var(--fema-surface-subtle)',
+              backgroundColor: 'var(--fema-surface)',
               color: 'var(--fema-text-primary)',
               fontSize: '15px',
               fontWeight: 600,
               cursor: 'pointer',
+              boxShadow: 'var(--fema-card-shadow)',
             }}
           >
-            <span>💬 RAG Financial AI</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <span>RAG Financial AI</span>
           </button>
         </div>
 
@@ -510,7 +523,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                <span style={{ fontSize: '24px' }}>🚨</span>
+                <div style={{ color: '#f43f5e', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px', background: 'rgba(244, 63, 94, 0.15)', borderRadius: '10px' }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+                </div>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <span style={{ fontSize: '14px', fontWeight: 800, color: '#f43f5e' }}>CASE #104: CRITICAL VARIANCE DETECTED</span>
@@ -562,9 +577,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 fontSize: '12px',
                 color: 'var(--fema-text-secondary)',
                 lineHeight: 1.6,
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '8px',
               }}
             >
-              🧠 <strong>Autonomous AI Root-Cause Hypothesis:</strong> Deviation primarily driven by unreserved compute clusters spinning up during continuous integration load testing in US-East region. Vendor contract review recommended before end-of-month reconciliation.
+              <div style={{ color: '#818cf8', marginTop: '2px', flexShrink: 0 }}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+              </div>
+              <div>
+                <strong>Autonomous AI Root-Cause Hypothesis:</strong> Deviation primarily driven by unreserved compute clusters spinning up during continuous integration load testing in US-East region. Vendor contract review recommended before end-of-month reconciliation.
+              </div>
             </div>
           </div>
         </div>

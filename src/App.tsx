@@ -137,6 +137,51 @@ const Icons = {
   LogOut: () => (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" x2="9" y1="12" y2="12" /></svg>
   ),
+  Building: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="22" x2="21" y2="22" /><line x1="6" y1="18" x2="6" y2="11" /><line x1="10" y1="18" x2="10" y2="11" /><line x1="14" y1="18" x2="14" y2="11" /><line x1="18" y1="18" x2="18" y2="11" /><polygon points="12 2 20 7 4 7" /></svg>
+  ),
+  WarningTriangle: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+  ),
+  ShieldAlert: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
+  ),
+  Sparkles: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z" /></svg>
+  ),
+  Tasks: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" /><path d="m9 14 2 2 4-4" /></svg>
+  ),
+  Clock: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+  ),
+  SearchSparkle: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+  ),
+  FileText: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>
+  ),
+  Target: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" /></svg>
+  ),
+  Scale: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" /><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" /><path d="M7 21h10" /><path d="M12 3v18" /><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2" /></svg>
+  ),
+  Download: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+  ),
+  Plug: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22v-5" /><path d="M9 8V2" /><path d="M15 2v6" /><path d="M18 8v5a6 6 0 0 1-12 0V8z" /></svg>
+  ),
+  Settings: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
+  ),
+  Users: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+  ),
+  Terminal: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 17 10 11 4 5" /><line x1="12" y1="19" x2="20" y2="19" /></svg>
+  ),
 };
 
 // ============================================================================
@@ -273,7 +318,15 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
   };
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [theme, setThemeState] = useState<'dark' | 'light'>(() => {
+    const saved = localStorage.getItem('fema_theme');
+    return (saved === 'dark' || saved === 'light') ? saved : 'light';
+  });
+
+  const setTheme = (newTheme: 'dark' | 'light') => {
+    setThemeState(newTheme);
+    localStorage.setItem('fema_theme', newTheme);
+  };
 
   // Synchronize data-theme on document root and body for index.css global styles
   useEffect(() => {
@@ -702,7 +755,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '100%', backgroundColor: 'var(--fema-bg)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100%', overflow: 'hidden', backgroundColor: 'var(--fema-bg)' }}>
       {user && (
         <RoleNavbar
           user={user}
@@ -719,105 +772,152 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
       {/* SIDEBAR NAVIGATION                                               */}
       {/* ---------------------------------------------------------------- */}
       <aside
+        className="fema-sidebar-smooth"
         style={{
           ...styles.sidebar,
-          width: isSidebarCollapsed ? '76px' : '260px',
-          height: '100vh',
-          maxHeight: '100vh',
-          overflow: 'hidden',
-          padding: isSidebarCollapsed ? '16px 8px' : '18px 14px',
-          transition: 'width 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+          width: isSidebarCollapsed ? '72px' : '260px',
+          minWidth: isSidebarCollapsed ? '72px' : '260px',
+          height: user ? 'calc(100vh - 64px)' : '100vh',
+          maxHeight: user ? 'calc(100vh - 64px)' : '100vh',
+          overflowX: 'hidden',
+          overflowY: 'auto',
+          padding: isSidebarCollapsed ? '16px 8px' : '18px 12px',
           boxSizing: 'border-box',
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'space-between',
         }}
       >
-        <div style={{ ...styles.brandContainer, paddingLeft: 0, marginBottom: '16px' }}>
-          {isSidebarCollapsed ? (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', width: '100%' }}>
-              <div
-                onClick={() => navigateTo('landing')}
-                style={{
-                  ...styles.brandBadge,
-                  width: '42px',
-                  height: '42px',
-                  flexShrink: 0,
-                  fontSize: '16px',
-                  cursor: 'pointer',
-                }}
-                title="Back to Landing Page"
-              >
-                FE
+        {/* Sidebar Header / Toggle Area */}
+        {isSidebarCollapsed ? (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', marginBottom: '8px', gap: '6px' }}>
+            {/* Collapse / Expand Toggle Button (Centered at top) */}
+            <button
+              className="fema-collapse-btn-smooth"
+              onClick={() => setIsSidebarCollapsed(false)}
+              style={{
+                ...styles.collapseBtn,
+                width: '40px',
+                height: '36px',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+              }}
+              title="Expand Sidebar"
+              aria-label="Expand Sidebar"
+            >
+              <Icons.ChevronRight />
+            </button>
+
+            {/* Dashboard Overview Icon Button */}
+            <button
+              className="fema-nav-btn-smooth"
+              onClick={() => navigateTo('dashboard')}
+              style={{
+                ...styles.navButton,
+                ...(currentView === 'dashboard' ? styles.navButtonActive : {}),
+                width: '40px',
+                height: '40px',
+                padding: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '8px',
+              }}
+              title="Dashboard Overview"
+            >
+              <Icons.Dashboard />
+            </button>
+          </div>
+        ) : (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              marginBottom: '8px',
+              width: '100%',
+            }}
+          >
+            {/* Expanded Dashboard Overview Button */}
+            <button
+              className="fema-nav-btn-smooth"
+              onClick={() => navigateTo('dashboard')}
+              style={{
+                ...styles.navButton,
+                ...(currentView === 'dashboard' ? styles.navButtonActive : {}),
+                flex: 1,
+                justifyContent: 'flex-start',
+                padding: '10px 12px',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
+              }}
+              title="Dashboard Overview"
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                <Icons.Dashboard />
               </div>
-              <button
-                onClick={() => setIsSidebarCollapsed(false)}
+              <span
+                className="fema-nav-label-smooth"
                 style={{
-                  ...styles.collapseBtn,
-                  width: '32px',
-                  height: '26px',
+                  opacity: 1,
+                  maxWidth: '200px',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
                 }}
-                title="Expand Sidebar"
               >
-                <Icons.ChevronRight />
-              </button>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', paddingLeft: '4px' }}>
-              <div
-                onClick={() => navigateTo('landing')}
-                style={{ display: 'flex', alignItems: 'center', gap: '12px', overflow: 'hidden', cursor: 'pointer' }}
-                title="Back to Landing Page"
-              >
-                <div style={{ ...styles.brandBadge, flexShrink: 0 }} title="FEMA - Finance Exception Agent">
-                  FE
-                </div>
-                <div style={{ whiteSpace: 'nowrap' }}>
-                  <div style={styles.brandTitle}>FEMA</div>
-                  <div style={styles.brandSubtitle}>Finance Exception Agent</div>
-                </div>
-              </div>
-              <button
-                onClick={() => setIsSidebarCollapsed(true)}
-                style={{
-                  ...styles.collapseBtn,
-                  width: '28px',
-                  height: '28px',
-                  flexShrink: 0,
-                }}
-                title="Collapse Sidebar"
-              >
-                <Icons.ChevronLeft />
-              </button>
-            </div>
-          )}
-        </div>
+                Dashboard Overview
+              </span>
+            </button>
+
+            {/* Collapse Arrow Button (Next to Dashboard Overview) */}
+            <button
+              className="fema-collapse-btn-smooth"
+              onClick={() => setIsSidebarCollapsed(true)}
+              style={{
+                ...styles.collapseBtn,
+                width: '32px',
+                height: '38px',
+                borderRadius: '8px',
+                flexShrink: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+              }}
+              title="Collapse Sidebar"
+              aria-label="Collapse Sidebar"
+            >
+              <Icons.ChevronLeft />
+            </button>
+          </div>
+        )}
 
         <nav style={styles.navMenu}>
-          {/* Main Role Overview Button */}
-          <button
-            onClick={() => navigateTo('dashboard')}
-            style={{
-              ...styles.navButton,
-              ...(currentView === 'dashboard' ? styles.navButtonActive : {}),
-              justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-              padding: isSidebarCollapsed ? '12px' : '11px 14px',
-              position: 'relative',
-            }}
-            title={isSidebarCollapsed ? 'Dashboard Overview' : undefined}
-          >
-            <Icons.Dashboard />
-            {!isSidebarCollapsed && <span>Dashboard Overview</span>}
-          </button>
 
           {/* Role 0: Admin & Compliance Officer Sub-pages */}
           {activeRole === 0 && (
             <>
-              {!isSidebarCollapsed && (
-                <div style={{ fontSize: '10px', fontWeight: 800, color: '#ef4444', letterSpacing: '0.06em', padding: '8px 12px 4px', textTransform: 'uppercase' }}>
-                  Infrastructure & Ops
-                </div>
-              )}
+              <div
+                style={{
+                  fontSize: '10px',
+                  fontWeight: 800,
+                  color: '#ef4444',
+                  letterSpacing: '0.06em',
+                  padding: isSidebarCollapsed ? '8px 0 4px' : '8px 12px 4px',
+                  textTransform: 'uppercase',
+                  textAlign: isSidebarCollapsed ? 'center' : 'left',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
+                  opacity: isSidebarCollapsed ? 0 : 1,
+                  maxHeight: isSidebarCollapsed ? '0px' : '24px',
+                  transition: 'opacity 0.2s ease, max-height 0.3s ease',
+                }}
+              >
+                Infrastructure & Ops
+              </div>
               <button
                 onClick={() => navigateTo('admin-health')}
                 style={{
@@ -825,11 +925,26 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...(currentView === 'admin-health' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
                   padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
                 }}
-                title={isSidebarCollapsed ? 'Financial Integrations' : undefined}
+                title="Financial Integrations"
               >
-                <span>🔌</span>
-                {!isSidebarCollapsed && <span>Financial Integrations</span>}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                  <Icons.Plug />
+                </div>
+                <span
+                  style={{
+                    opacity: isSidebarCollapsed ? 0 : 1,
+                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  Financial Integrations
+                </span>
               </button>
               <button
                 onClick={() => navigateTo('admin-thresholds')}
@@ -838,11 +953,26 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...(currentView === 'admin-thresholds' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
                   padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
                 }}
-                title={isSidebarCollapsed ? 'AI Anomaly Thresholds' : undefined}
+                title="AI Anomaly Thresholds"
               >
-                <span>⚙️</span>
-                {!isSidebarCollapsed && <span>AI Anomaly Thresholds</span>}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                  <Icons.Settings />
+                </div>
+                <span
+                  style={{
+                    opacity: isSidebarCollapsed ? 0 : 1,
+                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  AI Anomaly Thresholds
+                </span>
               </button>
               <button
                 onClick={() => navigateTo('admin-users')}
@@ -851,11 +981,26 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...(currentView === 'admin-users' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
                   padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
                 }}
-                title={isSidebarCollapsed ? 'User & Access Control' : undefined}
+                title="User & Access Control"
               >
-                <span>👥</span>
-                {!isSidebarCollapsed && <span>User Directory & Access</span>}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                  <Icons.Users />
+                </div>
+                <span
+                  style={{
+                    opacity: isSidebarCollapsed ? 0 : 1,
+                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  User Directory & Access
+                </span>
               </button>
               <button
                 onClick={() => navigateTo('admin-logs')}
@@ -864,18 +1009,46 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...(currentView === 'admin-logs' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
                   padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
                 }}
-                title={isSidebarCollapsed ? 'System Logs & Sync' : undefined}
+                title="System Logs & Sync"
               >
-                <span>💻</span>
-                {!isSidebarCollapsed && <span>System Sync Logs</span>}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                  <Icons.Terminal />
+                </div>
+                <span
+                  style={{
+                    opacity: isSidebarCollapsed ? 0 : 1,
+                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  System Sync Logs
+                </span>
               </button>
 
-              {!isSidebarCollapsed && (
-                <div style={{ fontSize: '10px', fontWeight: 800, color: '#f59e0b', letterSpacing: '0.06em', padding: '8px 12px 4px', textTransform: 'uppercase' }}>
-                  Compliance & Governance
-                </div>
-              )}
+              <div
+                style={{
+                  fontSize: '10px',
+                  fontWeight: 800,
+                  color: '#f59e0b',
+                  letterSpacing: '0.06em',
+                  padding: isSidebarCollapsed ? '8px 0 4px' : '8px 12px 4px',
+                  textTransform: 'uppercase',
+                  textAlign: isSidebarCollapsed ? 'center' : 'left',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
+                  opacity: isSidebarCollapsed ? 0 : 1,
+                  maxHeight: isSidebarCollapsed ? '0px' : '24px',
+                  transition: 'opacity 0.2s ease, max-height 0.3s ease',
+                }}
+              >
+                Compliance & Governance
+              </div>
               <button
                 onClick={() => navigateTo('admin-trail')}
                 style={{
@@ -883,11 +1056,26 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...(currentView === 'admin-trail' || currentView === 'auditor-trail' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
                   padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
                 }}
-                title={isSidebarCollapsed ? 'Audit Trail Feed' : undefined}
+                title="Audit Trail Feed"
               >
-                <span>📜</span>
-                {!isSidebarCollapsed && <span>Audit Trail Feed</span>}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                  <Icons.FileText />
+                </div>
+                <span
+                  style={{
+                    opacity: isSidebarCollapsed ? 0 : 1,
+                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  Audit Trail Feed
+                </span>
               </button>
               <button
                 onClick={() => navigateTo('admin-sla')}
@@ -896,11 +1084,26 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...(currentView === 'admin-sla' || currentView === 'auditor-sla' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
                   padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
                 }}
-                title={isSidebarCollapsed ? 'SLA Compliance Stats' : undefined}
+                title="SLA Compliance Stats"
               >
-                <span>🎯</span>
-                {!isSidebarCollapsed && <span>SLA Compliance Stats</span>}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                  <Icons.Target />
+                </div>
+                <span
+                  style={{
+                    opacity: isSidebarCollapsed ? 0 : 1,
+                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  SLA Compliance Stats
+                </span>
               </button>
               <button
                 onClick={() => navigateTo('admin-hitl')}
@@ -909,11 +1112,26 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...(currentView === 'admin-hitl' || currentView === 'auditor-hitl' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
                   padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
                 }}
-                title={isSidebarCollapsed ? 'HITL Governance Ratio' : undefined}
+                title="HITL Governance Ratio"
               >
-                <span>⚖️</span>
-                {!isSidebarCollapsed && <span>HITL Governance Ratio</span>}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                  <Icons.Scale />
+                </div>
+                <span
+                  style={{
+                    opacity: isSidebarCollapsed ? 0 : 1,
+                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  HITL Governance Ratio
+                </span>
               </button>
               <button
                 onClick={() => navigateTo('admin-export')}
@@ -922,11 +1140,26 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...(currentView === 'admin-export' || currentView === 'auditor-export' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
                   padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
                 }}
-                title={isSidebarCollapsed ? 'Export Compliance Reports' : undefined}
+                title="Export Reports"
               >
-                <span>📥</span>
-                {!isSidebarCollapsed && <span>Export Reports</span>}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                  <Icons.Download />
+                </div>
+                <span
+                  style={{
+                    opacity: isSidebarCollapsed ? 0 : 1,
+                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  Export Reports
+                </span>
               </button>
             </>
           )}
@@ -934,7 +1167,6 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
           {/* Role 1: Finance Analyst Specific Page Buttons */}
           {activeRole === 1 && (
             <>
-
               <button
                 onClick={() => navigateTo('analyst-tasks')}
                 style={{
@@ -942,11 +1174,26 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...(currentView === 'analyst-tasks' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
                   padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
                 }}
-                title={isSidebarCollapsed ? 'My Tasks Queue' : undefined}
+                title="My Tasks Queue"
               >
-                <span>📋</span>
-                {!isSidebarCollapsed && <span>My Tasks Queue</span>}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                  <Icons.Tasks />
+                </div>
+                <span
+                  style={{
+                    opacity: isSidebarCollapsed ? 0 : 1,
+                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  My Tasks Queue
+                </span>
               </button>
               <button
                 onClick={() => navigateTo('analyst-sla')}
@@ -955,11 +1202,26 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...(currentView === 'analyst-sla' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
                   padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
                 }}
-                title={isSidebarCollapsed ? 'SLA Tracker & Alerts' : undefined}
+                title="SLA Tracker & Alerts"
               >
-                <span>⏱️</span>
-                {!isSidebarCollapsed && <span>SLA Tracker & Alerts</span>}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                  <Icons.Clock />
+                </div>
+                <span
+                  style={{
+                    opacity: isSidebarCollapsed ? 0 : 1,
+                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  SLA Tracker & Alerts
+                </span>
               </button>
               <button
                 onClick={() => navigateTo('analyst-insights')}
@@ -968,11 +1230,26 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...(currentView === 'analyst-insights' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
                   padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
                 }}
-                title={isSidebarCollapsed ? 'AI Diagnostics & Actions' : undefined}
+                title="AI Diagnostics & Actions"
               >
-                <span>🔍</span>
-                {!isSidebarCollapsed && <span>AI Root-Cause & Action</span>}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                  <Icons.SearchSparkle />
+                </div>
+                <span
+                  style={{
+                    opacity: isSidebarCollapsed ? 0 : 1,
+                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  AI Root-Cause & Action
+                </span>
               </button>
             </>
           )}
@@ -980,58 +1257,125 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
           {/* Role 2: Executive (CFO) Specific Page Buttons */}
           {activeRole === 2 && (
             <>
-
               <button
+                className="fema-nav-btn-smooth"
                 onClick={() => navigateTo('cfo-kpis')}
                 style={{
                   ...styles.navButton,
                   ...(currentView === 'cfo-kpis' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
                   padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
                 }}
-                title={isSidebarCollapsed ? 'Strategic Financial KPIs' : undefined}
+                title="Strategic Financial KPIs"
               >
-                <span>🏛️</span>
-                {!isSidebarCollapsed && <span>Strategic Financial KPIs</span>}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                  <Icons.Building />
+                </div>
+                <span
+                  className="fema-nav-label-smooth"
+                  style={{
+                    opacity: isSidebarCollapsed ? 0 : 1,
+                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    transform: isSidebarCollapsed ? 'translateX(-8px)' : 'translateX(0)',
+                  }}
+                >
+                  Strategic Financial KPIs
+                </span>
               </button>
               <button
+                className="fema-nav-btn-smooth"
                 onClick={() => navigateTo('cfo-warnings')}
                 style={{
                   ...styles.navButton,
                   ...(currentView === 'cfo-warnings' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
                   padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
                 }}
-                title={isSidebarCollapsed ? 'Early Warnings & Covenants' : undefined}
+                title="Early Warnings & Covenants"
               >
-                <span>⚠️</span>
-                {!isSidebarCollapsed && <span>Early Warnings & Covenants</span>}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                  <Icons.WarningTriangle />
+                </div>
+                <span
+                  className="fema-nav-label-smooth"
+                  style={{
+                    opacity: isSidebarCollapsed ? 0 : 1,
+                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    transform: isSidebarCollapsed ? 'translateX(-8px)' : 'translateX(0)',
+                  }}
+                >
+                  Early Warnings & Covenants
+                </span>
               </button>
               <button
+                className="fema-nav-btn-smooth"
                 onClick={() => navigateTo('cfo-risks')}
                 style={{
                   ...styles.navButton,
                   ...(currentView === 'cfo-risks' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
                   padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
                 }}
-                title={isSidebarCollapsed ? 'Escalated Material Risks' : undefined}
+                title="Escalated Material Risks"
               >
-                <span>🚨</span>
-                {!isSidebarCollapsed && <span>Escalated Risks Sign-off</span>}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                  <Icons.ShieldAlert />
+                </div>
+                <span
+                  className="fema-nav-label-smooth"
+                  style={{
+                    opacity: isSidebarCollapsed ? 0 : 1,
+                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    transform: isSidebarCollapsed ? 'translateX(-8px)' : 'translateX(0)',
+                  }}
+                >
+                  Escalated Risks Sign-off
+                </span>
               </button>
               <button
+                className="fema-nav-btn-smooth"
                 onClick={() => navigateTo('cfo-brief')}
                 style={{
                   ...styles.navButton,
                   ...(currentView === 'cfo-brief' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
                   padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
                 }}
-                title={isSidebarCollapsed ? 'AI Executive Brief' : undefined}
+                title="AI Executive Brief"
               >
-                <span>✨</span>
-                {!isSidebarCollapsed && <span>AI Executive Brief</span>}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                  <Icons.Sparkles />
+                </div>
+                <span
+                  className="fema-nav-label-smooth"
+                  style={{
+                    opacity: isSidebarCollapsed ? 0 : 1,
+                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    transform: isSidebarCollapsed ? 'translateX(-8px)' : 'translateX(0)',
+                  }}
+                >
+                  AI Executive Brief
+                </span>
               </button>
             </>
           )}
@@ -1039,7 +1383,6 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
           {/* Role 3: Auditor Specific Page Buttons */}
           {activeRole === 3 && (
             <>
-
               <button
                 onClick={() => navigateTo('auditor-trail')}
                 style={{
@@ -1047,11 +1390,26 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...(currentView === 'auditor-trail' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
                   padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
                 }}
-                title={isSidebarCollapsed ? 'Audit Trail Feed' : undefined}
+                title="Audit Trail Feed"
               >
-                <span>📜</span>
-                {!isSidebarCollapsed && <span>Audit Trail Feed</span>}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                  <Icons.FileText />
+                </div>
+                <span
+                  style={{
+                    opacity: isSidebarCollapsed ? 0 : 1,
+                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  Audit Trail Feed
+                </span>
               </button>
               <button
                 onClick={() => navigateTo('auditor-sla')}
@@ -1060,11 +1418,26 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...(currentView === 'auditor-sla' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
                   padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
                 }}
-                title={isSidebarCollapsed ? 'SLA Compliance Report' : undefined}
+                title="SLA Compliance Report"
               >
-                <span>🎯</span>
-                {!isSidebarCollapsed && <span>SLA Compliance Stats</span>}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                  <Icons.Target />
+                </div>
+                <span
+                  style={{
+                    opacity: isSidebarCollapsed ? 0 : 1,
+                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  SLA Compliance Stats
+                </span>
               </button>
               <button
                 onClick={() => navigateTo('auditor-hitl')}
@@ -1073,11 +1446,26 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...(currentView === 'auditor-hitl' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
                   padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
                 }}
-                title={isSidebarCollapsed ? 'Human-in-the-Loop Governance' : undefined}
+                title="Human-in-the-Loop Governance"
               >
-                <span>⚖️</span>
-                {!isSidebarCollapsed && <span>HITL Governance Ratio</span>}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                  <Icons.Scale />
+                </div>
+                <span
+                  style={{
+                    opacity: isSidebarCollapsed ? 0 : 1,
+                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  HITL Governance Ratio
+                </span>
               </button>
               <button
                 onClick={() => navigateTo('auditor-export')}
@@ -1086,11 +1474,26 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                   ...(currentView === 'auditor-export' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
                   padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
                 }}
-                title={isSidebarCollapsed ? 'Report Generator & Export' : undefined}
+                title="Report Generator & Export"
               >
-                <span>📥</span>
-                {!isSidebarCollapsed && <span>Export Reports</span>}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                  <Icons.Download />
+                </div>
+                <span
+                  style={{
+                    opacity: isSidebarCollapsed ? 0 : 1,
+                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    transition: 'opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  Export Reports
+                </span>
               </button>
             </>
           )}
@@ -1098,36 +1501,68 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
           {/* General Ledger & Exceptions */}
           {(activeRole === 1 || activeRole === 2) && (
             <>
-
-
               <button
+                className="fema-nav-btn-smooth"
                 onClick={() => navigateTo('records')}
                 style={{
                   ...styles.navButton,
                   ...(currentView === 'records' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '10px' : '9px 14px',
+                  padding: isSidebarCollapsed ? '10px' : '9px 12px',
                   position: 'relative',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
                 }}
-                title={isSidebarCollapsed ? 'Financial Records' : undefined}
+                title="Financial Records"
               >
-                <Icons.Records />
-                {!isSidebarCollapsed && <span>Financial Records</span>}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                  <Icons.Records />
+                </div>
+                <span
+                  className="fema-nav-label-smooth"
+                  style={{
+                    opacity: isSidebarCollapsed ? 0 : 1,
+                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    transform: isSidebarCollapsed ? 'translateX(-8px)' : 'translateX(0)',
+                  }}
+                >
+                  Financial Records
+                </span>
               </button>
 
               <button
+                className="fema-nav-btn-smooth"
                 onClick={() => navigateTo('exceptions')}
                 style={{
                   ...styles.navButton,
                   ...(currentView === 'exceptions' ? styles.navButtonActive : {}),
                   justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '10px' : '9px 14px',
+                  padding: isSidebarCollapsed ? '10px' : '9px 12px',
                   position: 'relative',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
                 }}
-                title={isSidebarCollapsed ? `Exception Cases (${summary.open_exceptions})` : undefined}
+                title={`Exception Cases (${summary.open_exceptions})`}
               >
-                <Icons.Exceptions />
-                {!isSidebarCollapsed && <span>All Exceptions</span>}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                  <Icons.Exceptions />
+                </div>
+                <span
+                  className="fema-nav-label-smooth"
+                  style={{
+                    opacity: isSidebarCollapsed ? 0 : 1,
+                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    transform: isSidebarCollapsed ? 'translateX(-8px)' : 'translateX(0)',
+                  }}
+                >
+                  All Exceptions
+                </span>
                 {summary.open_exceptions > 0 && (
                   isSidebarCollapsed ? (
                     <span
@@ -1153,62 +1588,38 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
           {/* AI Copilot */}
           {(activeRole === 1 || activeRole === 2) && (
             <button
+              className="fema-nav-btn-smooth"
               onClick={() => navigateTo('chat')}
               style={{
                 ...styles.navButton,
                 ...(currentView === 'chat' ? styles.navButtonActive : {}),
                 justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                padding: isSidebarCollapsed ? '10px' : '9px 14px',
+                padding: isSidebarCollapsed ? '10px' : '9px 12px',
                 position: 'relative',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
               }}
-              title={isSidebarCollapsed ? 'Finance AI Copilot' : undefined}
+              title="Finance AI Copilot"
             >
-              <Icons.Chat />
-              {!isSidebarCollapsed && <span>Finance AI Copilot</span>}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                <Icons.Chat />
+              </div>
+              <span
+                className="fema-nav-label-smooth"
+                style={{
+                  opacity: isSidebarCollapsed ? 0 : 1,
+                  maxWidth: isSidebarCollapsed ? '0px' : '200px',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  transform: isSidebarCollapsed ? 'translateX(-8px)' : 'translateX(0)',
+                }}
+              >
+                Finance AI Copilot
+              </span>
             </button>
           )}
         </nav>
-
-        <div style={styles.sidebarFooter}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {/* Light / Dark Mode Toggle */}
-            <button
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              style={{
-                ...styles.themeToggleBtn,
-                justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                padding: isSidebarCollapsed ? '8px' : '6px 12px',
-              }}
-              title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            >
-              {theme === 'dark' ? <Icons.Sun /> : <Icons.Moon />}
-              {!isSidebarCollapsed && (
-                <span style={{ fontSize: '12px', fontWeight: 600 }}>
-                  {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-                </span>
-              )}
-            </button>
-
-            {/* Logout Button */}
-            <button
-              onClick={handleSignOut}
-              style={{
-                ...styles.themeToggleBtn,
-                justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                padding: isSidebarCollapsed ? '8px' : '6px 12px',
-                color: 'var(--fema-accent-rose, #ef4444)',
-              }}
-              title="Sign Out"
-            >
-              <Icons.LogOut />
-              {!isSidebarCollapsed && (
-                <span style={{ fontSize: '12px', fontWeight: 600 }}>
-                  Sign Out
-                </span>
-              )}
-            </button>
-          </div>
-        </div>
       </aside>
 
       {/* ---------------------------------------------------------------- */}
@@ -1217,7 +1628,8 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
       <main
         style={{
           ...styles.mainContent,
-          height: '100vh',
+          height: user ? 'calc(100vh - 64px)' : '100vh',
+          maxHeight: user ? 'calc(100vh - 64px)' : '100vh',
           display: 'flex',
           flexDirection: 'column',
           overflowY: currentView === 'chat' ? 'hidden' : 'auto',

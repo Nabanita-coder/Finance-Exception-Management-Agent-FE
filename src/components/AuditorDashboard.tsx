@@ -335,6 +335,7 @@ export const AuditorDashboard: React.FC<AuditorDashboardProps> = ({
         fetch(trailUrl, { headers: getAuthHeaders() }),
         fetch(AUDITOR_ENDPOINTS.SLA_COMPLIANCE, { headers: getAuthHeaders() }),
         fetch(AUDITOR_ENDPOINTS.HITL_METRICS, { headers: getAuthHeaders() }),
+        new Promise((resolve) => setTimeout(resolve, 450)),
       ]);
 
       const [trailData, compData, hitlData] = await Promise.all([
@@ -424,12 +425,37 @@ export const AuditorDashboard: React.FC<AuditorDashboardProps> = ({
           </p>
         </div>
         <button
-          className="fema-btn fema-btn-outline"
+          className={`fema-btn fema-btn-outline fema-refresh-btn ${loading ? "is-loading" : ""}`}
           onClick={fetchAuditorData}
           disabled={loading}
-          style={{ display: "flex", alignItems: "center", gap: "6px" }}
+          title="Refresh"
+          aria-label="Refresh"
+          style={{
+            width: "36px",
+            height: "36px",
+            padding: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: "10px",
+            flexShrink: 0,
+          }}
         >
-          <span>↻</span> {loading ? "Refreshing..." : "Refresh Ledger"}
+          <svg
+            width="17"
+            height="17"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+            <path d="M3 3v5h5" />
+            <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+            <path d="M16 21h5v-5" />
+          </svg>
         </button>
       </div>
 
@@ -447,7 +473,9 @@ export const AuditorDashboard: React.FC<AuditorDashboardProps> = ({
               Target: {compliance?.target_rate_pct || 95.0}% Benchmark
             </span>
           </div>
-          <span style={{ fontSize: "20px" }}>🎯</span>
+          <div style={{ color: "#10b981", display: "flex", alignItems: "center", justifyContent: "center", padding: "8px", background: "rgba(16, 185, 129, 0.1)", borderRadius: "8px" }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+          </div>
         </div>
 
         <div className="fema-kpi-card-compact">
@@ -458,7 +486,9 @@ export const AuditorDashboard: React.FC<AuditorDashboardProps> = ({
               Mandate: &ge; 60.0% (SOX 404 Met)
             </span>
           </div>
-          <span style={{ fontSize: "20px" }}>⚖️</span>
+          <div style={{ color: "#fbbf24", display: "flex", alignItems: "center", justifyContent: "center", padding: "8px", background: "rgba(251, 191, 36, 0.1)", borderRadius: "8px" }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>
+          </div>
         </div>
 
         <div className="fema-kpi-card-compact">
@@ -471,7 +501,9 @@ export const AuditorDashboard: React.FC<AuditorDashboardProps> = ({
               {compliance?.currently_breached ? "Audit Justification Required" : "Zero Breaches"}
             </span>
           </div>
-          <span style={{ fontSize: "20px" }}>🚨</span>
+          <div style={{ color: compliance?.currently_breached ? "#f43f5e" : "#10b981", display: "flex", alignItems: "center", justifyContent: "center", padding: "8px", background: compliance?.currently_breached ? "rgba(244, 63, 94, 0.1)" : "rgba(16, 185, 129, 0.1)", borderRadius: "8px" }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+          </div>
         </div>
 
         <div className="fema-kpi-card-compact">
@@ -482,7 +514,9 @@ export const AuditorDashboard: React.FC<AuditorDashboardProps> = ({
               SHA-256 Hash Chain Verified
             </span>
           </div>
-          <span style={{ fontSize: "20px" }}>📜</span>
+          <div style={{ color: "#0ea5e9", display: "flex", alignItems: "center", justifyContent: "center", padding: "8px", background: "rgba(14, 165, 233, 0.1)", borderRadius: "8px" }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+          </div>
         </div>
       </div>
 
@@ -992,7 +1026,9 @@ export const AuditorDashboard: React.FC<AuditorDashboardProps> = ({
           >
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <span style={{ fontSize: "28px" }}>⚖️</span>
+                <div style={{ color: "#d97706", display: "flex", alignItems: "center", justifyContent: "center", padding: "10px", background: "rgba(217, 119, 6, 0.15)", borderRadius: "10px" }}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>
+                </div>
                 <div>
                   <h3 style={{ fontSize: "16px", fontWeight: 700, color: "var(--fema-text-primary)", margin: 0 }}>
                     Sarbanes-Oxley (SOX 404) & ISO 27001 AI Decision Integrity
@@ -1178,7 +1214,9 @@ export const AuditorDashboard: React.FC<AuditorDashboardProps> = ({
                 }}
               >
                 <div>
-                  <div style={{ fontSize: "24px", marginBottom: "8px" }}>📥</div>
+                  <div style={{ color: "var(--fema-accent-primary)", display: "flex", alignItems: "center", justifyContent: "center", width: "40px", height: "40px", background: "rgba(99, 102, 241, 0.1)", borderRadius: "8px", marginBottom: "12px" }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  </div>
                   <h4 style={{ fontSize: "14px", fontWeight: 700, color: "var(--fema-text-primary)", margin: "0 0 6px" }}>
                     CSV Spreadsheet Export
                   </h4>
@@ -1208,7 +1246,9 @@ export const AuditorDashboard: React.FC<AuditorDashboardProps> = ({
                 }}
               >
                 <div>
-                  <div style={{ fontSize: "24px", marginBottom: "8px" }}>📄</div>
+                  <div style={{ color: "#0ea5e9", display: "flex", alignItems: "center", justifyContent: "center", width: "40px", height: "40px", background: "rgba(14, 165, 233, 0.1)", borderRadius: "8px", marginBottom: "12px" }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                  </div>
                   <h4 style={{ fontSize: "14px", fontWeight: 700, color: "var(--fema-text-primary)", margin: "0 0 6px" }}>
                     JSON Cryptographic Ledger
                   </h4>
@@ -1238,7 +1278,9 @@ export const AuditorDashboard: React.FC<AuditorDashboardProps> = ({
                 }}
               >
                 <div>
-                  <div style={{ fontSize: "24px", marginBottom: "8px" }}>🖨️</div>
+                  <div style={{ color: "#10b981", display: "flex", alignItems: "center", justifyContent: "center", width: "40px", height: "40px", background: "rgba(16, 185, 129, 0.1)", borderRadius: "8px", marginBottom: "12px" }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                  </div>
                   <h4 style={{ fontSize: "14px", fontWeight: 700, color: "var(--fema-text-primary)", margin: "0 0 6px" }}>
                     Official PDF / Print Dossier
                   </h4>

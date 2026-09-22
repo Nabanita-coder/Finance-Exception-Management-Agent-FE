@@ -251,6 +251,7 @@ export const AnalystDashboard: React.FC<AnalystDashboardProps> = ({
       const [tasksRes, alertsRes] = await Promise.all([
         fetch(ANALYST_ENDPOINTS.TASKS, { headers: getAuthHeaders() }),
         fetch(ANALYST_ENDPOINTS.SLA_ALERTS, { headers: getAuthHeaders() }),
+        new Promise((resolve) => setTimeout(resolve, 450)),
       ]);
 
       const [tasksData, alertsData] = await Promise.all([
@@ -382,11 +383,37 @@ export const AnalystDashboard: React.FC<AnalystDashboardProps> = ({
           </p>
         </div>
         <button
-          className="fema-btn fema-btn-outline"
+          className={`fema-btn fema-btn-outline fema-refresh-btn ${loading ? "is-loading" : ""}`}
           onClick={fetchAnalystData}
           disabled={loading}
+          title="Refresh"
+          aria-label="Refresh"
+          style={{
+            width: "36px",
+            height: "36px",
+            padding: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: "10px",
+            flexShrink: 0,
+          }}
         >
-          {loading ? "Refreshing..." : "↻ Refresh Queue"}
+          <svg
+            width="17"
+            height="17"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+            <path d="M3 3v5h5" />
+            <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+            <path d="M16 21h5v-5" />
+          </svg>
         </button>
       </div>
 
@@ -400,7 +427,9 @@ export const AnalystDashboard: React.FC<AnalystDashboardProps> = ({
             <span className="fema-kpi-compact-val">{tasks.length} Cases</span>
             <span className="fema-kpi-compact-sub" style={{ color: "#6366f1" }}>● In Operational Queue</span>
           </div>
-          <span style={{ fontSize: "20px" }}>📋</span>
+          <div style={{ color: "#6366f1", display: "flex", alignItems: "center", justifyContent: "center", padding: "8px", background: "rgba(99, 102, 241, 0.1)", borderRadius: "8px" }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+          </div>
         </div>
 
         <div className="fema-kpi-card-compact">
@@ -411,7 +440,9 @@ export const AnalystDashboard: React.FC<AnalystDashboardProps> = ({
               {criticalTasksCount > 0 ? "Requires Immediate Action" : "Within Baseline"}
             </span>
           </div>
-          <span style={{ fontSize: "20px" }}>🔥</span>
+          <div style={{ color: criticalTasksCount > 0 ? "#f43f5e" : "#10b981", display: "flex", alignItems: "center", justifyContent: "center", padding: "8px", background: criticalTasksCount > 0 ? "rgba(244, 63, 94, 0.1)" : "rgba(16, 185, 129, 0.1)", borderRadius: "8px" }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+          </div>
         </div>
 
         <div className="fema-kpi-card-compact">
@@ -422,7 +453,9 @@ export const AnalystDashboard: React.FC<AnalystDashboardProps> = ({
               {urgentSlaCount > 0 ? "Countdown Expired / Nearing" : "100% Within Target"}
             </span>
           </div>
-          <span style={{ fontSize: "20px" }}>⏱️</span>
+          <div style={{ color: urgentSlaCount > 0 ? "#f43f5e" : "#10b981", display: "flex", alignItems: "center", justifyContent: "center", padding: "8px", background: urgentSlaCount > 0 ? "rgba(244, 63, 94, 0.1)" : "rgba(16, 185, 129, 0.1)", borderRadius: "8px" }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+          </div>
         </div>
 
         <div className="fema-kpi-card-compact">
@@ -431,7 +464,9 @@ export const AnalystDashboard: React.FC<AnalystDashboardProps> = ({
             <span className="fema-kpi-compact-val">94.2%</span>
             <span className="fema-kpi-compact-sub" style={{ color: "#a855f7" }}>Multivariate Hypothesis</span>
           </div>
-          <span style={{ fontSize: "20px" }}>🤖</span>
+          <div style={{ color: "#a855f7", display: "flex", alignItems: "center", justifyContent: "center", padding: "8px", background: "rgba(168, 85, 247, 0.1)", borderRadius: "8px" }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z" /></svg>
+          </div>
         </div>
       </div>
 
@@ -583,8 +618,9 @@ export const AnalystDashboard: React.FC<AnalystDashboardProps> = ({
                       padding: "12px 14px",
                     }}
                   >
-                    <div style={{ fontSize: "12px", fontWeight: 700, color: "#818cf8", marginBottom: "4px" }}>
-                      🧠 Primary Root-Cause Hypothesis:
+                    <div style={{ fontSize: "12px", fontWeight: 700, color: "#818cf8", marginBottom: "4px", display: "flex", alignItems: "center", gap: "6px" }}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z" /></svg>
+                      Primary Root-Cause Hypothesis:
                     </div>
                     <p style={{ fontSize: "12.5px", color: "var(--fema-text-primary)", lineHeight: 1.45, margin: 0 }}>
                       {aiInsight.primary_hypothesis}
@@ -600,8 +636,9 @@ export const AnalystDashboard: React.FC<AnalystDashboardProps> = ({
                       padding: "12px 14px",
                     }}
                   >
-                    <div style={{ fontSize: "12px", fontWeight: 700, color: "var(--fema-text-primary)", marginBottom: "6px" }}>
-                      🔍 Key Variance Drivers:
+                    <div style={{ fontSize: "12px", fontWeight: 700, color: "var(--fema-text-primary)", marginBottom: "6px", display: "flex", alignItems: "center", gap: "6px" }}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                      Key Variance Drivers:
                     </div>
                     <ul style={{ margin: 0, paddingLeft: "18px", fontSize: "12px", color: "var(--fema-text-secondary)", lineHeight: 1.4 }}>
                       {aiInsight.contributing_factors.map((f, idx) => (
@@ -619,8 +656,9 @@ export const AnalystDashboard: React.FC<AnalystDashboardProps> = ({
                       padding: "12px 14px",
                     }}
                   >
-                    <div style={{ fontSize: "12px", fontWeight: 700, color: "var(--fema-text-primary)", marginBottom: "6px" }}>
-                      📋 Suggested Remediation:
+                    <div style={{ fontSize: "12px", fontWeight: 700, color: "var(--fema-text-primary)", marginBottom: "6px", display: "flex", alignItems: "center", gap: "6px" }}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+                      Suggested Remediation:
                     </div>
                     <ul style={{ margin: 0, paddingLeft: "18px", fontSize: "12px", color: "var(--fema-text-secondary)", lineHeight: 1.4 }}>
                       {aiInsight.recommended_actions.map((act, idx) => (
@@ -679,7 +717,7 @@ export const AnalystDashboard: React.FC<AnalystDashboardProps> = ({
           {/* Table Toolbar */}
           <div className="fema-table-toolbar">
             <div className="fema-table-search-wrap">
-              <span style={{ fontSize: "14px", color: "var(--fema-text-muted)" }}>🔍</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fema-text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               <input
                 type="text"
                 className="fema-table-search-input"
@@ -957,8 +995,9 @@ export const AnalystDashboard: React.FC<AnalystDashboardProps> = ({
             ) : aiInsight && selectedTask ? (
               <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
                 <div style={{ background: "rgba(99, 102, 241, 0.08)", border: "1px solid rgba(99, 102, 241, 0.25)", borderRadius: "8px", padding: "14px" }}>
-                  <div style={{ fontSize: "12px", fontWeight: 700, color: "#818cf8", marginBottom: "4px" }}>
-                    🧠 Primary Root-Cause Hypothesis:
+                  <div style={{ fontSize: "12px", fontWeight: 700, color: "#818cf8", marginBottom: "4px", display: "flex", alignItems: "center", gap: "6px" }}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z" /></svg>
+                    Primary Root-Cause Hypothesis:
                   </div>
                   <p style={{ fontSize: "13px", color: "var(--fema-text-primary)", lineHeight: 1.45, margin: 0 }}>
                     {aiInsight.primary_hypothesis}
@@ -966,8 +1005,9 @@ export const AnalystDashboard: React.FC<AnalystDashboardProps> = ({
                 </div>
 
                 <div style={{ background: "var(--fema-surface-subtle)", border: "1px solid var(--fema-border)", borderRadius: "8px", padding: "14px" }}>
-                  <div style={{ fontSize: "12px", fontWeight: 700, color: "var(--fema-text-primary)", marginBottom: "6px" }}>
-                    🔍 Key Variance Drivers:
+                  <div style={{ fontSize: "12px", fontWeight: 700, color: "var(--fema-text-primary)", marginBottom: "6px", display: "flex", alignItems: "center", gap: "6px" }}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    Key Variance Drivers:
                   </div>
                   <ul style={{ margin: 0, paddingLeft: "18px", fontSize: "12.5px", color: "var(--fema-text-secondary)", lineHeight: 1.45 }}>
                     {aiInsight.contributing_factors.map((f, idx) => (
@@ -977,8 +1017,9 @@ export const AnalystDashboard: React.FC<AnalystDashboardProps> = ({
                 </div>
 
                 <div style={{ background: "var(--fema-surface-subtle)", border: "1px solid var(--fema-border)", borderRadius: "8px", padding: "14px" }}>
-                  <div style={{ fontSize: "12px", fontWeight: 700, color: "var(--fema-text-primary)", marginBottom: "6px" }}>
-                    📋 Recommended Corrective Actions:
+                  <div style={{ fontSize: "12px", fontWeight: 700, color: "var(--fema-text-primary)", marginBottom: "6px", display: "flex", alignItems: "center", gap: "6px" }}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+                    Recommended Corrective Actions:
                   </div>
                   <ul style={{ margin: 0, paddingLeft: "18px", fontSize: "12.5px", color: "var(--fema-text-secondary)", lineHeight: 1.45 }}>
                     {aiInsight.recommended_actions.map((act, idx) => (
