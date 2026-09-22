@@ -711,6 +711,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
           theme={theme}
           onToggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
           onNavigateHome={() => navigateTo('landing')}
+          onRoleChange={handleRoleChange}
         />
       )}
       <div style={styles.appShell}>
@@ -1232,13 +1233,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
             {activeRole === 0 && (
               <AdminDashboard
                 activeSection="all"
-                onNavigateSection={(sec) => {
-                  if (sec === 'trail' || sec === 'compliance' || sec === 'hitl' || sec === 'export') {
-                    navigateTo(`admin-${sec === 'compliance' ? 'sla' : sec}` as AppView);
-                  } else {
-                    navigateTo(`admin-${sec}` as AppView);
-                  }
-                }}
+                onNavigateSection={(sec) => navigateTo(`admin-${sec}` as AppView)}
                 records={records}
                 exceptions={exceptions}
               />
