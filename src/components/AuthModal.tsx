@@ -257,10 +257,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               value={roleId}
               onChange={(e) => setRoleId(Number(e.target.value))}
             >
-              <option value={0}>🛠️ System Administrator (Role 0)</option>
-              <option value={1}>📊 Accountable Owner / Finance Analyst (Role 1)</option>
-              <option value={2}>🏛️ Finance Leadership / Executive CFO (Role 2)</option>
-              <option value={3}>📋 Auditor / Compliance Officer (Role 3)</option>
+              <option value={0}>🛠️ System Administrator</option>
+              <option value={1}>📊 Accountable Owner / Finance Analyst</option>
+              <option value={2}>🏛️ Finance Leadership / Executive CFO</option>
+              <option value={3}>📋 Auditor / Compliance Officer</option>
             </select>
           </div>
 

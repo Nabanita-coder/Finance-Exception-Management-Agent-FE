@@ -5,7 +5,6 @@ import { Badge, getRoleBadgeVariant } from "./Badge";
 interface RoleNavbarProps {
   user: UserSession;
   activeRole: number;
-  onRoleChange: (newRole: number) => void;
   onSignOut: () => void;
   theme: "light" | "dark";
   onToggleTheme: () => void;
@@ -15,7 +14,6 @@ interface RoleNavbarProps {
 export const RoleNavbar: React.FC<RoleNavbarProps> = ({
   user,
   activeRole,
-  onRoleChange,
   onSignOut,
   theme,
   onToggleTheme,
@@ -45,29 +43,11 @@ export const RoleNavbar: React.FC<RoleNavbarProps> = ({
           </div>
         </div>
 
-        <div className="fema-nav-role-badge">
-          <Badge variant={getRoleBadgeVariant(activeRole)} size="md">
-            {currentRoleInfo.icon} {currentRoleInfo.title}
-          </Badge>
-        </div>
+
       </div>
 
       <div className="fema-navbar-right">
-        {/* Quick Role Switcher for Dynamic Exploration */}
-        <div className="fema-role-switcher-wrap">
-          <span className="fema-switcher-label">View Dashboard:</span>
-          <select
-            className="fema-role-select"
-            value={activeRole}
-            onChange={(e) => onRoleChange(Number(e.target.value))}
-            title="Switch perspective between the 4 dynamic dashboards"
-          >
-            <option value={0}>🛠️ 0 - System Administrator</option>
-            <option value={1}>📊 1 - Finance Analyst (Owner)</option>
-            <option value={2}>🏛️ 2 - Executive (CFO)</option>
-            <option value={3}>📋 3 - Auditor & Compliance</option>
-          </select>
-        </div>
+
 
         {/* Dark/Light Mode Toggle */}
         <button

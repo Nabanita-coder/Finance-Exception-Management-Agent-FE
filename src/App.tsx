@@ -199,6 +199,9 @@ const Icons = {
   Moon: () => (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></svg>
   ),
+  LogOut: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" x2="9" y1="12" y2="12" /></svg>
+  ),
 };
 
 // ============================================================================
@@ -800,7 +803,6 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
         <RoleNavbar
           user={user}
           activeRole={activeRole}
-          onRoleChange={handleRoleChange}
           onSignOut={handleSignOut}
           theme={theme}
           onToggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -906,11 +908,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
           {/* Role 0: System Administrator Specific Page Buttons */}
           {activeRole === 0 && (
             <>
-              {!isSidebarCollapsed && (
-                <div style={{ fontSize: '10px', fontWeight: 800, color: '#ef4444', letterSpacing: '0.06em', padding: '12px 14px 4px', textTransform: 'uppercase' }}>
-                  Admin Modules
-                </div>
-              )}
+
               <button
                 onClick={() => navigateTo('admin-health')}
                 style={{
@@ -969,11 +967,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
           {/* Role 1: Finance Analyst Specific Page Buttons */}
           {activeRole === 1 && (
             <>
-              {!isSidebarCollapsed && (
-                <div style={{ fontSize: '10px', fontWeight: 800, color: '#4f46e5', letterSpacing: '0.06em', padding: '12px 14px 4px', textTransform: 'uppercase' }}>
-                  Analyst Modules
-                </div>
-              )}
+
               <button
                 onClick={() => navigateTo('analyst-tasks')}
                 style={{
@@ -1019,11 +1013,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
           {/* Role 2: Executive (CFO) Specific Page Buttons */}
           {activeRole === 2 && (
             <>
-              {!isSidebarCollapsed && (
-                <div style={{ fontSize: '10px', fontWeight: 800, color: '#9333ea', letterSpacing: '0.06em', padding: '12px 14px 4px', textTransform: 'uppercase' }}>
-                  Executive Modules
-                </div>
-              )}
+
               <button
                 onClick={() => navigateTo('cfo-kpis')}
                 style={{
@@ -1082,11 +1072,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
           {/* Role 3: Auditor Specific Page Buttons */}
           {activeRole === 3 && (
             <>
-              {!isSidebarCollapsed && (
-                <div style={{ fontSize: '10px', fontWeight: 800, color: '#d97706', letterSpacing: '0.06em', padding: '12px 14px 4px', textTransform: 'uppercase' }}>
-                  Compliance Modules
-                </div>
-              )}
+
               <button
                 onClick={() => navigateTo('auditor-trail')}
                 style={{
@@ -1142,14 +1128,10 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
             </>
           )}
 
-          {/* Role 1 (Finance Analyst) Only: General Ledger & Exceptions */}
-          {activeRole === 1 && (
+          {/* General Ledger & Exceptions */}
+          {(activeRole === 1 || activeRole === 2) && (
             <>
-              {!isSidebarCollapsed && (
-                <div style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', letterSpacing: '0.06em', padding: '12px 14px 4px', textTransform: 'uppercase' }}>
-                  General Ledger
-                </div>
-              )}
+
 
               <button
                 onClick={() => navigateTo('records')}
@@ -1201,7 +1183,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
             </>
           )}
 
-          {/* AI Copilot: Only for Analyst (Role 1) and CFO (Role 2) */}
+          {/* AI Copilot */}
           {(activeRole === 1 || activeRole === 2) && (
             <button
               onClick={() => navigateTo('chat')}
@@ -1221,8 +1203,8 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
         </nav>
 
         <div style={styles.sidebarFooter}>
-          {/* Light / Dark Mode Toggle */}
-          <div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {/* Light / Dark Mode Toggle */}
             <button
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
               style={{
@@ -1236,6 +1218,25 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
               {!isSidebarCollapsed && (
                 <span style={{ fontSize: '12px', fontWeight: 600 }}>
                   {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                </span>
+              )}
+            </button>
+
+            {/* Logout Button */}
+            <button
+              onClick={handleSignOut}
+              style={{
+                ...styles.themeToggleBtn,
+                justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                padding: isSidebarCollapsed ? '8px' : '8px 12px',
+                color: 'var(--fema-accent-rose, #ef4444)',
+              }}
+              title="Sign Out"
+            >
+              <Icons.LogOut />
+              {!isSidebarCollapsed && (
+                <span style={{ fontSize: '12px', fontWeight: 600 }}>
+                  Sign Out
                 </span>
               )}
             </button>
@@ -1266,44 +1267,46 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
               <AdminDashboard
                 activeSection="all"
                 onNavigateSection={(sec) => navigateTo(`admin-${sec}` as AppView)}
+                records={records}
+                exceptions={exceptions}
               />
             )}
-            {activeRole === 1 && <AnalystDashboard activeSection="all" />}
-            {activeRole === 2 && <CfoDashboard activeSection="all" />}
-            {activeRole === 3 && <AuditorDashboard activeSection="all" />}
+            {activeRole === 1 && <AnalystDashboard activeSection="all" records={records} exceptions={exceptions} />}
+            {activeRole === 2 && <CfoDashboard activeSection="all" records={records} exceptions={exceptions} />}
+            {activeRole === 3 && <AuditorDashboard activeSection="all" records={records} exceptions={exceptions} />}
           </div>
         )}
 
         {/* Role 0: System Administrator Sub-pages */}
         {activeRole === 0 && currentView === 'admin-health' && (
-          <AdminDashboard activeSection="health" onNavigateSection={(sec) => navigateTo(`admin-${sec}` as AppView)} />
+          <AdminDashboard activeSection="health" onNavigateSection={(sec) => navigateTo(`admin-${sec}` as AppView)} records={records} exceptions={exceptions} />
         )}
         {activeRole === 0 && currentView === 'admin-thresholds' && (
-          <AdminDashboard activeSection="thresholds" onNavigateSection={(sec) => navigateTo(`admin-${sec}` as AppView)} />
+          <AdminDashboard activeSection="thresholds" onNavigateSection={(sec) => navigateTo(`admin-${sec}` as AppView)} records={records} exceptions={exceptions} />
         )}
         {activeRole === 0 && currentView === 'admin-users' && (
-          <AdminDashboard activeSection="users" onNavigateSection={(sec) => navigateTo(`admin-${sec}` as AppView)} />
+          <AdminDashboard activeSection="users" onNavigateSection={(sec) => navigateTo(`admin-${sec}` as AppView)} records={records} exceptions={exceptions} />
         )}
         {activeRole === 0 && currentView === 'admin-logs' && (
-          <AdminDashboard activeSection="logs" onNavigateSection={(sec) => navigateTo(`admin-${sec}` as AppView)} />
+          <AdminDashboard activeSection="logs" onNavigateSection={(sec) => navigateTo(`admin-${sec}` as AppView)} records={records} exceptions={exceptions} />
         )}
 
         {/* Role 1: Finance Analyst Sub-pages */}
-        {activeRole === 1 && currentView === 'analyst-tasks' && <AnalystDashboard activeSection="tasks" />}
-        {activeRole === 1 && currentView === 'analyst-sla' && <AnalystDashboard activeSection="sla" />}
-        {activeRole === 1 && currentView === 'analyst-insights' && <AnalystDashboard activeSection="insights" />}
+        {activeRole === 1 && currentView === 'analyst-tasks' && <AnalystDashboard activeSection="tasks" records={records} exceptions={exceptions} />}
+        {activeRole === 1 && currentView === 'analyst-sla' && <AnalystDashboard activeSection="sla" records={records} exceptions={exceptions} />}
+        {activeRole === 1 && currentView === 'analyst-insights' && <AnalystDashboard activeSection="insights" records={records} exceptions={exceptions} />}
 
         {/* Role 2: Executive (CFO) Sub-pages */}
-        {activeRole === 2 && currentView === 'cfo-kpis' && <CfoDashboard activeSection="kpis" />}
-        {activeRole === 2 && currentView === 'cfo-warnings' && <CfoDashboard activeSection="warnings" />}
-        {activeRole === 2 && currentView === 'cfo-risks' && <CfoDashboard activeSection="risks" />}
-        {activeRole === 2 && currentView === 'cfo-brief' && <CfoDashboard activeSection="brief" />}
+        {activeRole === 2 && currentView === 'cfo-kpis' && <CfoDashboard activeSection="kpis" records={records} exceptions={exceptions} />}
+        {activeRole === 2 && currentView === 'cfo-warnings' && <CfoDashboard activeSection="warnings" records={records} exceptions={exceptions} />}
+        {activeRole === 2 && currentView === 'cfo-risks' && <CfoDashboard activeSection="risks" records={records} exceptions={exceptions} />}
+        {activeRole === 2 && currentView === 'cfo-brief' && <CfoDashboard activeSection="brief" records={records} exceptions={exceptions} />}
 
         {/* Role 3: Auditor Sub-pages */}
-        {activeRole === 3 && currentView === 'auditor-trail' && <AuditorDashboard activeSection="trail" />}
-        {activeRole === 3 && currentView === 'auditor-sla' && <AuditorDashboard activeSection="compliance" />}
-        {activeRole === 3 && currentView === 'auditor-hitl' && <AuditorDashboard activeSection="hitl" />}
-        {activeRole === 3 && currentView === 'auditor-export' && <AuditorDashboard activeSection="export" />}
+        {activeRole === 3 && currentView === 'auditor-trail' && <AuditorDashboard activeSection="trail" records={records} exceptions={exceptions} />}
+        {activeRole === 3 && currentView === 'auditor-sla' && <AuditorDashboard activeSection="compliance" records={records} exceptions={exceptions} />}
+        {activeRole === 3 && currentView === 'auditor-hitl' && <AuditorDashboard activeSection="hitl" records={records} exceptions={exceptions} />}
+        {activeRole === 3 && currentView === 'auditor-export' && <AuditorDashboard activeSection="export" records={records} exceptions={exceptions} />}
 
         {/* ============================================================== */}
         {/* VIEW 2: FINANCIAL RECORDS                                      */}

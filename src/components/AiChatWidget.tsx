@@ -114,7 +114,7 @@ export const AiChatWidget: React.FC<AiChatWidgetProps> = ({
           <div className="fema-chat-status-dot"></div>
           <div>
             <div className="fema-chat-title">FEMA Conversational AI Copilot</div>
-            <div className="fema-chat-sub">Role Context: {roleName}</div>
+
           </div>
         </div>
         {isFloating && (

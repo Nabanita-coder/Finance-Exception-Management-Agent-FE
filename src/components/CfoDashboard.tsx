@@ -3,6 +3,17 @@ import { CFO_ENDPOINTS, getAuthHeaders } from "../config/apiConfig";
 import { Badge, getSeverityBadgeVariant } from "./Badge";
 import { Modal } from "./Modal";
 import { AiChatWidget } from "./AiChatWidget";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import type { FinancialRecord, ExceptionCase } from "../App";
 
 interface EarlyWarning {
   title: string;
@@ -41,141 +52,89 @@ interface ExecutiveBrief {
 
 interface CfoDashboardProps {
   activeSection?: "all" | "kpis" | "warnings" | "risks" | "brief" | "chat";
+  records?: FinancialRecord[];
+  exceptions?: ExceptionCase[];
 }
 
 // ============================================================================
 // SVG CHART: Executive Budget vs Actual Exposure by Cost Center (Dashboard Only)
 // ============================================================================
-const CfoExecutiveChart: React.FC<{ kpis: any }> = () => {
-  const units = [
-    { name: "Cloud Infra", budget: 350000, actual: 490000, variance: 40.0, risk: "CRITICAL" },
-    { name: "Enterprise Sales", budget: 1200000, actual: 720000, variance: -40.0, risk: "CRITICAL" },
-    { name: "Talent Acq.", budget: 150000, actual: 185000, variance: 23.3, risk: "HIGH" },
-    { name: "Marketing & Growth", budget: 250000, actual: 285000, variance: 14.0, risk: "MEDIUM" },
-    { name: "SMB Operations", budget: 800000, actual: 820000, variance: 2.5, risk: "LOW" },
-  ];
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div style={{ background: '#0f172a', border: '1px solid #334155', padding: '12px', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.5)' }}>
+        <p style={{ margin: 0, fontWeight: 'bold', color: '#f8fafc', marginBottom: '8px' }}>{label}</p>
+        <p style={{ margin: '4px 0', color: '#6366f1', fontSize: '13px' }}>Budget: ${payload[0].value.toLocaleString()}</p>
+        <p style={{ margin: '4px 0', color: payload[1].value > payload[0].value ? '#f43f5e' : '#10b981', fontSize: '13px' }}>
+          Actual: ${payload[1].value.toLocaleString()}
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
 
-  const svgWidth = 760;
-  const svgHeight = 220;
-  const padLeft = 65;
-  const padRight = 25;
-  const padTop = 25;
-  const padBottom = 40;
-
-  const chartW = svgWidth - padLeft - padRight;
-  const chartH = svgHeight - padTop - padBottom;
-  const maxVal = 1300000;
-
-  const groupW = chartW / units.length;
-  const barW = Math.min(22, (groupW - 24) / 2);
+const CfoExecutiveChart: React.FC<{ kpis: any, records?: FinancialRecord[] }> = ({ kpis, records }) => {
+  const dynamicData = React.useMemo(() => {
+    if (records && records.length > 0) {
+      const grouped = records.reduce((acc: any, r: FinancialRecord) => {
+        const d = r.department || "General";
+        if (!acc[d]) acc[d] = { name: d, budget: 0, actual: 0, variance: 0, risk: "LOW" };
+        acc[d].budget += Number(r.budget_amount) || 0;
+        acc[d].actual += Number(r.actual_amount) || 0;
+        return acc;
+      }, {});
+      return Object.values(grouped).map((item: any) => {
+        const v = item.budget > 0 ? ((item.actual - item.budget) / item.budget) * 100 : 0;
+        item.variance = Number(v.toFixed(1));
+        item.risk = Math.abs(v) >= 30 ? "CRITICAL" : Math.abs(v) >= 20 ? "HIGH" : Math.abs(v) >= 10 ? "MEDIUM" : "LOW";
+        return item;
+      });
+    }
+    return [
+      { name: "Cloud Infra", budget: 350000, actual: 490000, variance: 40.0, risk: "CRITICAL" },
+      { name: "Enterprise Sales", budget: 1200000, actual: 720000, variance: -40.0, risk: "CRITICAL" },
+      { name: "Talent Acq.", budget: 150000, actual: 185000, variance: 23.3, risk: "HIGH" },
+      { name: "Marketing & Growth", budget: 250000, actual: 285000, variance: 14.0, risk: "MEDIUM" },
+      { name: "SMB Operations", budget: 800000, actual: 820000, variance: 2.5, risk: "LOW" },
+    ];
+  }, [records]);
 
   return (
-    <div className="fema-grouped-chart-wrap">
-      <svg
-        viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-        style={{ width: "100%", height: "220px", display: "block" }}
-      >
-        {/* Grid lines */}
-        {[0, 0.25, 0.5, 0.75, 1].map((ratio, idx) => {
-          const y = padTop + chartH - ratio * chartH;
-          const val = Math.round(maxVal * ratio);
-          return (
-            <g key={idx}>
-              <line
-                x1={padLeft}
-                y1={y}
-                x2={padLeft + chartW}
-                y2={y}
-                stroke="rgba(255, 255, 255, 0.07)"
-                strokeDasharray="3 3"
-              />
-              <text
-                x={padLeft - 10}
-                y={y + 4}
-                textAnchor="end"
-                fontSize="10"
-                fill="var(--fema-text-muted)"
-                fontFamily="IBM Plex Mono, monospace"
-              >
-                ${val >= 1000000 ? `${(val / 1000000).toFixed(1)}M` : `${Math.round(val / 1000)}k`}
-              </text>
-            </g>
-          );
-        })}
-
-        {/* Unit comparative bars */}
-        {units.map((u, idx) => {
-          const groupX = padLeft + idx * groupW;
-          const centerX = groupX + groupW / 2;
-
-          const budgetH = Math.max(4, (u.budget / maxVal) * chartH);
-          const actualH = Math.max(4, (u.actual / maxVal) * chartH);
-
-          const budgetY = padTop + chartH - budgetH;
-          const actualY = padTop + chartH - actualH;
-
-          const isOver = u.actual > u.budget;
-          const barColor = isOver ? "#f43f5e" : "#10b981";
-
-          return (
-            <g key={u.name}>
-              {/* Budget Bar */}
-              <rect
-                x={centerX - barW - 2}
-                y={budgetY}
-                width={barW}
-                height={budgetH}
-                fill="#6366f1"
-                rx={3}
-                opacity={0.85}
-              />
-              {/* Actual Bar */}
-              <rect
-                x={centerX + 2}
-                y={actualY}
-                width={barW}
-                height={actualH}
-                fill={barColor}
-                rx={3}
-              />
-
-              {/* Variance Tag */}
-              <text
-                x={centerX}
-                y={Math.min(budgetY, actualY) - 8}
-                textAnchor="middle"
-                fontSize="10"
-                fontWeight="700"
-                fill={barColor}
-                fontFamily="IBM Plex Mono, monospace"
-              >
-                {u.variance > 0 ? `+${u.variance.toFixed(0)}%` : `${u.variance.toFixed(0)}%`}
-              </text>
-
-              {/* Unit Label */}
-              <text
-                x={centerX}
-                y={padTop + chartH + 16}
-                textAnchor="middle"
-                fontSize="11"
-                fontWeight="600"
-                fill="var(--fema-text-primary)"
-              >
-                {u.name}
-              </text>
-              <text
-                x={centerX}
-                y={padTop + chartH + 30}
-                textAnchor="middle"
-                fontSize="10"
-                fill="var(--fema-text-muted)"
-              >
-                {u.risk} Risk
-              </text>
-            </g>
-          );
-        })}
-      </svg>
+    <div style={{ width: '100%', height: 280, marginTop: '20px' }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart
+          data={dynamicData}
+          margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
+          barGap={4}
+        >
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.05)" vertical={false} />
+          <XAxis 
+            dataKey="name" 
+            stroke="var(--fema-text-muted)" 
+            fontSize={12} 
+            tickLine={false} 
+            axisLine={false} 
+            dy={10}
+          />
+          <YAxis 
+            stroke="var(--fema-text-muted)" 
+            fontSize={12} 
+            tickLine={false} 
+            axisLine={false} 
+            tickFormatter={(value) => value >= 1000000 ? `$${(value / 1000000).toFixed(1)}M` : `$${value / 1000}k`} 
+            dx={-10}
+          />
+          <Tooltip content={<CustomTooltip />} cursor={{fill: 'rgba(255,255,255,0.02)'}} />
+          <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
+          <Bar dataKey="budget" name="Approved Budget" fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={40} />
+          <Bar dataKey="actual" name="Actual Spend" radius={[4, 4, 0, 0]} maxBarSize={40}>
+            {dynamicData.map((entry: any, index: number) => (
+              <Cell key={`cell-${index}`} fill={entry.actual > entry.budget ? "#f43f5e" : "#10b981"} />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
     </div>
   );
 };
@@ -185,6 +144,8 @@ const CfoExecutiveChart: React.FC<{ kpis: any }> = () => {
 // ============================================================================
 export const CfoDashboard: React.FC<CfoDashboardProps> = ({
   activeSection = "all",
+  records,
+  exceptions,
 }) => {
   const [kpis, setKpis] = useState<any>(null);
   const [warnings, setWarnings] = useState<EarlyWarning[]>([]);
@@ -262,7 +223,7 @@ export const CfoDashboard: React.FC<CfoDashboardProps> = ({
       {/* View Header */}
       <div className="fema-view-header" style={{ marginBottom: "20px" }}>
         <div>
-          <div className="fema-role-tag cfo">ROLE 2: FINANCE LEADERSHIP / EXECUTIVE (CFO)</div>
+
           <h1 className="fema-view-title" style={{ fontSize: "24px" }}>
             {activeSection === "kpis"
               ? "Strategic Financial Indicators & Cash Telemetry"
@@ -362,7 +323,7 @@ export const CfoDashboard: React.FC<CfoDashboardProps> = ({
               </div>
             </div>
 
-            <CfoExecutiveChart kpis={kpis} />
+            <CfoExecutiveChart kpis={kpis} records={records} />
           </div>
 
           {/* Symmetrical Dual Panels */}
@@ -590,6 +551,19 @@ export const CfoDashboard: React.FC<CfoDashboardProps> = ({
                 </tbody>
               </table>
             </div>
+          </div>
+          <div className="fema-section-card" style={{ padding: "20px 24px" }}>
+            <div className="fema-section-header" style={{ marginBottom: "16px" }}>
+              <div>
+                <h3 className="fema-section-title" style={{ fontSize: "16px" }}>
+                  Consolidated Budget vs. Actual Expenditure by Business Unit
+                </h3>
+                <p className="fema-section-sub">
+                  Executive cross-departmental capital deployment and variance exposure benchmarking
+                </p>
+              </div>
+            </div>
+            <CfoExecutiveChart kpis={kpis} records={records} />
           </div>
         </div>
       )}

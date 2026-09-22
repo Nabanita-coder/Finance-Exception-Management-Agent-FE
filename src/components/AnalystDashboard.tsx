@@ -49,8 +49,12 @@ interface RootCauseInsight {
   confidence_score: number;
 }
 
+import type { FinancialRecord, ExceptionCase } from "../App";
+
 interface AnalystDashboardProps {
   activeSection?: "all" | "tasks" | "sla" | "insights" | "chat";
+  records?: FinancialRecord[];
+  exceptions?: ExceptionCase[];
 }
 
 // ============================================================================
@@ -199,6 +203,8 @@ const AnalystVarianceChart: React.FC<{ tasks: AnalystTask[] }> = ({ tasks }) => 
 // ============================================================================
 export const AnalystDashboard: React.FC<AnalystDashboardProps> = ({
   activeSection = "all",
+  records: propRecords,
+  exceptions: propExceptions,
 }) => {
   const [tasks, setTasks] = useState<AnalystTask[]>([]);
   const [slaAlerts, setSlaAlerts] = useState<SlaAlert[]>([]);
@@ -223,6 +229,20 @@ export const AnalystDashboard: React.FC<AnalystDashboardProps> = ({
 
   // Chat prefill state
   const [chatPrompt] = useState("");
+
+  useEffect(() => {
+    if (propExceptions && propExceptions.length > 0) {
+      const mappedTasks = propExceptions.map((e: any) => ({
+        ...e,
+        department: e.record?.department || e.financial_record?.department || "General",
+        category: e.record?.category || e.financial_record?.category || "Uncategorized",
+        budget_amount: e.record?.budget_amount || e.financial_record?.budget_amount || 0,
+        actual_amount: e.record?.actual_amount || e.financial_record?.actual_amount || 0,
+      }));
+      setTasks(mappedTasks);
+      if (!selectedTask) setSelectedTask(mappedTasks[0]);
+    }
+  }, [propExceptions]);
 
   const fetchAnalystData = async () => {
     setLoading(true);
@@ -345,7 +365,7 @@ export const AnalystDashboard: React.FC<AnalystDashboardProps> = ({
       {/* View Header */}
       <div className="fema-view-header" style={{ marginBottom: "20px" }}>
         <div>
-          <div className="fema-role-tag analyst">ROLE 1: FINANCE ANALYST & ACCOUNTABLE OWNER</div>
+
           <h1 className="fema-view-title" style={{ fontSize: "24px" }}>
             {activeSection === "tasks"
               ? "My Assigned Exceptions Queue"

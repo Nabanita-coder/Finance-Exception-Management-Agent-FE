@@ -47,31 +47,13 @@ interface SystemLog {
   created_at: string | null;
 }
 
-interface FinancialRecord {
-  id: number;
-  category: string;
-  period: string;
-  department: string;
-  budget_amount: number;
-  actual_amount: number;
-  variance_amount: number;
-  variance_percent: number;
-}
-
-interface ExceptionCase {
-  id: number;
-  financial_record_id: number;
-  financial_record?: FinancialRecord;
-  variance_percent: number;
-  severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
-  possible_reason: string;
-  status: "OPEN" | "IN_PROGRESS" | "RESOLVED" | "ESCALATED";
-  sla_deadline?: string;
-}
+import type { FinancialRecord, ExceptionCase } from "../App";
 
 interface AdminDashboardProps {
   activeSection?: "all" | "health" | "thresholds" | "users" | "logs";
   onNavigateSection?: (section: "health" | "thresholds" | "users" | "logs") => void;
+  records?: FinancialRecord[];
+  exceptions?: ExceptionCase[];
 }
 
 // ============================================================================
@@ -477,6 +459,8 @@ const DepartmentalGroupedBarChart: React.FC<{ data: DeptStat[] }> = ({ data }) =
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   activeSection = "all",
   onNavigateSection,
+  records: propRecords,
+  exceptions: propExceptions,
 }) => {
   const [integrations, setIntegrations] = useState<IntegrationSystem[]>([]);
   const [thresholds, setThresholds] = useState<ThresholdParam[]>([]);
@@ -519,6 +503,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       setPingingId(null);
     }, 400);
   };
+
+  useEffect(() => {
+    if (propRecords && propRecords.length > 0) setRecords(propRecords);
+  }, [propRecords]);
+
+  useEffect(() => {
+    if (propExceptions && propExceptions.length > 0) setExceptions(propExceptions);
+  }, [propExceptions]);
 
   const fetchAdminData = async () => {
     setLoading(true);
@@ -728,7 +720,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       {/* View Header */}
       <div className="fema-view-header">
         <div>
-          <div className="fema-role-tag">ROLE 0: SYSTEM ADMINISTRATOR</div>
+
           <h1 className="fema-view-title">
             {activeSection === "health"
               ? "Financial Systems & Integration Health"
@@ -1669,7 +1661,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <div className="fema-kpi-compact-info">
                   <span className="fema-kpi-compact-label">System Admins</span>
                   <span className="fema-kpi-compact-val">{adminCount} Root</span>
-                  <span className="fema-kpi-compact-sub" style={{ color: "#f43f5e" }}>Role 0 Governance</span>
+                  <span className="fema-kpi-compact-sub" style={{ color: "#f43f5e" }}>System Governance</span>
                 </div>
                 <span style={{ fontSize: "20px" }}>🛡️</span>
               </div>
@@ -1929,10 +1921,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               value={newRoleId}
               onChange={(e) => setNewRoleId(Number(e.target.value))}
             >
-              <option value={0}>Role 0: System Administrator (Full System Access)</option>
-              <option value={1}>Role 1: Finance Analyst / Accountable Owner (My Tasks & SLA)</option>
-              <option value={2}>Role 2: Finance Leadership / Executive (CFO KPIs)</option>
-              <option value={3}>Role 3: Compliance Auditor (Audit Trail & Reports)</option>
+              <option value={0}>System Administrator (Full System Access)</option>
+              <option value={1}>Finance Analyst / Accountable Owner (My Tasks & SLA)</option>
+              <option value={2}>Finance Leadership / Executive (CFO KPIs)</option>
+              <option value={3}>Compliance Auditor (Audit Trail & Reports)</option>
             </select>
           </div>
           <div className="fema-modal-actions">

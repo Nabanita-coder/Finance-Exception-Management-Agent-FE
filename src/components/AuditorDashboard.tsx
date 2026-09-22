@@ -38,8 +38,12 @@ export interface HitlGovernance {
   audit_verdict: string;
 }
 
+import type { FinancialRecord, ExceptionCase } from "../App";
+
 interface AuditorDashboardProps {
   activeSection?: "all" | "trail" | "compliance" | "hitl" | "export";
+  records?: FinancialRecord[];
+  exceptions?: ExceptionCase[];
 }
 
 // Departmental compliance mock benchmark data for audit reporting
@@ -104,14 +108,39 @@ const DEPT_BENCHMARKS: DeptSlaBenchmark[] = [
 // ============================================================================
 // DEDICATED DOMAIN CHART: Auditor Compliance & Governance Matrix (Dashboard Only)
 // ============================================================================
-const AuditorGovernanceChart: React.FC = () => {
-  const chartData = [
-    { dept: "Cloud Infra", human: 68, ai: 32, slaRate: 75, target: 95 },
-    { dept: "Ent. Sales", human: 85, ai: 15, slaRate: 93, target: 95 },
-    { dept: "Talent Acq.", human: 80, ai: 20, slaRate: 94, target: 95 },
-    { dept: "Marketing", human: 75, ai: 25, slaRate: 100, target: 95 },
-    { dept: "SMB Ops", human: 90, ai: 10, slaRate: 100, target: 95 },
-  ];
+const AuditorGovernanceChart: React.FC<{ records?: FinancialRecord[], exceptions?: ExceptionCase[] }> = ({ records, exceptions }) => {
+  const chartData = React.useMemo(() => {
+    if (records && records.length > 0) {
+      const grouped = records.reduce((acc: any, r: FinancialRecord) => {
+        const d = r.department || "General";
+        if (!acc[d]) acc[d] = { dept: d, total: 0, human: 75, ai: 25, slaRate: 100, target: 95 };
+        acc[d].total += 1;
+        // Pseudo-dynamic logic for the demo based on budget amount
+        acc[d].human = Math.min(100, 60 + ((r.budget_amount % 1000) % 40));
+        acc[d].ai = 100 - acc[d].human;
+        return acc;
+      }, {});
+      
+      if (exceptions) {
+        exceptions.forEach((e: ExceptionCase) => {
+          const d = e.record?.department || "General";
+          if (grouped[d]) {
+            if (e.status !== "RESOLVED" && e.sla_deadline && new Date(e.sla_deadline).getTime() < Date.now()) {
+              grouped[d].slaRate = Math.max(0, grouped[d].slaRate - 25);
+            }
+          }
+        });
+      }
+      return Object.values(grouped);
+    }
+    return [
+      { dept: "Cloud Infra", human: 68, ai: 32, slaRate: 75, target: 95 },
+      { dept: "Ent. Sales", human: 85, ai: 15, slaRate: 93, target: 95 },
+      { dept: "Talent Acq.", human: 80, ai: 20, slaRate: 94, target: 95 },
+      { dept: "Marketing", human: 75, ai: 25, slaRate: 100, target: 95 },
+      { dept: "SMB Ops", human: 90, ai: 10, slaRate: 100, target: 95 },
+    ];
+  }, [records, exceptions]);
 
   const maxVal = 100;
   const chartHeight = 180;
@@ -276,6 +305,8 @@ const AuditorGovernanceChart: React.FC = () => {
 // ============================================================================
 export const AuditorDashboard: React.FC<AuditorDashboardProps> = ({
   activeSection = "all",
+  records,
+  exceptions,
 }) => {
   const [trail, setTrail] = useState<AuditLogItem[]>([]);
   const [compliance, setCompliance] = useState<SlaCompliance | null>(null);
@@ -376,16 +407,7 @@ export const AuditorDashboard: React.FC<AuditorDashboardProps> = ({
       {/* ==================================================================== */}
       <div className="fema-view-header">
         <div>
-          <div
-            className="fema-role-tag"
-            style={{
-              background: "rgba(217, 119, 6, 0.15)",
-              color: "#fbbf24",
-              border: "1px solid rgba(217, 119, 6, 0.35)",
-            }}
-          >
-            ROLE 3: AUDIT & COMPLIANCE GOVERNANCE
-          </div>
+
           <h1 className="fema-view-title">
             {activeSection === "trail"
               ? "Immutable Cryptographic Audit Trail"
@@ -496,7 +518,7 @@ export const AuditorDashboard: React.FC<AuditorDashboardProps> = ({
               </div>
             </div>
 
-            <AuditorGovernanceChart />
+            <AuditorGovernanceChart records={records} exceptions={exceptions} />
           </div>
 
           {/* Dual Balanced Columns Below Chart */}
