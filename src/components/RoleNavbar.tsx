@@ -13,12 +13,12 @@ interface RoleNavbarProps {
 
 export const RoleNavbar: React.FC<RoleNavbarProps> = ({
   user,
-  activeRole,
+  activeRole: _activeRole,
   onSignOut,
   theme,
   onToggleTheme,
   onNavigateHome,
-  onRoleChange,
+  onRoleChange: _onRoleChange,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -119,16 +119,45 @@ export const RoleNavbar: React.FC<RoleNavbarProps> = ({
                 position: "absolute",
                 top: "calc(100% + 8px)",
                 right: 0,
-                minWidth: "140px",
+                minWidth: "160px",
                 backgroundColor: "var(--fema-surface)",
                 border: "1px solid var(--fema-border-highlight)",
                 borderRadius: "10px",
-                padding: "6px",
+                padding: "8px 6px",
                 boxShadow: "0 10px 25px rgba(0, 0, 0, 0.2)",
                 zIndex: 1000,
                 animation: "femaFadeIn 0.15s ease",
               }}
             >
+              <div
+                style={{
+                  padding: "4px 8px 8px 8px",
+                  borderBottom: "1px solid var(--fema-border, rgba(255, 255, 255, 0.08))",
+                  marginBottom: "6px",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    color: "var(--fema-text-primary)",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {displayName}
+                </div>
+                <div
+                  style={{
+                    fontSize: "11px",
+                    color: "var(--fema-text-muted)",
+                  }}
+                >
+                  {displayHandle}
+                </div>
+              </div>
+
               {/* Action: Log Out */}
               <button
                 onClick={() => {

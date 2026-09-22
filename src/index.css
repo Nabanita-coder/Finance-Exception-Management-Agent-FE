@@ -2097,6 +2097,28 @@ body[data-theme="light"] .landing-hero-gradient {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
+.fema-auth-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #fef2f2;
+  border: 1px solid #f87171;
+  color: #dc2626;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+
+[data-theme="dark"] .fema-auth-error,
+body[data-theme="dark"] .fema-auth-error {
+  background-color: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+}
+
 .fema-demo-accounts {
   margin-top: 20px;
   padding-top: 16px;

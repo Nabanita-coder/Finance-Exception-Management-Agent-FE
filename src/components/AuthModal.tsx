@@ -96,13 +96,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
   };
 
-  const fillTestAccount = (user: string, pass: string) => {
-    setIdentifier(user);
-    setPassword(pass);
-    setMode("login");
-    setErrorMessage("");
-  };
-
   return (
     <Modal
       isOpen={isOpen}
@@ -113,7 +106,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           ? "Access your role-specific financial exception intelligence workspace."
           : "Register and select your organizational role."
       }
-      maxWidth="500px"
+      maxWidth="460px"
     >
       {/* Mode Switcher Tabs */}
       <div className="fema-auth-tabs">
@@ -140,8 +133,38 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       </div>
 
       {errorMessage && (
-        <div className="fema-auth-error" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+        <div
+          className="fema-auth-error"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            backgroundColor: "#fef2f2",
+            border: "1px solid #f87171",
+            color: "#dc2626",
+            padding: "10px 14px",
+            borderRadius: "8px",
+            fontSize: "13px",
+            fontWeight: 600,
+            marginBottom: "16px",
+            lineHeight: "1.4",
+          }}
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#dc2626"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{ flexShrink: 0 }}
+          >
+            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
           <span>{errorMessage}</span>
         </div>
       )}
@@ -207,49 +230,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           >
             {loading ? "Authenticating..." : "Sign In to Dashboard →"}
           </button>
-
-          {/* Quick Demo Test Accounts */}
-          <div className="fema-demo-accounts">
-            <div className="fema-demo-label">Quick Test Sign-In (All 4 Roles):</div>
-            <div className="fema-demo-grid">
-              <button
-                type="button"
-                className="fema-demo-btn admin"
-                onClick={() => fillTestAccount("admin", "admin123")}
-                style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "6px" }}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                <span>Admin (0)</span>
-              </button>
-              <button
-                type="button"
-                className="fema-demo-btn analyst"
-                onClick={() => fillTestAccount("analyst", "analyst123")}
-                style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "6px" }}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
-                <span>Analyst (1)</span>
-              </button>
-              <button
-                type="button"
-                className="fema-demo-btn cfo"
-                onClick={() => fillTestAccount("cfo", "cfo123")}
-                style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "6px" }}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="22" x2="21" y2="22" /><line x1="6" y1="18" x2="6" y2="11" /><line x1="10" y1="18" x2="10" y2="11" /><line x1="14" y1="18" x2="14" y2="11" /><line x1="18" y1="18" x2="18" y2="11" /><polygon points="12 2 20 7 4 7" /></svg>
-                <span>CFO (2)</span>
-              </button>
-              <button
-                type="button"
-                className="fema-demo-btn auditor"
-                onClick={() => fillTestAccount("auditor", "auditor123")}
-                style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "6px" }}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>
-                <span>Auditor (3)</span>
-              </button>
-            </div>
-          </div>
         </form>
       ) : (
         <form onSubmit={handleRegister} className="fema-auth-form">

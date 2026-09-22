@@ -1256,128 +1256,36 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
 
           {/* Role 2: Executive (CFO) Specific Page Buttons */}
           {activeRole === 2 && (
-            <>
-              <button
-                className="fema-nav-btn-smooth"
-                onClick={() => navigateTo('cfo-kpis')}
+            <button
+              className="fema-nav-btn-smooth"
+              onClick={() => navigateTo('cfo-risks')}
+              style={{
+                ...styles.navButton,
+                ...(currentView === 'cfo-risks' ? styles.navButtonActive : {}),
+                justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
+                padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
+              }}
+              title="Escalated Material Risks"
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
+                <Icons.ShieldAlert />
+              </div>
+              <span
+                className="fema-nav-label-smooth"
                 style={{
-                  ...styles.navButton,
-                  ...(currentView === 'cfo-kpis' ? styles.navButtonActive : {}),
-                  justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
+                  opacity: isSidebarCollapsed ? 0 : 1,
+                  maxWidth: isSidebarCollapsed ? '0px' : '200px',
                   overflow: 'hidden',
+                  textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
+                  transform: isSidebarCollapsed ? 'translateX(-8px)' : 'translateX(0)',
                 }}
-                title="Strategic Financial KPIs"
               >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
-                  <Icons.Building />
-                </div>
-                <span
-                  className="fema-nav-label-smooth"
-                  style={{
-                    opacity: isSidebarCollapsed ? 0 : 1,
-                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    transform: isSidebarCollapsed ? 'translateX(-8px)' : 'translateX(0)',
-                  }}
-                >
-                  Strategic Financial KPIs
-                </span>
-              </button>
-              <button
-                className="fema-nav-btn-smooth"
-                onClick={() => navigateTo('cfo-warnings')}
-                style={{
-                  ...styles.navButton,
-                  ...(currentView === 'cfo-warnings' ? styles.navButtonActive : {}),
-                  justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap',
-                }}
-                title="Early Warnings & Covenants"
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
-                  <Icons.WarningTriangle />
-                </div>
-                <span
-                  className="fema-nav-label-smooth"
-                  style={{
-                    opacity: isSidebarCollapsed ? 0 : 1,
-                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    transform: isSidebarCollapsed ? 'translateX(-8px)' : 'translateX(0)',
-                  }}
-                >
-                  Early Warnings & Covenants
-                </span>
-              </button>
-              <button
-                className="fema-nav-btn-smooth"
-                onClick={() => navigateTo('cfo-risks')}
-                style={{
-                  ...styles.navButton,
-                  ...(currentView === 'cfo-risks' ? styles.navButtonActive : {}),
-                  justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap',
-                }}
-                title="Escalated Material Risks"
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
-                  <Icons.ShieldAlert />
-                </div>
-                <span
-                  className="fema-nav-label-smooth"
-                  style={{
-                    opacity: isSidebarCollapsed ? 0 : 1,
-                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    transform: isSidebarCollapsed ? 'translateX(-8px)' : 'translateX(0)',
-                  }}
-                >
-                  Escalated Risks Sign-off
-                </span>
-              </button>
-              <button
-                className="fema-nav-btn-smooth"
-                onClick={() => navigateTo('cfo-brief')}
-                style={{
-                  ...styles.navButton,
-                  ...(currentView === 'cfo-brief' ? styles.navButtonActive : {}),
-                  justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                  padding: isSidebarCollapsed ? '10px' : '8px 12px',
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap',
-                }}
-                title="AI Executive Brief"
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
-                  <Icons.Sparkles />
-                </div>
-                <span
-                  className="fema-nav-label-smooth"
-                  style={{
-                    opacity: isSidebarCollapsed ? 0 : 1,
-                    maxWidth: isSidebarCollapsed ? '0px' : '200px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    transform: isSidebarCollapsed ? 'translateX(-8px)' : 'translateX(0)',
-                  }}
-                >
-                  AI Executive Brief
-                </span>
-              </button>
-            </>
+                Escalated Risks Sign-off
+              </span>
+            </button>
           )}
 
           {/* Role 3: Auditor Specific Page Buttons */}
@@ -1498,8 +1406,8 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
             </>
           )}
 
-          {/* General Ledger & Exceptions */}
-          {(activeRole === 1 || activeRole === 2) && (
+          {/* General Ledger & Exceptions (Analyst Role) */}
+          {activeRole === 1 && (
             <>
               <button
                 className="fema-nav-btn-smooth"

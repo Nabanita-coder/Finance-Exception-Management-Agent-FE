@@ -220,7 +220,7 @@ const AuditorGovernanceChart: React.FC<{ records?: FinancialRecord[], exceptions
         })()}
 
         {/* Columns */}
-        {chartData.map((d, idx) => {
+        {chartData.map((d: any, idx) => {
           const x = startX + idx * (colWidth * 2 + gap);
           const humanH = (d.human / maxVal) * 140;
           const aiH = (d.ai / maxVal) * 140;

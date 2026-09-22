@@ -203,7 +203,7 @@ const AnalystVarianceChart: React.FC<{ tasks: AnalystTask[] }> = ({ tasks }) => 
 // ============================================================================
 export const AnalystDashboard: React.FC<AnalystDashboardProps> = ({
   activeSection = "all",
-  records: propRecords,
+  records: _propRecords,
   exceptions: propExceptions,
 }) => {
   const [tasks, setTasks] = useState<AnalystTask[]>([]);
