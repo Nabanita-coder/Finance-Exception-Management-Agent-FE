@@ -319,12 +319,14 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
   const [theme, setThemeState] = useState<'dark' | 'light'>(() => {
-    const saved = localStorage.getItem('fema_theme');
-    return (saved === 'dark' || saved === 'light') ? saved : 'light';
+    const saved = localStorage.getItem('fema_theme_v2');
+    if (saved === 'dark' || saved === 'light') return saved;
+    return 'dark'; // Default to dark for FEMA aesthetic
   });
 
   const setTheme = (newTheme: 'dark' | 'light') => {
     setThemeState(newTheme);
+    localStorage.setItem('fema_theme_v2', newTheme);
     localStorage.setItem('fema_theme', newTheme);
   };
 
@@ -1172,7 +1174,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
 
 
 
-            {/* Role 2: Executive (CFO) Specific Page Buttons */}
+            {/* Role 2: Executive (CFO) Specific Page Buttons (Clean 3-Page Architecture) */}
             {activeRole === 2 && (
               <>
                 <button
@@ -1186,7 +1188,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                     overflow: 'hidden',
                     whiteSpace: 'nowrap',
                   }}
-                  title="Strategic Financial KPIs"
+                  title="Financial Indicators"
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
                     <Icons.Building />
@@ -1202,37 +1204,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                       transform: isSidebarCollapsed ? 'translateX(-8px)' : 'translateX(0)',
                     }}
                   >
-                    Strategic Financial KPIs
-                  </span>
-                </button>
-                <button
-                  className="fema-nav-btn-smooth"
-                  onClick={() => navigateTo('cfo-warnings')}
-                  style={{
-                    ...styles.navButton,
-                    ...(currentView === 'cfo-warnings' ? styles.navButtonActive : {}),
-                    justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
-                    padding: isSidebarCollapsed ? '10px' : '8px 12px',
-                    overflow: 'hidden',
-                    whiteSpace: 'nowrap',
-                  }}
-                  title="Early Warnings & Covenants"
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
-                    <Icons.WarningTriangle />
-                  </div>
-                  <span
-                    className="fema-nav-label-smooth"
-                    style={{
-                      opacity: isSidebarCollapsed ? 0 : 1,
-                      maxWidth: isSidebarCollapsed ? '0px' : '200px',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                      transform: isSidebarCollapsed ? 'translateX(-8px)' : 'translateX(0)',
-                    }}
-                  >
-                    Early Warnings & Covenants
+                    Financial Indicators
                   </span>
                 </button>
                 <button
@@ -1246,7 +1218,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                     overflow: 'hidden',
                     whiteSpace: 'nowrap',
                   }}
-                  title="Escalated Material Risks"
+                  title="Material Risks & Sign-off"
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
                     <Icons.ShieldAlert />
@@ -1262,24 +1234,24 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                       transform: isSidebarCollapsed ? 'translateX(-8px)' : 'translateX(0)',
                     }}
                   >
-                    Escalated Risks Sign-off
+                    Material Risks &amp; Sign-off
                   </span>
                 </button>
                 <button
                   className="fema-nav-btn-smooth"
-                  onClick={() => navigateTo('cfo-brief')}
+                  onClick={() => navigateTo('chat')}
                   style={{
                     ...styles.navButton,
-                    ...(currentView === 'cfo-brief' ? styles.navButtonActive : {}),
+                    ...(currentView === 'chat' ? styles.navButtonActive : {}),
                     justifyContent: isSidebarCollapsed ? 'center' : 'flex-start',
                     padding: isSidebarCollapsed ? '10px' : '8px 12px',
                     overflow: 'hidden',
                     whiteSpace: 'nowrap',
                   }}
-                  title="AI Executive Brief"
+                  title="FEMA RAG AI Chat"
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, width: '20px' }}>
-                    <Icons.Sparkles />
+                    <Icons.Chat />
                   </div>
                   <span
                     className="fema-nav-label-smooth"
@@ -1292,7 +1264,7 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                       transform: isSidebarCollapsed ? 'translateX(-8px)' : 'translateX(0)',
                     }}
                   >
-                    AI Executive Brief
+                    FEMA RAG AI Chat
                   </span>
                 </button>
               </>
@@ -1416,8 +1388,8 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
               </>
             )}
 
-            {/* General Ledger & Exceptions */}
-            {(activeRole === 1 || activeRole === 2) && (
+            {/* General Ledger & Exceptions (Role 1: Finance Analyst Only) */}
+            {activeRole === 1 && (
               <>
                 <button
                   className="fema-nav-btn-smooth"
@@ -1502,8 +1474,8 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
               </>
             )}
 
-            {/* AI Copilot */}
-            {(activeRole === 1 || activeRole === 2) && (
+            {/* AI Copilot (Analyst View) */}
+            {activeRole === 1 && (
               <button
                 className="fema-nav-btn-smooth"
                 onClick={() => navigateTo('chat')}
@@ -2207,11 +2179,18 @@ export const FemaApp: React.FC<FemaAppProps> = ({ apiBaseUrl = 'http://localhost
                 {/* Sample Prompts */}
                 <div style={styles.promptChips}>
                   <span style={{ fontSize: '12px', color: '#64748b', marginRight: '4px' }}>Try asking:</span>
-                  {[
-                    'Why did revenue decrease?',
-                    'How many critical exceptions are open?',
-                    'Show me overdue SLA cases',
-                  ].map((prompt) => (
+                  {(activeRole === 2
+                    ? [
+                        'Summarize liquidity reserves and covenant risk',
+                        'Which department has the highest budget overrun?',
+                        'How many material exceptions require CFO sign-off?',
+                      ]
+                    : [
+                        'Why did revenue decrease?',
+                        'How many critical exceptions are open?',
+                        'Show me overdue SLA cases',
+                      ]
+                  ).map((prompt) => (
                     <button
                       key={prompt}
                       onClick={() => setChatInput(prompt)}

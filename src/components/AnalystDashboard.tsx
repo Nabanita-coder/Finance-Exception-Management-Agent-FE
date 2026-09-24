@@ -145,8 +145,8 @@ const AnalystRechartsCharts: React.FC<{ tasks: AnalystTask[] }> = ({ tasks }) =>
         <h4 style={{ fontSize: '14px', marginBottom: '16px', color: 'var(--fema-text-primary)' }}>Expense Category Distribution</h4>
         <ResponsiveContainer width="100%" height={220}>
           <PieChart>
-            <Pie data={categoryData} cx="50%" cy="50%" outerRadius={80} paddingAngle={2} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`} labelLine={false}>
-              {categoryData.map((entry, index) => (
+            <Pie data={categoryData} cx="50%" cy="50%" outerRadius={80} paddingAngle={2} dataKey="value" label={({ name, percent }: { name?: string; percent?: number }) => `${name || ''} ${((percent ?? 0) * 100).toFixed(0)}%`} labelLine={false}>
+              {categoryData.map((_, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
             </Pie>
@@ -196,7 +196,7 @@ const AnalystRechartsCharts: React.FC<{ tasks: AnalystTask[] }> = ({ tasks }) =>
 // ============================================================================
 export const AnalystDashboard: React.FC<AnalystDashboardProps> = ({
   activeSection = "all",
-  records: propRecords,
+  records: _propRecords,
   exceptions: propExceptions,
 }) => {
   const [tasks, setTasks] = useState<AnalystTask[]>([]);

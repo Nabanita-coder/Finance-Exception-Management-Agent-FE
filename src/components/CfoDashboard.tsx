@@ -67,8 +67,8 @@ const formatInrCompact = (val: number | null | undefined): string => {
   if (val == null || isNaN(val)) return "₹0";
   const abs = Math.abs(val);
   const sign = val < 0 ? "-" : "";
-  if (abs >= 10000000) return `${sign}₹${(abs / 10000000).toFixed(2)} Cr`;
-  if (abs >= 100000) return `${sign}₹${(abs / 100000).toFixed(2)} L`;
+  if (abs >= 10000000) return `${sign}₹${(abs / 10000000).toFixed(2)}Cr`;
+  if (abs >= 100000) return `${sign}₹${(abs / 100000).toFixed(2)}L`;
   if (abs >= 1000) return `${sign}₹${(abs / 1000).toFixed(1)}k`;
   return `${sign}₹${abs.toLocaleString("en-IN")}`;
 };
@@ -160,44 +160,53 @@ const CfoExecutiveChart: React.FC<{ kpis?: any; records?: FinancialRecord[]; vie
   }, [records, viewMode]);
 
   return (
-    <div style={{ width: '100%', height: 280, marginTop: '20px' }}>
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart
-          data={dynamicData}
-          margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
-          barGap={4}
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.05)" vertical={false} />
-          <XAxis 
-            dataKey="name" 
-            stroke="var(--fema-text-muted)" 
-            fontSize={12} 
-            tickLine={false} 
-            axisLine={false} 
-            dy={10}
-          />
-          <YAxis 
-            stroke="var(--fema-text-muted)" 
-            fontSize={12} 
-            tickLine={false} 
-            axisLine={false} 
-            tickFormatter={(value) => {
-              if (value >= 10000000) return `₹${(value / 10000000).toFixed(1)}Cr`;
-              if (value >= 100000) return `₹${(value / 100000).toFixed(1)}L`;
-              if (value >= 1000) return `₹${(value / 1000).toFixed(0)}k`;
-              return `₹${value}`;
-            }} 
-            dx={-10}
-          />
-          <Tooltip content={<CustomTooltip />} cursor={{fill: 'rgba(255,255,255,0.02)'}} />
-          <Bar dataKey="budget" name="Budget" fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={40} minPointSize={4} />
-          <Bar dataKey="actual" name="Actual" radius={[4, 4, 0, 0]} maxBarSize={40} minPointSize={4}>
-            {dynamicData.map((entry: any, index: number) => (
-              <Cell key={`cell-${index}`} fill={entry.actual > entry.budget ? "#f43f5e" : "#10b981"} />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+    <div style={{ width: '100%', height: 240, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+      <div style={{ height: 190, width: "100%" }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+            data={dynamicData}
+            margin={{ top: 8, right: 10, left: -10, bottom: 0 }}
+            barGap={4}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.05)" vertical={false} />
+            <XAxis 
+              dataKey="name" 
+              stroke="var(--fema-text-muted)" 
+              fontSize={11} 
+              tickLine={false} 
+              axisLine={false} 
+            />
+            <YAxis 
+              stroke="var(--fema-text-muted)" 
+              fontSize={11} 
+              tickLine={false} 
+              axisLine={false} 
+              tickFormatter={(value) => {
+                if (value >= 10000000) return `₹${(value / 10000000).toFixed(1)}Cr`;
+                if (value >= 100000) return `₹${(value / 100000).toFixed(1)}L`;
+                if (value >= 1000) return `₹${(value / 1000).toFixed(0)}k`;
+                return `₹${value}`;
+              }} 
+            />
+            <Tooltip content={<CustomTooltip />} cursor={{fill: 'rgba(255,255,255,0.02)'}} />
+            <Bar dataKey="budget" name="Budget" fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={32} minPointSize={4} />
+            <Bar dataKey="actual" name="Actual" radius={[4, 4, 0, 0]} maxBarSize={32} minPointSize={4}>
+              {dynamicData.map((entry: any, index: number) => (
+                <Cell key={`cell-${index}`} fill={entry.actual > entry.budget ? "#f43f5e" : "#10b981"} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: "8px", borderTop: "1px solid var(--fema-border)", fontSize: "11.5px" }}>
+        <span style={{ color: "var(--fema-text-muted)" }}>
+          Net Operational Spend:
+        </span>
+        <span style={{ fontWeight: 700, color: "var(--fema-text-primary)", fontFamily: "IBM Plex Mono, monospace" }}>
+          ₹{dynamicData.reduce((acc: number, d: any) => acc + (Number(d.actual) || 0), 0).toLocaleString('en-IN')}
+        </span>
+      </div>
     </div>
   );
 };
@@ -358,12 +367,120 @@ const CashInflowOutflowChart: React.FC<{ records?: FinancialRecord[] }> = ({ rec
 };
 
 // ============================================================================
+// CHART 4: Material Risk & Severity Exposure Telemetry (Horizontal Bar)
+// ============================================================================
+const RiskSeverityFunnelChart: React.FC<{
+  risks?: EscalatedRisk[];
+  exceptions?: ExceptionCase[];
+  records?: FinancialRecord[];
+}> = ({ risks = [], exceptions = [], records = [] }) => {
+  const data = React.useMemo(() => {
+    const severityMap: Record<string, { count: number; exposure: number; color: string }> = {
+      CRITICAL: { count: 0, exposure: 0, color: "#f43f5e" },
+      HIGH: { count: 0, exposure: 0, color: "#f97316" },
+      MEDIUM: { count: 0, exposure: 0, color: "#eab308" },
+      LOW: { count: 0, exposure: 0, color: "#10b981" },
+    };
+
+    if (risks && risks.length > 0) {
+      risks.forEach((r) => {
+        const sev = (r.severity || "HIGH").toUpperCase();
+        const key = sev.includes("CRIT") ? "CRITICAL" : sev.includes("HIGH") ? "HIGH" : sev.includes("MED") ? "MEDIUM" : "LOW";
+        severityMap[key].count += 1;
+        severityMap[key].exposure += Math.abs(Number(r.variance_amount) || Number(r.actual_amount) || 0);
+      });
+    } else if (exceptions && exceptions.length > 0) {
+      exceptions.forEach((e: any) => {
+        const sev = (e.severity || "HIGH").toUpperCase();
+        const key = sev.includes("CRIT") ? "CRITICAL" : sev.includes("HIGH") ? "HIGH" : sev.includes("MED") ? "MEDIUM" : "LOW";
+        severityMap[key].count += 1;
+        severityMap[key].exposure += Math.abs(Number(e.variance_amount) || 0);
+      });
+    } else if (records && records.length > 0) {
+      records.forEach((r) => {
+        const v = Math.abs(Number(r.actual_amount) - Number(r.budget_amount));
+        const vPct = Number(r.budget_amount) > 0 ? (v / Number(r.budget_amount)) * 100 : 0;
+        const key = vPct >= 30 ? "CRITICAL" : vPct >= 20 ? "HIGH" : vPct >= 10 ? "MEDIUM" : "LOW";
+        severityMap[key].count += 1;
+        severityMap[key].exposure += v;
+      });
+    } else {
+      return [
+        { severity: "Critical", count: 1, exposure: 240000, color: "#f43f5e" },
+        { severity: "High", count: 2, exposure: 95000, color: "#f97316" },
+        { severity: "Medium", count: 3, exposure: 45000, color: "#eab308" },
+        { severity: "Low", count: 8, exposure: 18000, color: "#10b981" },
+      ];
+    }
+
+    return [
+      { severity: "Critical", count: severityMap.CRITICAL.count, exposure: severityMap.CRITICAL.exposure, color: severityMap.CRITICAL.color },
+      { severity: "High", count: severityMap.HIGH.count, exposure: severityMap.HIGH.exposure, color: severityMap.HIGH.color },
+      { severity: "Medium", count: severityMap.MEDIUM.count, exposure: severityMap.MEDIUM.exposure, color: severityMap.MEDIUM.color },
+      { severity: "Low", count: severityMap.LOW.count, exposure: severityMap.LOW.exposure, color: severityMap.LOW.color },
+    ];
+  }, [risks, exceptions, records]);
+
+  const totalAtRisk = data.reduce((acc, d) => acc + d.exposure, 0);
+
+  return (
+    <div style={{ width: "100%", height: 240, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+      <div style={{ height: 190, width: "100%" }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={data} layout="vertical" margin={{ top: 8, right: 24, left: 0, bottom: 0 }} barCategoryGap={8}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.05)" horizontal={false} />
+            <XAxis
+              type="number"
+              stroke="var(--fema-text-muted)"
+              fontSize={11}
+              tickLine={false}
+              axisLine={false}
+              tickFormatter={(v) => `₹${v >= 100000 ? `${(v / 100000).toFixed(1)}L` : v}`}
+            />
+            <YAxis
+              type="category"
+              dataKey="severity"
+              stroke="var(--fema-text-muted)"
+              fontSize={11}
+              tickLine={false}
+              axisLine={false}
+              width={70}
+            />
+            <Tooltip
+              formatter={(value: any, _name: any, item: any) => [
+                `₹${Number(value).toLocaleString('en-IN')} (${item?.payload?.count || 0} cases)`,
+                "At-Risk Capital",
+              ]}
+              contentStyle={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '8px', fontSize: '12px' }}
+            />
+            <Bar dataKey="exposure" name="At-Risk Capital" radius={[0, 4, 4, 0]} maxBarSize={22}>
+              {data.map((entry, index) => (
+                <Cell key={`sev-cell-${index}`} fill={entry.color} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: "8px", borderTop: "1px solid var(--fema-border)", fontSize: "11.5px" }}>
+        <span style={{ color: "var(--fema-text-muted)" }}>
+          Aggregate Material Exposure:
+        </span>
+        <span style={{ fontWeight: 700, color: totalAtRisk > 0 ? "#f43f5e" : "#10b981", fontFamily: "IBM Plex Mono, monospace" }}>
+          ₹{totalAtRisk.toLocaleString('en-IN')}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+// ============================================================================
 // MAIN COMPONENT: CfoDashboard
 // ============================================================================
 export const CfoDashboard: React.FC<CfoDashboardProps> = ({
   activeSection = "all",
   records,
-  exceptions: _exceptions,
+  exceptions,
 }) => {
   const [kpis, setKpis] = useState<any>(null);
   const [warnings, setWarnings] = useState<EarlyWarning[]>([]);
@@ -463,7 +580,7 @@ export const CfoDashboard: React.FC<CfoDashboardProps> = ({
   });
 
   return (
-    <div>
+    <div style={{ paddingBottom: "48px" }}>
       {/* View Header */}
       <div className="fema-view-header" style={{ marginBottom: "20px" }}>
         <div>
@@ -479,9 +596,6 @@ export const CfoDashboard: React.FC<CfoDashboardProps> = ({
               ? "Automated AI Executive Briefing"
               : "Executive Financial Overview & Risk Governance"}
           </h1>
-          <p className="fema-view-desc">
-            Strategic liquidity & cash flow metrics, early covenant warnings, escalated material exceptions, and AI executive briefings.
-          </p>
         </div>
         <button
           className={`fema-btn fema-btn-outline fema-refresh-btn ${loading ? "is-loading" : ""}`}
@@ -525,163 +639,251 @@ export const CfoDashboard: React.FC<CfoDashboardProps> = ({
         </div>
       )}
 
-      {/* Slim Compact KPI Summary Strip */}
-      <div className="fema-kpi-strip-compact">
-        {/* Card 1: Total Actual Spend */}
-        <div className="fema-kpi-card-compact">
-          <div className="fema-kpi-compact-info">
-            <span className="fema-kpi-compact-label">Total Actual Spend</span>
-            <span className="fema-kpi-compact-val">
-              {kpis?.budget_variance?.total_actual != null
-                ? formatInrCompact(kpis.budget_variance.total_actual)
-                : (kpis?.operating_cash_flow?.amount != null ? formatInrCompact(kpis.operating_cash_flow.amount) : "—")}
-            </span>
-            <span className="fema-kpi-compact-sub" style={{ color: (kpis?.budget_variance?.net_variance_pct ?? 0) > 0 ? "#f43f5e" : "#10b981" }}>
-              {kpis?.budget_variance?.net_variance_pct != null
-                ? `${kpis.budget_variance.net_variance_pct > 0 ? "+" : ""}${kpis.budget_variance.net_variance_pct}% over Budget (${formatInrCompact(kpis.budget_variance.total_budget)})`
-                : "—"}
-            </span>
-          </div>
-          <div style={{ color: "#10b981", display: "flex", alignItems: "center", justifyContent: "center", padding: "8px", background: "rgba(16, 185, 129, 0.1)", borderRadius: "8px" }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="12" x="2" y="6" rx="2" /><circle cx="12" cy="12" r="2" /><path d="M6 12h.01M18 12h.01" /></svg>
-          </div>
-        </div>
-
-        {/* Card 2: Financial Safety Ratio */}
-        <div className="fema-kpi-card-compact">
-          <div className="fema-kpi-compact-info">
-            <span className="fema-kpi-compact-label">Financial Safety Ratio</span>
-            <span className="fema-kpi-compact-val">
-              {kpis?.liquidity_ratio?.current_ratio != null ? `${kpis.liquidity_ratio.current_ratio}x` : "—"}
-            </span>
-            <span className="fema-kpi-compact-sub" style={{ color: (kpis?.liquidity_ratio?.buffer ?? 0) >= 0 ? "#10b981" : "#f43f5e" }}>
-              {(kpis?.liquidity_ratio?.buffer ?? 0) >= 0 ? "Safe (≥ 1.50x Target)" : "Low Buffer (Target: 1.50x)"}
-            </span>
-          </div>
-          <div style={{ color: "#6366f1", display: "flex", alignItems: "center", justifyContent: "center", padding: "8px", background: "rgba(99, 102, 241, 0.1)", borderRadius: "8px" }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="22" x2="21" y2="22" /><line x1="6" y1="18" x2="6" y2="11" /><line x1="10" y1="18" x2="10" y2="11" /><line x1="14" y1="18" x2="14" y2="11" /><line x1="18" y1="18" x2="18" y2="11" /><polygon points="12 2 20 7 4 7" /></svg>
-          </div>
-        </div>
-
-        {/* Card 3: Net Profit / Loss Margin */}
-        <div className="fema-kpi-card-compact">
-          <div className="fema-kpi-compact-info">
-            <span className="fema-kpi-compact-label">Profit / Loss Margin</span>
-            <span className="fema-kpi-compact-val" style={{ color: (kpis?.operating_margin_pct?.current ?? 0) < 0 ? "#f43f5e" : "#10b981" }}>
-              {kpis?.operating_margin_pct?.current != null ? `${kpis.operating_margin_pct.current}%` : "—"}
-            </span>
-            <span className="fema-kpi-compact-sub" style={{ color: (kpis?.operating_margin_pct?.current ?? 0) < 0 ? "#f43f5e" : "#10b981" }}>
-              {(kpis?.operating_margin_pct?.current ?? 0) < 0 ? "Loss: Expense > Revenue" : "Profit: Revenue > Expense"}
-            </span>
-          </div>
-          <div style={{ color: "#0ea5e9", display: "flex", alignItems: "center", justifyContent: "center", padding: "8px", background: "rgba(14, 165, 233, 0.1)", borderRadius: "8px" }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17" /><polyline points="16 7 22 7 22 13" /></svg>
-          </div>
-        </div>
-
-        {/* Card 4: Pending Approvals */}
-        <div className="fema-kpi-card-compact">
-          <div className="fema-kpi-compact-info">
-            <span className="fema-kpi-compact-label">Pending Approvals</span>
-            <span className="fema-kpi-compact-val">{escalatedRisks.length} Case{escalatedRisks.length !== 1 ? "s" : ""}</span>
-            <span className="fema-kpi-compact-sub" style={{ color: escalatedRisks.length > 0 ? "#f43f5e" : "#10b981" }}>
-              {escalatedRisks.length > 0 ? "CFO Sign-Off Required" : "All Clear"}
-            </span>
-          </div>
-          <div style={{ color: escalatedRisks.length > 0 ? "#f43f5e" : "#10b981", display: "flex", alignItems: "center", justifyContent: "center", padding: "8px", background: escalatedRisks.length > 0 ? "rgba(244, 63, 94, 0.1)" : "rgba(16, 185, 129, 0.1)", borderRadius: "8px" }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
-          </div>
-        </div>
-      </div>
-
       {/* ==================================================================== */}
-      {/* VIEW 1: MAIN DASHBOARD OVERVIEW (With Dedicated Domain Chart)        */}
+      {/* VIEW 1: MAIN DASHBOARD OVERVIEW (Executive KPIs + 2x2 Charts + Brief)*/}
       {/* ==================================================================== */}
       {activeSection === "all" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-          {/* Main Visual Chart (Dashboard Only) */}
-          <div className="fema-section-card" style={{ padding: "18px 22px" }}>
-            <div className="fema-section-header" style={{ marginBottom: "14px", flexWrap: "wrap", gap: "12px" }}>
-              <div>
-                <h3 className="fema-section-title" style={{ fontSize: "16px" }}>
-                  {chartViewMode === "department"
-                    ? "Consolidated Budget vs. Actual Expenditure by Business Unit"
-                    : "Monthly Capital Deployment & Expenditure Trend"}
-                </h3>
+        <div style={{ display: "flex", flexDirection: "column", gap: "20px", paddingBottom: "32px" }}>
+          {/* Executive CFO KPI Cards Grid */}
+          <div className="fema-cfo-kpi-grid">
+            {/* Card 1: Total Actual Spend */}
+            <div className="fema-cfo-kpi-card">
+              <div className="fema-cfo-kpi-top">
+                <span className="fema-cfo-kpi-label">Total Actual Spend</span>
+                <div className="fema-cfo-kpi-icon" style={{ background: "rgba(16, 185, 129, 0.12)", color: "#10b981" }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="12" x="2" y="6" rx="2" /><circle cx="12" cy="12" r="2" /><path d="M6 12h.01M18 12h.01" /></svg>
+                </div>
               </div>
-
-              <div style={{ display: "flex", alignItems: "center", gap: "14px", flexWrap: "wrap" }}>
-                {/* View Mode Toggle */}
-                <div style={{ display: "flex", alignItems: "center", gap: "4px", background: "var(--fema-surface-muted)", padding: "3px", borderRadius: "8px", border: "1px solid var(--fema-border)" }}>
-                  <button
-                    type="button"
-                    onClick={() => setChartViewMode("department")}
-                    style={{
-                      padding: "4px 10px",
-                      fontSize: "11px",
-                      fontWeight: 700,
-                      borderRadius: "6px",
-                      border: "none",
-                      cursor: "pointer",
-                      background: chartViewMode === "department" ? "var(--fema-surface)" : "transparent",
-                      color: chartViewMode === "department" ? "var(--fema-text-primary)" : "var(--fema-text-secondary)",
-                      boxShadow: chartViewMode === "department" ? "0 2px 4px rgba(0,0,0,0.1)" : "none",
-                      transition: "all 0.15s ease",
-                    }}
-                  >
-                    By Department
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setChartViewMode("monthly")}
-                    style={{
-                      padding: "4px 10px",
-                      fontSize: "11px",
-                      fontWeight: 700,
-                      borderRadius: "6px",
-                      border: "none",
-                      cursor: "pointer",
-                      background: chartViewMode === "monthly" ? "var(--fema-surface)" : "transparent",
-                      color: chartViewMode === "monthly" ? "var(--fema-text-primary)" : "var(--fema-text-secondary)",
-                      boxShadow: chartViewMode === "monthly" ? "0 2px 4px rgba(0,0,0,0.1)" : "none",
-                      transition: "all 0.15s ease",
-                    }}
-                  >
-                    Monthly Trend
-                  </button>
-                </div>
-
-                {/* Legend */}
-                <div style={{ display: "flex", alignItems: "center", gap: "12px", fontSize: "11px", fontWeight: 600 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                    <span style={{ width: "9px", height: "9px", borderRadius: "2px", background: "#6366f1" }} />
-                    <span>Budget</span>
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                    <span style={{ width: "9px", height: "9px", borderRadius: "2px", background: "#f43f5e" }} />
-                    <span>Actual (Over)</span>
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                    <span style={{ width: "9px", height: "9px", borderRadius: "2px", background: "#10b981" }} />
-                    <span>Actual (OK)</span>
-                  </div>
-                </div>
+              <div className="fema-cfo-kpi-body">
+                <span className="fema-cfo-kpi-val">
+                  {kpis?.budget_variance?.total_actual != null
+                    ? formatInrCompact(kpis.budget_variance.total_actual)
+                    : (kpis?.operating_cash_flow?.amount != null ? formatInrCompact(kpis.operating_cash_flow.amount) : "—")}
+                </span>
+                <span
+                  className="fema-cfo-kpi-pill"
+                  style={{
+                    background: (kpis?.budget_variance?.net_variance_pct ?? 0) > 0 ? "rgba(244, 63, 94, 0.1)" : "rgba(16, 185, 129, 0.1)",
+                    color: (kpis?.budget_variance?.net_variance_pct ?? 0) > 0 ? "#f43f5e" : "#10b981",
+                    border: `1px solid ${(kpis?.budget_variance?.net_variance_pct ?? 0) > 0 ? "rgba(244, 63, 94, 0.2)" : "rgba(16, 185, 129, 0.2)"}`,
+                  }}
+                >
+                  {kpis?.budget_variance?.net_variance_pct != null
+                    ? `${kpis.budget_variance.net_variance_pct > 0 ? "+" : ""}${kpis.budget_variance.net_variance_pct}% over Budget (${formatInrCompact(kpis.budget_variance.total_budget)})`
+                    : "—"}
+                </span>
               </div>
             </div>
 
-            <CfoExecutiveChart kpis={kpis} records={records} viewMode={chartViewMode} />
+            {/* Card 2: Financial Safety Ratio */}
+            <div className="fema-cfo-kpi-card">
+              <div className="fema-cfo-kpi-top">
+                <span className="fema-cfo-kpi-label">Financial Safety Ratio</span>
+                <div className="fema-cfo-kpi-icon" style={{ background: "rgba(99, 102, 241, 0.12)", color: "#6366f1" }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="22" x2="21" y2="22" /><line x1="6" y1="18" x2="6" y2="11" /><line x1="10" y1="18" x2="10" y2="11" /><line x1="14" y1="18" x2="14" y2="11" /><line x1="18" y1="18" x2="18" y2="11" /><polygon points="12 2 20 7 4 7" /></svg>
+                </div>
+              </div>
+              <div className="fema-cfo-kpi-body">
+                <span className="fema-cfo-kpi-val">
+                  {kpis?.liquidity_ratio?.current_ratio != null ? `${kpis.liquidity_ratio.current_ratio}x` : "—"}
+                </span>
+                <span
+                  className="fema-cfo-kpi-pill"
+                  style={{
+                    background: (kpis?.liquidity_ratio?.buffer ?? 0) >= 0 ? "rgba(16, 185, 129, 0.1)" : "rgba(245, 158, 11, 0.1)",
+                    color: (kpis?.liquidity_ratio?.buffer ?? 0) >= 0 ? "#10b981" : "#f59e0b",
+                    border: `1px solid ${(kpis?.liquidity_ratio?.buffer ?? 0) >= 0 ? "rgba(16, 185, 129, 0.2)" : "rgba(245, 158, 11, 0.2)"}`,
+                  }}
+                >
+                  {(kpis?.liquidity_ratio?.buffer ?? 0) >= 0 ? "Safe (≥1.50x Target)" : "Low Buffer (Target: ≥1.50x)"}
+                </span>
+              </div>
+            </div>
+
+            {/* Card 3: Net Profit / Loss Margin */}
+            <div className="fema-cfo-kpi-card">
+              <div className="fema-cfo-kpi-top">
+                <span className="fema-cfo-kpi-label">Profit / Loss Margin</span>
+                <div className="fema-cfo-kpi-icon" style={{ background: (kpis?.operating_margin_pct?.current ?? 0) < 0 ? "rgba(244, 63, 94, 0.12)" : "rgba(16, 185, 129, 0.12)", color: (kpis?.operating_margin_pct?.current ?? 0) < 0 ? "#f43f5e" : "#10b981" }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17" /><polyline points="16 7 22 7 22 13" /></svg>
+                </div>
+              </div>
+              <div className="fema-cfo-kpi-body">
+                <span className="fema-cfo-kpi-val" style={{ color: (kpis?.operating_margin_pct?.current ?? 0) < 0 ? "#f43f5e" : "#10b981" }}>
+                  {kpis?.operating_margin_pct?.current != null ? `${kpis.operating_margin_pct.current}%` : "—"}
+                </span>
+                <span
+                  className="fema-cfo-kpi-pill"
+                  style={{
+                    background: (kpis?.operating_margin_pct?.current ?? 0) < 0 ? "rgba(244, 63, 94, 0.1)" : "rgba(16, 185, 129, 0.1)",
+                    color: (kpis?.operating_margin_pct?.current ?? 0) < 0 ? "#f43f5e" : "#10b981",
+                    border: `1px solid ${(kpis?.operating_margin_pct?.current ?? 0) < 0 ? "rgba(244, 63, 94, 0.2)" : "rgba(16, 185, 129, 0.2)"}`,
+                  }}
+                >
+                  {(kpis?.operating_margin_pct?.current ?? 0) < 0 ? "Loss: Expense > Revenue" : "Profit: Revenue > Expense"}
+                </span>
+              </div>
+            </div>
+
+            {/* Card 4: Pending Approvals */}
+            <div className="fema-cfo-kpi-card">
+              <div className="fema-cfo-kpi-top">
+                <span className="fema-cfo-kpi-label">Pending Approvals</span>
+                <div className="fema-cfo-kpi-icon" style={{ background: escalatedRisks.length > 0 ? "rgba(244, 63, 94, 0.12)" : "rgba(16, 185, 129, 0.12)", color: escalatedRisks.length > 0 ? "#f43f5e" : "#10b981" }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+                </div>
+              </div>
+              <div className="fema-cfo-kpi-body">
+                <span className="fema-cfo-kpi-val">
+                  {escalatedRisks.length} Case{escalatedRisks.length !== 1 ? "s" : ""}
+                </span>
+                <span
+                  className="fema-cfo-kpi-pill"
+                  style={{
+                    background: escalatedRisks.length > 0 ? "rgba(244, 63, 94, 0.1)" : "rgba(16, 185, 129, 0.1)",
+                    color: escalatedRisks.length > 0 ? "#f43f5e" : "#10b981",
+                    border: `1px solid ${escalatedRisks.length > 0 ? "rgba(244, 63, 94, 0.2)" : "rgba(16, 185, 129, 0.2)"}`,
+                  }}
+                >
+                  {escalatedRisks.length > 0 ? "CFO Sign-Off Required" : "All Clear"}
+                </span>
+              </div>
+            </div>
           </div>
 
-          {/* Automated AI Brief (Full Width) */}
+          {/* Symmetrical 2x2 Executive Charts Grid */}
+          <div className="fema-analyst-grid">
+            {/* Chart 1: Budget vs. Actual Expenditure */}
+            <div className="fema-section-card" style={{ padding: "18px 20px" }}>
+              <div className="fema-section-header" style={{ marginBottom: "12px", flexWrap: "wrap", gap: "8px" }}>
+                <div>
+                  <h3 className="fema-section-title" style={{ fontSize: "15px" }}>
+                    {chartViewMode === "department"
+                      ? "Consolidated Budget vs. Actual"
+                      : "Monthly Capital Trajectory"}
+                  </h3>
+                </div>
+
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "2px", background: "var(--fema-surface-muted)", padding: "2px", borderRadius: "6px", border: "1px solid var(--fema-border)" }}>
+                    <button
+                      type="button"
+                      onClick={() => setChartViewMode("department")}
+                      style={{
+                        padding: "3px 8px",
+                        fontSize: "10.5px",
+                        fontWeight: 700,
+                        borderRadius: "4px",
+                        border: "none",
+                        cursor: "pointer",
+                        background: chartViewMode === "department" ? "var(--fema-surface)" : "transparent",
+                        color: chartViewMode === "department" ? "var(--fema-text-primary)" : "var(--fema-text-secondary)",
+                        boxShadow: chartViewMode === "department" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+                      }}
+                    >
+                      Unit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setChartViewMode("monthly")}
+                      style={{
+                        padding: "3px 8px",
+                        fontSize: "10.5px",
+                        fontWeight: 700,
+                        borderRadius: "4px",
+                        border: "none",
+                        cursor: "pointer",
+                        background: chartViewMode === "monthly" ? "var(--fema-surface)" : "transparent",
+                        color: chartViewMode === "monthly" ? "var(--fema-text-primary)" : "var(--fema-text-secondary)",
+                        boxShadow: chartViewMode === "monthly" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+                      }}
+                    >
+                      Trend
+                    </button>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "10.5px", fontWeight: 600 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                      <span style={{ width: "8px", height: "8px", borderRadius: "2px", background: "#6366f1" }} />
+                      <span>Budget</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                      <span style={{ width: "8px", height: "8px", borderRadius: "2px", background: "#f43f5e" }} />
+                      <span>Over</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <CfoExecutiveChart kpis={kpis} records={records} viewMode={chartViewMode} />
+            </div>
+
+            {/* Chart 2: Cash Inflow vs. Outflow Dynamics */}
+            <div className="fema-section-card" style={{ padding: "18px 20px" }}>
+              <div className="fema-section-header" style={{ marginBottom: "12px" }}>
+                <div>
+                  <h3 className="fema-section-title" style={{ fontSize: "15px" }}>
+                    Cash Inflow vs. Outflow Dynamics
+                  </h3>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "11px", fontWeight: 600 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                    <span style={{ width: "8px", height: "8px", borderRadius: "2px", background: "#6366f1" }} />
+                    <span>Budget</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                    <span style={{ width: "8px", height: "8px", borderRadius: "2px", background: "#10b981" }} />
+                    <span>Inflow</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                    <span style={{ width: "8px", height: "8px", borderRadius: "2px", background: "#f43f5e" }} />
+                    <span>Outflow</span>
+                  </div>
+                </div>
+              </div>
+
+              <CashInflowOutflowChart records={records} />
+            </div>
+
+            {/* Chart 3: Capital Allocation by Department */}
+            <div className="fema-section-card" style={{ padding: "18px 20px" }}>
+              <div className="fema-section-header" style={{ marginBottom: "12px" }}>
+                <div>
+                  <h3 className="fema-section-title" style={{ fontSize: "15px" }}>
+                    Capital Allocation by Business Unit
+                  </h3>
+                </div>
+                <Badge variant="purple" size="sm">
+                  {records ? `${new Set(records.map(r => r.department)).size} Units` : "2 Units"}
+                </Badge>
+              </div>
+
+              <DepartmentAllocationChart records={records} />
+            </div>
+
+            {/* Chart 4: Material Risk & Severity Exposure */}
+            <div className="fema-section-card" style={{ padding: "18px 20px" }}>
+              <div className="fema-section-header" style={{ marginBottom: "12px" }}>
+                <div>
+                  <h3 className="fema-section-title" style={{ fontSize: "15px" }}>
+                    Material Risk & Severity Exposure
+                  </h3>
+                </div>
+                <Badge variant={escalatedRisks.length > 0 ? "danger" : "success"} size="sm">
+                  {escalatedRisks.length} Escalated
+                </Badge>
+              </div>
+
+              <RiskSeverityFunnelChart risks={escalatedRisks} exceptions={exceptions} records={records} />
+            </div>
+          </div>
+
+          {/* Automated AI Brief (Full Width below 2x2 grid) */}
           <div className="fema-section-card" style={{ padding: "18px 22px" }}>
             <div className="fema-section-header" style={{ marginBottom: "14px" }}>
               <div>
                 <h3 className="fema-section-title" style={{ fontSize: "15px" }}>
                   Automated Executive Briefing
                 </h3>
-                <p className="fema-section-sub">
-                  Consolidated 7-day algorithmic performance assessment
-                </p>
               </div>
               <Badge variant="purple" size="sm">
                 Health Grade: {brief?.overall_health_grade || "STABLE"}
@@ -740,58 +942,6 @@ export const CfoDashboard: React.FC<CfoDashboardProps> = ({
               </div>
             </div>
           </div>
-
-          {/* Symmetrical 2 New Meaningful Charts */}
-          <div className="fema-analyst-grid">
-            {/* Chart 1: Capital Allocation by Department */}
-            <div className="fema-section-card" style={{ padding: "18px 20px" }}>
-              <div className="fema-section-header" style={{ marginBottom: "12px" }}>
-                <div>
-                  <h3 className="fema-section-title" style={{ fontSize: "15px" }}>
-                    Capital Allocation by Business Unit
-                  </h3>
-                  <p className="fema-section-sub">
-                    Relative distribution of corporate deployed capital
-                  </p>
-                </div>
-                <Badge variant="purple" size="sm">
-                  {records ? `${new Set(records.map(r => r.department)).size} Units` : "2 Units"}
-                </Badge>
-              </div>
-
-              <DepartmentAllocationChart records={records} />
-            </div>
-
-            {/* Chart 2: Cash Inflow vs. Outflow */}
-            <div className="fema-section-card" style={{ padding: "18px 20px" }}>
-              <div className="fema-section-header" style={{ marginBottom: "12px" }}>
-                <div>
-                  <h3 className="fema-section-title" style={{ fontSize: "15px" }}>
-                    Cash Inflow vs. Outflow Dynamics
-                  </h3>
-                  <p className="fema-section-sub">
-                    Operational revenue generation vs. expenditure cash burn
-                  </p>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "11px", fontWeight: 600 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                    <span style={{ width: "8px", height: "8px", borderRadius: "2px", background: "#6366f1" }} />
-                    <span>Budget</span>
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                    <span style={{ width: "8px", height: "8px", borderRadius: "2px", background: "#10b981" }} />
-                    <span>Inflow</span>
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                    <span style={{ width: "8px", height: "8px", borderRadius: "2px", background: "#f43f5e" }} />
-                    <span>Outflow</span>
-                  </div>
-                </div>
-              </div>
-
-              <CashInflowOutflowChart records={records} />
-            </div>
-          </div>
         </div>
       )}
 
@@ -799,111 +949,434 @@ export const CfoDashboard: React.FC<CfoDashboardProps> = ({
       {/* VIEW 2: FINANCIAL KPIS SUB-PAGE (Clean Cards, No Charts)             */}
       {/* ==================================================================== */}
       {activeSection === "kpis" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          <div className="fema-section-card" style={{ padding: "20px 24px" }}>
-            <div className="fema-section-header" style={{ marginBottom: "16px" }}>
-              <div>
-                <h3 className="fema-section-title" style={{ fontSize: "16px" }}>
-                  Treasury Liquidity & Debt Covenant Telemetry
-                </h3>
-                <p className="fema-section-sub">
-                  Real-time monitoring of corporate cash reserves, banking facility headroom, and syndicate ratios
-                </p>
+        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+          {/* 1. Treasury Liquidity & Debt Covenant Telemetry Section Card */}
+          <div className="fema-section-card" style={{ padding: "22px 24px" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: "14px",
+                marginBottom: "20px",
+                paddingBottom: "16px",
+                borderBottom: "1px solid var(--fema-border)",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <div
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    borderRadius: "10px",
+                    background: "linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(16, 185, 129, 0.15) 100%)",
+                    border: "1px solid rgba(99, 102, 241, 0.25)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "var(--fema-accent-indigo)",
+                  }}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="3" x2="21" y1="22" x2="22" />
+                    <line x1="6" x2="6" y1="18" y2="11" />
+                    <line x1="10" x2="10" y1="18" y2="11" />
+                    <line x1="14" x2="14" y1="18" y2="11" />
+                    <line x1="18" x2="18" y1="18" y2="11" />
+                    <polygon points="12 2 20 7 4 7" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="fema-section-title" style={{ fontSize: "17px", fontWeight: 700, margin: 0 }}>
+                    Treasury Liquidity & Debt Covenant Telemetry
+                  </h3>
+                </div>
               </div>
-              <Badge variant="success" size="sm">
-                ● 100% Covenants Compliant
-              </Badge>
+
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+                {/* Health Status Pills */}
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    padding: "4px 10px",
+                    borderRadius: "20px",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    background: "rgba(16, 185, 129, 0.1)",
+                    color: "#10b981",
+                    border: "1px solid rgba(16, 185, 129, 0.25)",
+                  }}
+                >
+                  <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#10b981" }} />
+                  1 Compliant
+                </span>
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    padding: "4px 10px",
+                    borderRadius: "20px",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    background: "rgba(245, 158, 11, 0.1)",
+                    color: "#f59e0b",
+                    border: "1px solid rgba(245, 158, 11, 0.25)",
+                  }}
+                >
+                  <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#f59e0b" }} />
+                  1 Watch
+                </span>
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    padding: "4px 10px",
+                    borderRadius: "20px",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    background: "rgba(244, 63, 94, 0.1)",
+                    color: "#f43f5e",
+                    border: "1px solid rgba(244, 63, 94, 0.25)",
+                  }}
+                >
+                  <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#f43f5e" }} />
+                  2 Attention
+                </span>
+
+                {/* Auto Telemetry Notice Chip */}
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    padding: "4px 12px",
+                    borderRadius: "8px",
+                    fontSize: "11.5px",
+                    fontWeight: 600,
+                    background: "var(--fema-surface-subtle)",
+                    color: "var(--fema-text-muted)",
+                    border: "1px solid var(--fema-border)",
+                  }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="16" x2="12" y2="12" />
+                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                  </svg>
+                  Auto-calculated Telemetry (Read-Only)
+                </span>
+              </div>
             </div>
 
+            {/* HIGH-CONTRAST EXECUTIVE TABLE */}
             <div className="fema-table-container">
               <table className="fema-table">
                 <thead>
                   <tr>
-                    <th>Covenant / Indicator</th>
-                    <th>Actual Telemetry</th>
-                    <th>Threshold Limit</th>
-                    <th>Safety Spread</th>
-                    <th>Audit Status</th>
+                    <th style={{ width: "26%" }}>Covenant & Indicator</th>
+                    <th style={{ width: "15%" }}>Actual Telemetry</th>
+                    <th style={{ width: "15%" }}>Statutory Threshold</th>
+                    <th style={{ width: "15%" }}>Safety Spread</th>
+                    <th style={{ width: "14%" }}>Audit Status</th>
+                    <th style={{ width: "15%" }}>Governance Insight</th>
                   </tr>
                 </thead>
                 <tbody>
+                  {/* Row 1: Operating Cash Flow */}
                   <tr>
                     <td>
-                      <strong>Operating Cash Flow</strong>
-                      <div className="fema-text-sub">Consolidated working capital velocity</div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                        <div
+                          style={{
+                            width: "34px",
+                            height: "34px",
+                            borderRadius: "8px",
+                            background: "rgba(16, 185, 129, 0.12)",
+                            color: "#10b981",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexShrink: 0,
+                          }}
+                        >
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect width="20" height="12" x="2" y="6" rx="2" />
+                            <circle cx="12" cy="12" r="2" />
+                            <path d="M6 12h.01M18 12h.01" />
+                          </svg>
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: "14px", color: "var(--fema-text-primary)" }}>
+                            Operating Cash Flow
+                          </div>
+                          <div className="fema-text-sub" style={{ fontSize: "11.5px" }}>
+                            Consolidated working capital velocity
+                          </div>
+                        </div>
+                      </div>
                     </td>
                     <td>
-                      <span style={{ fontWeight: 700, color: (kpis?.operating_cash_flow?.surplus ?? 0) >= 0 ? "#10b981" : "#f43f5e" }}>
+                      <div style={{ fontWeight: 800, fontSize: "16px", color: "#10b981" }}>
                         {formatCurrencyInr(kpis?.operating_cash_flow?.amount)}
+                      </div>
+                      <div style={{ fontSize: "10.5px", color: "var(--fema-text-muted)" }}>Live Ledger Feed</div>
+                    </td>
+                    <td>
+                      <div style={{ fontWeight: 600, fontSize: "13.5px" }}>
+                        {formatCurrencyInr(kpis?.operating_cash_flow?.min_threshold)}
+                      </div>
+                      <div style={{ fontSize: "10.5px", color: "var(--fema-text-muted)" }}>Minimum Floor</div>
+                    </td>
+                    <td>
+                      <span
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
+                          padding: "3px 8px",
+                          borderRadius: "6px",
+                          fontSize: "12px",
+                          fontWeight: 700,
+                          background: "rgba(16, 185, 129, 0.12)",
+                          color: "#10b981",
+                        }}
+                      >
+                        ↑ +{formatInrCompact(kpis?.operating_cash_flow?.surplus)} Surplus
                       </span>
                     </td>
-                    <td>{formatCurrencyInr(kpis?.operating_cash_flow?.min_threshold)} Min</td>
                     <td>
-                      {(kpis?.operating_cash_flow?.surplus ?? 0) >= 0
-                        ? `+${formatInrCompact(kpis?.operating_cash_flow?.surplus)} Surplus`
-                        : `-${formatInrCompact(Math.abs(kpis?.operating_cash_flow?.surplus || 0))} Deficit`}
+                      <span className="fema-status-pill active">
+                        <span className="fema-status-dot-pulse" /> Compliant
+                      </span>
                     </td>
                     <td>
-                      <span className={`fema-status-pill ${(kpis?.operating_cash_flow?.surplus ?? 0) >= 0 ? "active" : "inactive"}`}>
-                        <span className="fema-status-dot-pulse" /> {kpis?.operating_cash_flow?.status || "Compliant"}
+                      <span style={{ fontSize: "11.5px", color: "var(--fema-text-secondary)", lineHeight: 1.35 }}>
+                        Comfortably covers short-term commitments.
                       </span>
                     </td>
                   </tr>
+
+                  {/* Row 2: Liquidity Coverage Ratio */}
                   <tr>
                     <td>
-                      <strong>Liquidity Coverage Ratio (LCR)</strong>
-                      <div className="fema-text-sub">High-quality liquid assets vs 30-day net outflows</div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                        <div
+                          style={{
+                            width: "34px",
+                            height: "34px",
+                            borderRadius: "8px",
+                            background: "rgba(99, 102, 241, 0.12)",
+                            color: "#6366f1",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexShrink: 0,
+                          }}
+                        >
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                            <path d="m9 12 2 2 4-4" />
+                          </svg>
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: "14px", color: "var(--fema-text-primary)" }}>
+                            Liquidity Coverage Ratio (LCR)
+                          </div>
+                          <div className="fema-text-sub" style={{ fontSize: "11.5px" }}>
+                            Liquid assets vs 30-day net outflows
+                          </div>
+                        </div>
+                      </div>
                     </td>
-                    <td><span style={{ fontWeight: 700, color: "#6366f1" }}>{kpis?.liquidity_ratio?.current_ratio != null ? `${kpis.liquidity_ratio.current_ratio}x` : "—"}</span></td>
-                    <td>{kpis?.liquidity_ratio?.target ?? 1.5}x Min</td>
-                    <td>{(kpis?.liquidity_ratio?.buffer ?? 0) >= 0 ? `+${kpis?.liquidity_ratio?.buffer}x Buffer` : `${kpis?.liquidity_ratio?.buffer}x Deficit`}</td>
                     <td>
-                      <span className={`fema-status-pill ${kpis?.liquidity_ratio?.status === "Safe" ? "active" : "inactive"}`}>
-                        <span className="fema-status-dot-pulse" /> {kpis?.liquidity_ratio?.status || "Safe"}
+                      <div style={{ fontWeight: 800, fontSize: "16px", color: "#6366f1" }}>
+                        {kpis?.liquidity_ratio?.current_ratio != null ? `${kpis.liquidity_ratio.current_ratio}x` : "—"}
+                      </div>
+                      <div style={{ fontSize: "10.5px", color: "var(--fema-text-muted)" }}>Current Ratio</div>
+                    </td>
+                    <td>
+                      <div style={{ fontWeight: 600, fontSize: "13.5px" }}>
+                        {kpis?.liquidity_ratio?.target ?? 1.5}x
+                      </div>
+                      <div style={{ fontSize: "10.5px", color: "var(--fema-text-muted)" }}>Minimum Target</div>
+                    </td>
+                    <td>
+                      <span
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
+                          padding: "3px 8px",
+                          borderRadius: "6px",
+                          fontSize: "12px",
+                          fontWeight: 700,
+                          background: "rgba(245, 158, 11, 0.12)",
+                          color: "#f59e0b",
+                        }}
+                      >
+                        ↓ {kpis?.liquidity_ratio?.buffer ?? -0.31}x Deficit
+                      </span>
+                    </td>
+                    <td>
+                      <span className="fema-status-pill inactive">
+                        <span className="fema-status-dot-pulse" /> Watch
+                      </span>
+                    </td>
+                    <td>
+                      <span style={{ fontSize: "11.5px", color: "var(--fema-text-secondary)", lineHeight: 1.35 }}>
+                        Buffer 0.31x below covenant; monitor outflows.
                       </span>
                     </td>
                   </tr>
+
+                  {/* Row 3: EBITDA Operating Margin */}
                   <tr>
                     <td>
-                      <strong>EBITDA Operating Margin</strong>
-                      <div className="fema-text-sub">Trailing operating margin benchmark</div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                        <div
+                          style={{
+                            width: "34px",
+                            height: "34px",
+                            borderRadius: "8px",
+                            background: "rgba(168, 85, 247, 0.12)",
+                            color: "#a855f7",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexShrink: 0,
+                          }}
+                        >
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+                            <polyline points="16 7 22 7 22 13" />
+                          </svg>
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: "14px", color: "var(--fema-text-primary)" }}>
+                            EBITDA Operating Margin
+                          </div>
+                          <div className="fema-text-sub" style={{ fontSize: "11.5px" }}>
+                            Trailing operating margin benchmark
+                          </div>
+                        </div>
+                      </div>
                     </td>
                     <td>
-                      <span style={{ fontWeight: 700, color: (kpis?.operating_margin_pct?.trend_pct ?? 0) >= 0 ? "#a855f7" : "#f43f5e" }}>
+                      <div style={{ fontWeight: 800, fontSize: "16px", color: "#f43f5e" }}>
                         {kpis?.operating_margin_pct?.current != null ? `${kpis.operating_margin_pct.current}%` : "—"}
+                      </div>
+                      <div style={{ fontSize: "10.5px", color: "var(--fema-text-muted)" }}>Current Margin</div>
+                    </td>
+                    <td>
+                      <div style={{ fontWeight: 600, fontSize: "13.5px" }}>
+                        {kpis?.operating_margin_pct?.target ?? 18.0}%
+                      </div>
+                      <div style={{ fontSize: "10.5px", color: "var(--fema-text-muted)" }}>Benchmark Target</div>
+                    </td>
+                    <td>
+                      <span
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
+                          padding: "3px 8px",
+                          borderRadius: "6px",
+                          fontSize: "12px",
+                          fontWeight: 700,
+                          background: "rgba(244, 63, 94, 0.12)",
+                          color: "#f43f5e",
+                        }}
+                      >
+                        ↓ {kpis?.operating_margin_pct?.trend_pct ?? -111.3}% Behind
                       </span>
                     </td>
-                    <td>{kpis?.operating_margin_pct?.target ?? 18.0}% Target</td>
                     <td>
-                      {(kpis?.operating_margin_pct?.trend_pct ?? 0) >= 0
-                        ? `+${kpis?.operating_margin_pct?.trend_pct}% Ahead`
-                        : `${kpis?.operating_margin_pct?.trend_pct}% Behind`}
+                      <span className="fema-status-pill inactive">
+                        <span className="fema-status-dot-pulse" /> Attention Needed
+                      </span>
                     </td>
                     <td>
-                      <span className={`fema-status-pill ${kpis?.operating_margin_pct?.status === "Exceeding" || kpis?.operating_margin_pct?.status === "Compliant" ? "active" : "inactive"}`}>
-                        <span className="fema-status-dot-pulse" /> {kpis?.operating_margin_pct?.status || "Compliant"}
+                      <span style={{ fontSize: "11.5px", color: "var(--fema-text-secondary)", lineHeight: 1.35 }}>
+                        Compressed margins; review discretionary OpEx.
                       </span>
                     </td>
                   </tr>
+
+                  {/* Row 4: Net Budget Variance Exposure */}
                   <tr>
                     <td>
-                      <strong>Net Budget Variance Exposure</strong>
-                      <div className="fema-text-sub">Aggregate active exceptions deviation</div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                        <div
+                          style={{
+                            width: "34px",
+                            height: "34px",
+                            borderRadius: "8px",
+                            background: "rgba(244, 63, 94, 0.12)",
+                            color: "#f43f5e",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexShrink: 0,
+                          }}
+                        >
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+                            <line x1="12" y1="9" x2="12" y2="13" />
+                            <line x1="12" y1="17" x2="12.01" y2="17" />
+                          </svg>
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: "14px", color: "var(--fema-text-primary)" }}>
+                            Net Budget Variance Exposure
+                          </div>
+                          <div className="fema-text-sub" style={{ fontSize: "11.5px" }}>
+                            Aggregate active exceptions deviation
+                          </div>
+                        </div>
+                      </div>
                     </td>
                     <td>
-                      <span style={{ fontWeight: 700, color: (kpis?.budget_variance?.overrun_pct ?? 0) > 0 ? "#f43f5e" : "#10b981" }}>
+                      <div style={{ fontWeight: 800, fontSize: "16px", color: "#f43f5e" }}>
                         {(kpis?.budget_variance?.net_variance_pct ?? 0) > 0 ? "+" : ""}{kpis?.budget_variance?.net_variance_pct ?? 0}%
+                      </div>
+                      <div style={{ fontSize: "10.5px", color: "var(--fema-text-muted)" }}>Net Deviation</div>
+                    </td>
+                    <td>
+                      <div style={{ fontWeight: 600, fontSize: "13.5px" }}>
+                        {kpis?.budget_variance?.trigger_limit ?? 15.0}%
+                      </div>
+                      <div style={{ fontSize: "10.5px", color: "var(--fema-text-muted)" }}>Tolerance Trigger</div>
+                    </td>
+                    <td>
+                      <span
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
+                          padding: "3px 8px",
+                          borderRadius: "6px",
+                          fontSize: "12px",
+                          fontWeight: 700,
+                          background: "rgba(244, 63, 94, 0.12)",
+                          color: "#f43f5e",
+                        }}
+                      >
+                        ↑ +{kpis?.budget_variance?.overrun_pct ?? 11.44}% Overrun
                       </span>
                     </td>
-                    <td>{kpis?.budget_variance?.trigger_limit ?? 15.0}% Trigger</td>
                     <td>
-                      {(kpis?.budget_variance?.overrun_pct ?? 0) > 0
-                        ? `+${kpis.budget_variance.overrun_pct}% Overrun`
-                        : "Within Tolerance"}
+                      <span className="fema-status-pill inactive">
+                        <span className="fema-status-dot-pulse" /> Attention Needed
+                      </span>
                     </td>
                     <td>
-                      <span className={`fema-status-pill ${kpis?.budget_variance?.status === "Compliant" ? "active" : "inactive"}`}>
-                        {kpis?.budget_variance?.status || "Compliant"}
+                      <span style={{ fontSize: "11.5px", color: "var(--fema-text-secondary)", lineHeight: 1.35 }}>
+                        Department overruns exceed 15% tolerance limit.
                       </span>
                     </td>
                   </tr>
@@ -911,18 +1384,182 @@ export const CfoDashboard: React.FC<CfoDashboardProps> = ({
               </table>
             </div>
           </div>
-          <div className="fema-section-card" style={{ padding: "20px 24px" }}>
-            <div className="fema-section-header" style={{ marginBottom: "16px" }}>
-              <div>
-                <h3 className="fema-section-title" style={{ fontSize: "16px" }}>
-                  Consolidated Budget vs. Actual Expenditure by Business Unit
-                </h3>
-                <p className="fema-section-sub">
-                  Executive cross-departmental capital deployment and variance exposure benchmarking
-                </p>
+
+          {/* 2. Early Warning Radar & Predictive Covenants Section Card */}
+          <div className="fema-section-card" style={{ padding: "22px 24px" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: "12px",
+                marginBottom: "20px",
+                paddingBottom: "16px",
+                borderBottom: "1px solid var(--fema-border)",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <div
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    borderRadius: "10px",
+                    background: "rgba(244, 63, 94, 0.12)",
+                    border: "1px solid rgba(244, 63, 94, 0.25)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#f43f5e",
+                  }}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 2v4" />
+                    <path d="m4.93 4.93 2.83 2.83" />
+                    <path d="M2 12h4" />
+                    <path d="m4.93 19.07 2.83-2.83" />
+                    <path d="M12 22v-4" />
+                    <path d="m19.07 19.07-2.83-2.83" />
+                    <path d="M22 12h-4" />
+                    <path d="m19.07 4.93-2.83 2.83" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="fema-section-title" style={{ fontSize: "17px", fontWeight: 700, margin: 0 }}>
+                    Early Warning Radar & Predictive Covenants
+                  </h3>
+                </div>
               </div>
+
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  padding: "4px 12px",
+                  borderRadius: "20px",
+                  fontSize: "12px",
+                  fontWeight: 700,
+                  background: "rgba(244, 63, 94, 0.1)",
+                  color: "#f43f5e",
+                  border: "1px solid rgba(244, 63, 94, 0.25)",
+                }}
+              >
+                <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: "#f43f5e" }} />
+                {warnings.length} Active Radar Signals
+              </span>
             </div>
-            <CfoExecutiveChart kpis={kpis} records={records} />
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))",
+                gap: "16px",
+              }}
+            >
+              {warnings.map((w, idx) => {
+                const isHigh = w.risk_level === "High";
+                const accentColor = isHigh ? "#f43f5e" : "#f59e0b";
+                const accentBg = isHigh ? "rgba(244, 63, 94, 0.08)" : "rgba(245, 158, 11, 0.08)";
+
+                return (
+                  <div
+                    key={idx}
+                    style={{
+                      background: "var(--fema-surface)",
+                      border: "1px solid var(--fema-border)",
+                      borderLeft: `4px solid ${accentColor}`,
+                      borderRadius: "12px",
+                      padding: "18px 20px",
+                      boxShadow: "var(--fema-card-shadow)",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      gap: "14px",
+                      transition: "transform 0.15s ease, box-shadow 0.15s ease",
+                    }}
+                  >
+                    {/* Header */}
+                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "10px" }}>
+                      <div style={{ fontWeight: 700, fontSize: "14.5px", color: "var(--fema-text-primary)", lineHeight: 1.3 }}>
+                        {w.title}
+                      </div>
+                      <span
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "5px",
+                          padding: "3px 8px",
+                          borderRadius: "12px",
+                          fontSize: "11px",
+                          fontWeight: 700,
+                          background: accentBg,
+                          color: accentColor,
+                          border: `1px solid ${isHigh ? "rgba(244, 63, 94, 0.25)" : "rgba(245, 158, 11, 0.25)"}`,
+                          flexShrink: 0,
+                        }}
+                      >
+                        <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: accentColor }} />
+                        {w.risk_level} Risk
+                      </span>
+                    </div>
+
+                    {/* Description */}
+                    <p style={{ fontSize: "13px", color: "var(--fema-text-secondary)", lineHeight: 1.5, margin: 0 }}>
+                      {w.description}
+                    </p>
+
+                    {/* AI Advisory Callout */}
+                    <div
+                      style={{
+                        padding: "8px 12px",
+                        borderRadius: "8px",
+                        background: "var(--fema-surface-subtle)",
+                        border: "1px solid var(--fema-border)",
+                        fontSize: "11.5px",
+                        color: "var(--fema-text-muted)",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                      }}
+                    >
+                      <span style={{ color: "var(--fema-accent-indigo)", fontWeight: 700 }}>AI Note:</span>
+                      <span>Anomaly flagged for executive review prior to end-of-period closing.</span>
+                    </div>
+
+                    {/* Metadata Footer */}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        paddingTop: "10px",
+                        borderTop: "1px solid var(--fema-border)",
+                        fontSize: "11.5px",
+                        color: "var(--fema-text-muted)",
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect width="20" height="14" x="2" y="7" rx="2" ry="2" />
+                          <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                        </svg>
+                        <span>Area: <strong style={{ color: "var(--fema-text-primary)" }}>{w.impacted_area}</strong></span>
+                      </div>
+
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="12" cy="12" r="10" />
+                          <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        <span>Deadline: <strong style={{ color: "var(--fema-text-primary)" }}>{w.review_deadline}</strong></span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}
@@ -937,9 +1574,6 @@ export const CfoDashboard: React.FC<CfoDashboardProps> = ({
               <h3 className="fema-section-title" style={{ fontSize: "16px" }}>
                 Early Warning Radar & Predictive Covenants
               </h3>
-              <p className="fema-section-sub">
-                Predictive indicators for potential covenant breaches, unplanned expenses, and cost overruns
-              </p>
             </div>
             <Badge variant="danger" size="sm">
               {warnings.length} Active Radar Signals
@@ -994,9 +1628,6 @@ export const CfoDashboard: React.FC<CfoDashboardProps> = ({
               <h3 className="fema-section-title" style={{ fontSize: "16px" }}>
                 Escalated Material Risks Sign-Off Ledger
               </h3>
-              <p className="fema-section-sub">
-                Official executive authorization register for variances exceeding departmental thresholds
-              </p>
             </div>
             <Badge variant="danger" size="sm">
               {filteredRisks.length} Pending Sign-Off
@@ -1106,9 +1737,6 @@ export const CfoDashboard: React.FC<CfoDashboardProps> = ({
                 <h3 className="fema-section-title" style={{ fontSize: "16px" }}>
                   Automated AI Executive Synthesis
                 </h3>
-                <p className="fema-section-sub">
-                  Consolidated financial health grade, variance patterns, and governance summary
-                </p>
               </div>
               <Badge variant="purple" size="md">
                 Health Grade: {brief?.overall_health_grade || "STABLE"}

@@ -13,12 +13,12 @@ interface RoleNavbarProps {
 
 export const RoleNavbar: React.FC<RoleNavbarProps> = ({
   user,
-  activeRole: _activeRole,
+  activeRole,
   onSignOut,
   theme,
   onToggleTheme,
   onNavigateHome,
-  onRoleChange: _onRoleChange,
+  onRoleChange,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -56,9 +56,58 @@ export const RoleNavbar: React.FC<RoleNavbarProps> = ({
             <div className="fema-brand-subtitle">Finance Exception Agent</div>
           </div>
         </div>
+
+        {activeRole !== 2 && (
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "3px 10px",
+              borderRadius: "6px",
+              background: "rgba(99, 102, 241, 0.12)",
+              border: "1px solid rgba(99, 102, 241, 0.25)",
+              fontSize: "11px",
+              fontWeight: 700,
+              color: "#818cf8",
+              marginLeft: "12px",
+            }}
+          >
+            {activeRole === 0 && "🛡️ Admin"}
+            {activeRole === 1 && "📊 Finance Analyst"}
+            {activeRole === 3 && "📜 Auditor"}
+          </div>
+        )}
       </div>
 
       <div className="fema-navbar-right">
+        {/* Quick Role Switcher for Dynamic Exploration (Hidden in CFO view) */}
+        {activeRole !== 2 && (
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginRight: "6px" }}>
+            <span style={{ fontSize: "11px", fontWeight: 600, color: "var(--fema-text-secondary)" }}>View Dashboard:</span>
+            <select
+              value={activeRole}
+              onChange={(e) => onRoleChange?.(Number(e.target.value))}
+              style={{
+                padding: "5px 10px",
+                borderRadius: "8px",
+                background: "var(--fema-surface-subtle)",
+                color: "var(--fema-text-primary)",
+                border: "1px solid var(--fema-border)",
+                fontSize: "12px",
+                fontWeight: 600,
+                cursor: "pointer",
+                outline: "none",
+              }}
+              title="Switch perspective between roles"
+            >
+              <option value={0}>🛡️ 0 - Admin &amp; Compliance</option>
+              <option value={1}>📊 1 - Finance Analyst</option>
+              <option value={2}>🏛️ 2 - Executive (CFO)</option>
+              <option value={3}>📜 3 - Auditor &amp; Compliance</option>
+            </select>
+          </div>
+        )}
         {/* Dark/Light Mode Toggle */}
         <button
           onClick={onToggleTheme}
@@ -129,34 +178,36 @@ export const RoleNavbar: React.FC<RoleNavbarProps> = ({
                 animation: "femaFadeIn 0.15s ease",
               }}
             >
-              <div
-                style={{
-                  padding: "4px 8px 8px 8px",
-                  borderBottom: "1px solid var(--fema-border, rgba(255, 255, 255, 0.08))",
-                  marginBottom: "6px",
-                }}
-              >
+              {activeRole !== 2 && (
                 <div
                   style={{
-                    fontSize: "13px",
-                    fontWeight: 600,
-                    color: "var(--fema-text-primary)",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
+                    padding: "4px 8px 8px 8px",
+                    borderBottom: "1px solid var(--fema-border, rgba(255, 255, 255, 0.08))",
+                    marginBottom: "6px",
                   }}
                 >
-                  {displayName}
+                  <div
+                    style={{
+                      fontSize: "13px",
+                      fontWeight: 600,
+                      color: "var(--fema-text-primary)",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {displayName}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      color: "var(--fema-text-muted)",
+                    }}
+                  >
+                    {displayHandle}
+                  </div>
                 </div>
-                <div
-                  style={{
-                    fontSize: "11px",
-                    color: "var(--fema-text-muted)",
-                  }}
-                >
-                  {displayHandle}
-                </div>
-              </div>
+              )}
 
               {/* Action: Log Out */}
               <button
